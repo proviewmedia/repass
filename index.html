@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Repass — Wallet loyalty & membership programs for local businesses</title>
+<meta name="description" content="Done-for-you Apple & Google Wallet programs for local businesses. Loyalty cards, coupons, and memberships that live in your customers' phones — no app to download." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%230a0a0f'/%3E%3Crect x='5' y='7' width='14' height='10' rx='2' fill='none' stroke='white' stroke-width='1.6'/%3E%3Cpath d='M5 11h14' stroke='white' stroke-width='1.6'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #ffffff;
+    --alt: #f6f6f8;
+    --text: #0a0a0f;
+    --text-soft: #33333d;
+    --muted: #6b7280;
+    --faint: #9ca3af;
+    --border: #ebebf0;
+    --border-strong: #dcdce3;
+    --accent: #4f46e5;
+    --maxw: 1120px;
+    --ease: cubic-bezier(.22,.61,.36,1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "kern" 1, "liga" 1, "cv11" 1;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; }
+  ::selection { background: #4f46e522; }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--text); color: #fff; font-weight: 550; font-size: 15px;
+    padding: 12px 22px; border-radius: 12px; border: 1px solid var(--text);
+    transition: transform .18s var(--ease), box-shadow .25s var(--ease), opacity .2s;
+    cursor: pointer; letter-spacing: -0.01em;
+  }
+  .btn:hover { transform: translateY(-1.5px); box-shadow: 0 12px 28px -12px #0a0a1f80; }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border-strong); box-shadow: none; }
+  .btn.ghost:hover { border-color: var(--text); box-shadow: none; }
+  .btn.sm { padding: 9px 17px; font-size: 14px; }
+
+  /* Official wallet badges */
+  .wallet-badges { display: flex; gap: 12px; flex-wrap: wrap; }
+  .wbadge {
+    display: inline-flex; align-items: center; gap: 9px;
+    background: #0a0a0f; color: #fff; border-radius: 11px;
+    padding: 9px 16px 9px 14px; transition: transform .18s var(--ease), box-shadow .25s var(--ease);
+  }
+  .wbadge:hover { transform: translateY(-1.5px); box-shadow: 0 12px 26px -14px #0a0a1f; }
+  .wbadge .lbl { display: flex; flex-direction: column; line-height: 1.05; }
+  .wbadge .lbl small { font-size: 9.5px; opacity: .72; letter-spacing: .02em; font-weight: 500; }
+  .wbadge .lbl span { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+
+  /* ---------- Nav ---------- */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    background: #ffffffcc; backdrop-filter: saturate(180%) blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: "Poppins", -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 700; letter-spacing: -0.03em; font-size: 18px; }
+  .brand .mark {
+    width: 31px; height: 31px; border-radius: 9px; background: var(--text);
+    display: grid; place-items: center; box-shadow: 0 3px 8px -2px #0a0a1f66;
+  }
+  .nav-links { display: flex; gap: 32px; align-items: center; }
+  .nav-links a:not(.btn) { color: var(--muted); font-size: 14.5px; font-weight: 500; transition: color .15s; letter-spacing: -0.01em; }
+  .nav-links a:not(.btn):hover { color: var(--text); }
+  @media (max-width: 780px) { .nav-links a:not(.btn) { display: none; } }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 88px 0 76px; overflow: hidden; position: relative; }
+  .hero::before {
+    content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background-image: linear-gradient(#0a0a0f05 1px, transparent 1px), linear-gradient(90deg, #0a0a0f05 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(80% 60% at 70% 20%, #000 0%, transparent 75%);
+    -webkit-mask-image: radial-gradient(80% 60% at 70% 20%, #000 0%, transparent 75%);
+  }
+  .hero-grid { position: relative; z-index: 1; display: grid; grid-template-columns: 1.02fr 0.98fr; gap: 56px; align-items: center; }
+  @media (max-width: 920px) { .hero-grid { grid-template-columns: 1fr; gap: 56px; } }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-size: 13px; color: var(--text-soft); font-weight: 550;
+    border: 1px solid var(--border); background: #fff;
+    padding: 6px 14px 6px 11px; border-radius: 999px; margin-bottom: 26px;
+    box-shadow: 0 2px 10px -6px #0a0a1f30;
+  }
+  .eyebrow .g { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px #22c55e26; }
+  h1 {
+    font-size: clamp(38px, 5.8vw, 62px); line-height: 1.01;
+    letter-spacing: -0.04em; font-weight: 680; max-width: 15ch;
+  }
+  h1 em { font-style: normal; color: var(--muted); }
+  .lead { color: var(--muted); font-size: clamp(17px, 2.1vw, 20px); max-width: 46ch; margin-top: 24px; letter-spacing: -0.01em; }
+  .hero-cta { display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap; align-items: center; }
+  .hero-badges { margin-top: 26px; }
+  .hero-badges .cap { font-size: 12px; color: var(--faint); text-transform: uppercase; letter-spacing: .1em; font-weight: 600; margin-bottom: 11px; }
+
+  /* ---------- Phone (Apple Wallet in context) ---------- */
+  .phone-stage { display: flex; justify-content: center; position: relative; }
+  .phone-stage::before {
+    content: ""; position: absolute; inset: -10% -14%;
+    background: radial-gradient(58% 58% at 50% 42%, #4f46e518, transparent 72%);
+    z-index: 0;
+  }
+  .phone {
+    position: relative; z-index: 1;
+    width: 302px; height: 624px; border-radius: 48px;
+    background: linear-gradient(145deg, #26262e, #0a0a0f 55%);
+    padding: 11px;
+    box-shadow: 0 50px 100px -34px #0a0a1f66, 0 8px 24px -12px #0a0a1f40, 0 0 0 1px #00000014, inset 0 0 0 2px #ffffff08;
+  }
+  .phone-screen {
+    position: relative; width: 100%; height: 100%; border-radius: 37px; overflow: hidden;
+    background: linear-gradient(180deg, #f4f4f7 0%, #ececf1 100%);
+    display: flex; flex-direction: column;
+  }
+  .island {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    width: 94px; height: 27px; background: #0a0a0f; border-radius: 999px; z-index: 6;
+  }
+  .statusbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 26px 0; font-size: 13px; font-weight: 600; color: #0a0a0f;
+  }
+  .statusbar .icons { display: flex; align-items: center; gap: 5px; }
+  .wallet-head { padding: 24px 22px 6px; }
+  .wallet-head .t { font-size: 26px; font-weight: 700; letter-spacing: -0.025em; }
+  .wallet-head .s { font-size: 13px; color: var(--muted); margin-top: 1px; }
+  .stack { position: relative; flex: 1; padding: 12px 16px 0; }
+  .stack .pass { position: absolute; left: 16px; right: 16px; width: auto; }
+  .stack .pass:nth-child(1) { top: 0; transform: scale(.94); filter: brightness(.97); z-index: 1; }
+  .stack .pass:nth-child(2) { top: 34px; transform: scale(.97); filter: brightness(.99); z-index: 2; }
+  .stack .pass:nth-child(3) { top: 70px; z-index: 3; }
+
+  /* ---------- The Wallet Pass component ---------- */
+  .pass {
+    --pass-bg: #1c1c28; --pass-fg: #ffffff; --pass-label: #ffffffb0;
+    position: relative; width: 300px; border-radius: 16px; padding: 15px 16px 14px;
+    background: var(--pass-bg); color: var(--pass-fg);
+    box-shadow: 0 14px 34px -14px #0a0a1f45, 0 2px 6px -3px #0a0a1f30;
+    font-size: 13px; overflow: hidden;
+    border: 1px solid #ffffff14;
+  }
+  .pass::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+    background: linear-gradient(155deg, #ffffff20 0%, #ffffff08 22%, transparent 42%);
+  }
+  .pass > * { position: relative; z-index: 1; }
+  .pass-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .pass-brand { display: flex; align-items: center; gap: 8px; font-weight: 650; font-size: 14px; letter-spacing: -0.015em; }
+  .pass-brand .pl {
+    width: 23px; height: 23px; border-radius: 7px; display: grid; place-items: center;
+    background: #ffffff26; font-size: 11px; font-weight: 800; letter-spacing: -0.02em;
+    box-shadow: 0 1px 2px #0000001a;
+  }
+  .field-label { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--pass-label); font-weight: 650; }
+  .field-val { font-size: 14px; font-weight: 600; margin-top: 2px; line-height: 1.2; }
+  .field.right { text-align: right; }
+  .pass-primary { margin: 16px 0 4px; }
+  .pass-primary .field-val { font-size: 29px; font-weight: 720; letter-spacing: -0.025em; }
+  .pass-primary .unit { font-size: 14px; font-weight: 500; color: var(--pass-label); }
+  .pass-sub { display: flex; gap: 26px; margin-top: 14px; }
+  .stamps { display: flex; gap: 6px; margin: 16px 0 6px; flex-wrap: wrap; }
+  .stamp { width: 21px; height: 21px; border-radius: 50%; border: 1.5px solid var(--pass-label); display: grid; place-items: center; }
+  .stamp.on { background: var(--pass-fg); border-color: var(--pass-fg); }
+  .stamp.on svg { stroke: var(--pass-bg); }
+  .barcode-box {
+    background: #fff; border-radius: 8px; padding: 8px; margin-top: 15px;
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+  }
+  .barcode {
+    width: 100%; height: 40px;
+    background-image: repeating-linear-gradient(90deg, #0a0a0f 0, #0a0a0f 2px, #fff 2px, #fff 3px, #0a0a0f 3px, #0a0a0f 4px, #fff 4px, #fff 6px, #0a0a0f 6px, #0a0a0f 9px, #fff 9px, #fff 10px);
+  }
+  .barcode.qr {
+    height: 68px; width: 68px; border-radius: 4px;
+    background-image: linear-gradient(90deg, #0a0a0f 40%, transparent 0), linear-gradient(#0a0a0f 40%, transparent 0);
+    background-size: 8px 8px; background-color: #fff;
+  }
+  .barcode-alt { font-size: 9px; letter-spacing: .14em; color: #6b7280; font-variant-numeric: tabular-nums; }
+
+  /* ---------- Industries strip ---------- */
+  .strip { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--alt); }
+  .strip-inner { display: flex; align-items: center; justify-content: center; gap: 14px 40px; flex-wrap: wrap; padding: 26px 24px; }
+  .strip-inner .lead-lbl { font-size: 12.5px; color: var(--faint); font-weight: 600; letter-spacing: .04em; }
+  .strip-inner .ind { display: inline-flex; align-items: center; gap: 8px; color: var(--text-soft); font-size: 15px; font-weight: 550; letter-spacing: -0.01em; }
+  .strip-inner .ind svg { color: var(--muted); }
+
+  /* ---------- Sections ---------- */
+  section { padding: 92px 0; }
+  section.alt { background: var(--alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .sec-head { max-width: 64ch; margin: 0 auto 56px; text-align: center; }
+  .sec-eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 600; font-size: 12.5px; text-transform: uppercase; letter-spacing: .12em; }
+  .sec-eyebrow::before { content: ""; width: 18px; height: 1px; background: var(--accent); opacity: .5; }
+  .sec-eyebrow::after { content: ""; width: 18px; height: 1px; background: var(--accent); opacity: .5; }
+  h2 { font-size: clamp(29px, 4vw, 42px); letter-spacing: -0.035em; margin-top: 14px; font-weight: 680; line-height: 1.06; }
+  .sec-head p { color: var(--muted); margin-top: 16px; font-size: 17.5px; letter-spacing: -0.01em; }
+
+  /* ---------- Pass gallery ---------- */
+  .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 34px 26px; }
+  @media (max-width: 900px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .gallery { grid-template-columns: 1fr; max-width: 340px; margin: 0 auto; } }
+  .gcell { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .gcell .passwrap { width: 100%; display: flex; justify-content: center; transition: transform .3s var(--ease); }
+  .gcell:hover .passwrap { transform: translateY(-6px); }
+  .gcell .pass { width: 100%; max-width: 320px; }
+  .gcap { text-align: center; }
+  .gcap .type { font-size: 11px; text-transform: uppercase; letter-spacing: .11em; color: var(--accent); font-weight: 650; }
+  .gcap .name { font-size: 15.5px; font-weight: 620; margin-top: 3px; letter-spacing: -0.015em; }
+  .gcap .desc { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+
+  /* ---------- Programs ---------- */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  @media (max-width: 860px) { .grid-3 { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 30px;
+    transition: border-color .25s var(--ease), transform .25s var(--ease), box-shadow .25s var(--ease);
+  }
+  section.alt .card { background: #fff; }
+  .card:hover { border-color: var(--border-strong); transform: translateY(-4px); box-shadow: 0 24px 50px -28px #0a0a1f38; }
+  .card .ic {
+    width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+    background: var(--text); color: #fff; margin-bottom: 20px; box-shadow: 0 6px 14px -6px #0a0a1f80;
+  }
+  .card h3 { font-size: 18.5px; letter-spacing: -0.02em; font-weight: 620; }
+  .card p { color: var(--muted); font-size: 15px; margin-top: 8px; }
+  .card ul { list-style: none; margin-top: 16px; display: flex; flex-direction: column; gap: 9px; }
+  .card li { display: flex; gap: 9px; align-items: flex-start; font-size: 14px; color: var(--text-soft); }
+  .card li svg { flex: none; margin-top: 3px; color: var(--accent); }
+
+  /* ---------- Comparison ---------- */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; max-width: 900px; margin: 0 auto; }
+  @media (max-width: 720px) { .compare { grid-template-columns: 1fr; } }
+  .comp-col { border-radius: 20px; padding: 30px; border: 1px solid var(--border); }
+  .comp-col.old { background: var(--alt); }
+  .comp-col.new { background: #0a0a0f; color: #fff; border-color: #0a0a0f; }
+  .comp-col h3 { font-size: 15px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 9px; margin-bottom: 20px; font-weight: 600; }
+  .comp-col.old h3 { color: var(--muted); }
+  .comp-col .tag { font-size: 10.5px; text-transform: uppercase; letter-spacing: .1em; padding: 3px 9px; border-radius: 999px; font-weight: 700; }
+  .comp-col.old .tag { background: #e5e5ea; color: #6b7280; }
+  .comp-col.new .tag { background: #ffffff1f; color: #fff; }
+  .comp-col ul { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+  .comp-col li { display: flex; gap: 11px; align-items: flex-start; font-size: 15px; }
+  .comp-col.old li { color: var(--text-soft); }
+  .comp-col.new li { color: #e6e6ee; }
+  .comp-col li svg { flex: none; margin-top: 2px; }
+  .comp-col.old li svg { color: var(--faint); }
+  .comp-col.new li svg { color: #4ade80; }
+
+  /* ---------- Steps ---------- */
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; }
+  @media (max-width: 920px) { .steps { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .steps { grid-template-columns: 1fr; } }
+  .step { padding: 28px; border: 1px solid var(--border); border-radius: 20px; background: #fff; position: relative; }
+  .step .num { font-size: 13px; font-weight: 700; color: #fff; background: var(--text); width: 31px; height: 31px; border-radius: 9px; display: grid; place-items: center; margin-bottom: 20px; }
+  .step h3 { font-size: 16.5px; letter-spacing: -0.015em; font-weight: 600; }
+  .step p { color: var(--muted); font-size: 14.5px; margin-top: 8px; }
+
+  /* ---------- Why / stats ---------- */
+  .why { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  @media (max-width: 720px) { .why { grid-template-columns: repeat(2, 1fr); } }
+  .stat-cell { text-align: center; padding: 26px 12px; border: 1px solid var(--border); border-radius: 20px; background: #fff; }
+  .stat { font-size: clamp(30px, 4vw, 40px); font-weight: 720; letter-spacing: -0.04em; }
+  .stat-cell p { color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+  /* ---------- CTA ---------- */
+  .cta {
+    position: relative; overflow: hidden;
+    text-align: center; border-radius: 28px; padding: 72px 28px; color: #fff;
+    background: radial-gradient(130% 150% at 50% -10%, #33334f 0%, #0a0a0f 58%);
+  }
+  .cta::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: linear-gradient(#ffffff0a 1px, transparent 1px), linear-gradient(90deg, #ffffff0a 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(70% 60% at 50% 0%, #000, transparent 72%);
+    -webkit-mask-image: radial-gradient(70% 60% at 50% 0%, #000, transparent 72%);
+  }
+  .cta > * { position: relative; z-index: 1; }
+  .cta .sec-eyebrow { color: #a5b4fc; }
+  .cta .sec-eyebrow::before, .cta .sec-eyebrow::after { background: #a5b4fc; }
+  .cta h2 { max-width: 20ch; margin: 14px auto 0; }
+  .cta p { color: #c7c7d1; margin: 16px auto 32px; max-width: 48ch; font-size: 17px; }
+  .cta .btn { background: #fff; color: var(--text); border-color: #fff; }
+  .cta .btn:hover { box-shadow: 0 12px 30px -12px #00000080; }
+  .cta-note { margin-top: 18px; font-size: 13px; color: #9a9ab0; }
+
+  /* ---------- Footer ---------- */
+  footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
+  .foot-grid { display: flex; justify-content: space-between; align-items: flex-start; gap: 32px; flex-wrap: wrap; }
+  .foot-brand { max-width: 300px; }
+  .foot-brand p { color: var(--muted); font-size: 14px; margin-top: 14px; }
+  .foot-cols { display: flex; gap: 64px; flex-wrap: wrap; }
+  .foot-col h4 { font-size: 12.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); margin-bottom: 14px; font-weight: 650; }
+  .foot-col a { display: block; color: var(--text-soft); font-size: 14.5px; margin-bottom: 10px; transition: color .15s; }
+  .foot-col a:hover { color: var(--text); }
+  .foot-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 44px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--faint); font-size: 13.5px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-inner">
+    <div class="brand">
+      <span class="mark">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/></svg>
+      </span>
+      Repass
+    </div>
+    <div class="nav-links">
+      <a href="#gallery">Examples</a>
+      <a href="#programs">Programs</a>
+      <a href="#how">How it works</a>
+      <a href="#contact" class="btn sm">Start a pilot</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow"><span class="g"></span> No app to download · iPhone &amp; Android</span>
+      <h1>Loyalty cards that live in your customers' <em>phones.</em></h1>
+      <p class="lead">Repass designs and runs Apple &amp; Google Wallet programs for local businesses — loyalty, coupons, and memberships that update themselves. You run your shop. We handle the tech.</p>
+      <div class="hero-cta">
+        <a href="#contact" class="btn">
+          Start a pilot
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#gallery" class="btn ghost">See examples</a>
+      </div>
+      <div class="hero-badges">
+        <div class="cap">One tap to add — works with</div>
+        <div class="wallet-badges">
+          <span class="wbadge">
+            <svg width="20" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M17.05 12.04c-.03-2.6 2.12-3.85 2.22-3.91-1.21-1.77-3.1-2.01-3.77-2.04-1.6-.16-3.13.94-3.94.94-.81 0-2.07-.92-3.4-.9-1.75.03-3.36 1.02-4.26 2.58-1.82 3.15-.46 7.8 1.3 10.36.86 1.25 1.88 2.66 3.22 2.61 1.29-.05 1.78-.83 3.34-.83 1.55 0 2 .83 3.37.81 1.39-.03 2.27-1.28 3.12-2.54.98-1.46 1.39-2.87 1.41-2.94-.03-.01-2.7-1.04-2.73-4.11l.85-.03zM14.6 4.4c.71-.86 1.19-2.06 1.06-3.25-1.02.04-2.26.68-2.99 1.54-.66.76-1.23 1.98-1.08 3.15 1.14.09 2.3-.58 3.01-1.44z"/></svg>
+            <span class="lbl"><small>Add to</small><span>Apple Wallet</span></span>
+          </span>
+          <span class="wbadge">
+            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.5 12.2c0-.7-.06-1.4-.18-2.06H12v3.9h5.9a5.05 5.05 0 0 1-2.19 3.31v2.74h3.54c2.07-1.9 3.25-4.72 3.25-7.89z"/><path fill="#34A853" d="M12 23c2.95 0 5.42-.98 7.23-2.65l-3.54-2.74c-.98.66-2.24 1.05-3.69 1.05-2.84 0-5.24-1.92-6.1-4.5H2.25v2.83A10.94 10.94 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.9 14.16a6.57 6.57 0 0 1 0-4.2V7.13H2.25a11 11 0 0 0 0 9.86l3.65-2.83z"/><path fill="#EA4335" d="M12 5.46c1.6 0 3.04.55 4.17 1.63l3.13-3.13C17.42 2.16 14.95 1 12 1 7.7 1 3.99 3.47 2.25 7.13L5.9 9.96C6.76 7.38 9.16 5.46 12 5.46z"/></svg>
+            <span class="lbl"><small>Add to</small><span>Google Wallet</span></span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Apple Wallet, in context -->
+    <div class="phone-stage">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="island"></div>
+          <div class="statusbar">
+            <span>9:41</span>
+            <span class="icons">
+              <svg width="17" height="11" viewBox="0 0 17 11" fill="#0a0a0f"><rect x="0" y="6" width="3" height="5" rx="1"/><rect x="4.5" y="4" width="3" height="7" rx="1"/><rect x="9" y="2" width="3" height="9" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+              <svg width="16" height="11" viewBox="0 0 16 11" fill="none" stroke="#0a0a0f" stroke-width="1.4"><path d="M1 4.5C4.5 1 11.5 1 15 4.5M3.5 7C6 4.5 10 4.5 12.5 7M6 9.3c1-1 3-1 4 0" stroke-linecap="round"/></svg>
+              <svg width="24" height="12" viewBox="0 0 24 12" fill="none"><rect x="1" y="1" width="20" height="10" rx="2.5" stroke="#0a0a0f" stroke-opacity=".5"/><rect x="2.5" y="2.5" width="15" height="7" rx="1.3" fill="#0a0a0f"/><rect x="22" y="4" width="1.6" height="4" rx="1" fill="#0a0a0f" fill-opacity=".5"/></svg>
+            </span>
+          </div>
+          <div class="wallet-head">
+            <div class="t">Wallet</div>
+            <div class="s">3 passes</div>
+          </div>
+          <div class="stack">
+            <div class="pass" style="--pass-bg:#0f5132;--pass-fg:#ffffff;--pass-label:#ffffffb0;">
+              <div class="pass-row">
+                <div class="pass-brand"><span class="pl">IY</span> Iron Yard</div>
+                <div class="field right"><div class="field-label">Member</div><div class="field-val">All-Access</div></div>
+              </div>
+            </div>
+            <div class="pass" style="--pass-bg:#7c2d4a;--pass-fg:#ffffff;--pass-label:#ffffffb3;">
+              <div class="pass-row">
+                <div class="pass-brand"><span class="pl">BV</span> Bloom &amp; Vine</div>
+                <div class="field right"><div class="field-label">Points</div><div class="field-val">320</div></div>
+              </div>
+            </div>
+            <div class="pass" style="--pass-bg:#3b2a20;--pass-fg:#f5ede2;--pass-label:#f5ede2aa;">
+              <div class="pass-row">
+                <div class="pass-brand"><span class="pl" style="background:#c98a4b;color:#2a1c12;">CL</span> Café Lumen</div>
+                <div class="field right"><div class="field-label">Reward at</div><div class="field-val">10 drinks</div></div>
+              </div>
+              <div class="stamps">
+                <span class="stamp on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <span class="stamp on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <span class="stamp on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <span class="stamp on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <span class="stamp on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <span class="stamp on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <span class="stamp on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <span class="stamp"></span><span class="stamp"></span><span class="stamp"></span>
+              </div>
+              <div class="pass-sub">
+                <div class="field"><div class="field-label">Progress</div><div class="field-val">7 / 10</div></div>
+                <div class="field"><div class="field-label">Member</div><div class="field-val">Ava M.</div></div>
+              </div>
+              <div class="barcode-box">
+                <div class="barcode"></div>
+                <div class="barcode-alt">CL-4821-0075</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= INDUSTRIES STRIP ================= -->
+<div class="strip">
+  <div class="wrap strip-inner">
+    <span class="lead-lbl">Built for</span>
+    <span class="ind"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg> Cafés</span>
+    <span class="ind"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l7 7M6 6L4 8m8 8 8 8M14 6l4-4 4 4-4 4M6 12l6 6"/></svg> Salons</span>
+    <span class="ind"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5 17.5 17.5M4 4l2 2M20 20l-2-2M14.5 6.5 17 4M9.5 17.5 7 20M2 9v6M22 9v6"/></svg> Gyms</span>
+    <span class="ind"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0"/></svg> Boutiques</span>
+    <span class="ind"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h18M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4M4 11l1 8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2l1-8"/></svg> Restaurants</span>
+  </div>
+</div>
+
+<!-- ================= PASS GALLERY ================= -->
+<section id="gallery">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-eyebrow">Examples</span>
+      <h2>What your card could look like.</h2>
+      <p>Every pass is designed in your brand and lives in Apple or Google Wallet — no plastic, no app. A few of the styles we build.</p>
+    </div>
+    <div class="gallery">
+
+      <!-- 1 -->
+      <div class="gcell">
+        <div class="passwrap"><div class="pass" style="--pass-bg:#3b2a20;--pass-fg:#f5ede2;--pass-label:#f5ede2aa;">
+          <div class="pass-row">
+            <div class="pass-brand"><span class="pl" style="background:#c98a4b;color:#2a1c12;">CL</span> Café Lumen</div>
+            <div class="field right"><div class="field-label">Reward at</div><div class="field-val">10 drinks</div></div>
+          </div>
+          <div class="stamps">
+            <span class="stamp on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span class="stamp on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span class="stamp on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span class="stamp on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span class="stamp on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span class="stamp on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span class="stamp on"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+            <span class="stamp"></span><span class="stamp"></span><span class="stamp"></span>
+          </div>
+          <div class="barcode-box"><div class="barcode"></div><div class="barcode-alt">CL-4821-0075</div></div>
+        </div></div>
+        <div class="gcap"><div class="type">Loyalty · Stamp card</div><div class="name">Café Lumen</div><div class="desc">Buy 10, get one free</div></div>
+      </div>
+
+      <!-- 2 -->
+      <div class="gcell">
+        <div class="passwrap"><div class="pass" style="--pass-bg:#7c2d4a;--pass-fg:#ffffff;--pass-label:#ffffffb3;">
+          <div class="pass-row">
+            <div class="pass-brand"><span class="pl" style="background:#f7c9d9;color:#7c2d4a;">BV</span> Bloom &amp; Vine</div>
+            <div class="field right"><div class="field-label">Tier</div><div class="field-val">Rose</div></div>
+          </div>
+          <div class="pass-primary"><div class="field-label">Points balance</div><div class="field-val">320 <span class="unit">pts</span></div></div>
+          <div class="pass-sub">
+            <div class="field"><div class="field-label">Member</div><div class="field-val">Ava Morales</div></div>
+            <div class="field"><div class="field-label">Next reward</div><div class="field-val">80 pts</div></div>
+          </div>
+          <div class="barcode-box"><div class="barcode"></div><div class="barcode-alt">BV-0192-4471</div></div>
+        </div></div>
+        <div class="gcap"><div class="type">Loyalty · Points</div><div class="name">Bloom &amp; Vine</div><div class="desc">Earn points on every purchase</div></div>
+      </div>
+
+      <!-- 3 -->
+      <div class="gcell">
+        <div class="passwrap"><div class="pass" style="--pass-bg:#b3271e;--pass-fg:#fff4e6;--pass-label:#fff4e6b3;">
+          <div class="pass-row">
+            <div class="pass-brand"><span class="pl" style="background:#f5b841;color:#7a2410;">TV</span> Taco Verde</div>
+            <div class="field right"><div class="field-label">Expires</div><div class="field-val">Aug 31</div></div>
+          </div>
+          <div class="pass-primary"><div class="field-label">Your offer</div><div class="field-val">20% OFF</div></div>
+          <div class="pass-sub">
+            <div class="field"><div class="field-label">Applies to</div><div class="field-val">Next order</div></div>
+            <div class="field"><div class="field-label">Code</div><div class="field-val">VERDE20</div></div>
+          </div>
+          <div class="barcode-box"><div class="barcode"></div><div class="barcode-alt">TV-COUPON-20OFF</div></div>
+        </div></div>
+        <div class="gcap"><div class="type">Coupon · Promo</div><div class="name">Taco Verde</div><div class="desc">Redeemable, one-tap offers</div></div>
+      </div>
+
+      <!-- 4 -->
+      <div class="gcell">
+        <div class="passwrap"><div class="pass" style="--pass-bg:#141416;--pass-fg:#ffffff;--pass-label:#ffffff99;">
+          <div class="pass-row">
+            <div class="pass-brand"><span class="pl" style="background:#d4af37;color:#141416;">FR</span> Fade Room</div>
+            <div class="field right"><div class="field-label">Status</div><div class="field-val">Gold</div></div>
+          </div>
+          <div class="pass-primary"><div class="field-label">Membership</div><div class="field-val">Unlimited</div></div>
+          <div class="pass-sub">
+            <div class="field"><div class="field-label">Member since</div><div class="field-val">2026</div></div>
+            <div class="field"><div class="field-label">Visits</div><div class="field-val">18</div></div>
+          </div>
+          <div class="barcode-box"><div class="barcode"></div><div class="barcode-alt">FR-GOLD-3390</div></div>
+        </div></div>
+        <div class="gcap"><div class="type">Membership</div><div class="name">Fade Room</div><div class="desc">Tiers, status &amp; perks</div></div>
+      </div>
+
+      <!-- 5 -->
+      <div class="gcell">
+        <div class="passwrap"><div class="pass" style="--pass-bg:#0f5132;--pass-fg:#eafff4;--pass-label:#eafff4a6;">
+          <div class="pass-row">
+            <div class="pass-brand"><span class="pl" style="background:#42d392;color:#063b23;">IY</span> Iron Yard</div>
+            <div class="field right"><div class="field-label">Access</div><div class="field-val">All hours</div></div>
+          </div>
+          <div class="pass-primary"><div class="field-label">Plan</div><div class="field-val">All-Access</div></div>
+          <div class="pass-sub">
+            <div class="field"><div class="field-label">Member</div><div class="field-val">M. Morales</div></div>
+            <div class="field"><div class="field-label">ID</div><div class="field-val">#0451</div></div>
+          </div>
+          <div class="barcode-box"><div class="barcode qr"></div><div class="barcode-alt">IY-0451</div></div>
+        </div></div>
+        <div class="gcap"><div class="type">Membership · Access</div><div class="name">Iron Yard</div><div class="desc">Scan-in with a QR code</div></div>
+      </div>
+
+      <!-- 6 -->
+      <div class="gcell">
+        <div class="passwrap"><div class="pass" style="--pass-bg:#1e3a5f;--pass-fg:#eaf2ff;--pass-label:#eaf2ffa6;">
+          <div class="pass-row">
+            <div class="pass-brand"><span class="pl" style="background:#7fb2ff;color:#0f2340;">CM</span> Corner Market</div>
+            <div class="field right"><div class="field-label">Card</div><div class="field-val">Store</div></div>
+          </div>
+          <div class="pass-primary"><div class="field-label">Balance</div><div class="field-val">$45.00</div></div>
+          <div class="pass-sub">
+            <div class="field"><div class="field-label">Member</div><div class="field-val">A. Morales</div></div>
+            <div class="field"><div class="field-label">Since</div><div class="field-val">May 2026</div></div>
+          </div>
+          <div class="barcode-box"><div class="barcode"></div><div class="barcode-alt">CM-8820-1174</div></div>
+        </div></div>
+        <div class="gcap"><div class="type">Store card</div><div class="name">Corner Market</div><div class="desc">Reloadable store credit</div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROGRAMS ================= -->
+<section id="programs" class="alt">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-eyebrow">Programs</span>
+      <h2>Three ways to bring customers back.</h2>
+      <p>Start with one or run all three. Each is a branded pass your customers keep in their wallet.</p>
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M8.5 9.5a2.5 2.5 0 0 1 5 0c0 3-5 1.5-5 4a2.5 2.5 0 0 0 5 0"/></svg></div>
+        <h3>Loyalty &amp; stamp cards</h3>
+        <p>Digital punch cards and points that track themselves.</p>
+        <ul>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Buy-9-get-1-free, or points</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Updates instantly at the counter</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Never lost, never reprinted</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H4a1 1 0 0 0-1 1v5l11 11 6-6L9 3Z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor"/></svg></div>
+        <h3>Coupons &amp; promos</h3>
+        <p>Redeemable offers delivered straight to the wallet.</p>
+        <ul>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Percent-off, BOGO, first-visit</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Set an expiry date</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Push to everyone who holds it</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg></div>
+        <h3>Membership &amp; store cards</h3>
+        <p>VIP tiers, gym access, store credit — always current.</p>
+        <ul>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Tiers, status &amp; member IDs</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> QR / barcode scan-in</li>
+          <li><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Message members directly</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COMPARISON ================= -->
+<section id="why">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-eyebrow">The difference</span>
+      <h2>The punch card, reinvented.</h2>
+      <p>Everything a paper card can't do — because the wallet is already open on every phone.</p>
+    </div>
+    <div class="compare">
+      <div class="comp-col old">
+        <h3><span class="tag">Paper punch card</span></h3>
+        <ul>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Left at home or lost in a drawer</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Reprint and restock forever</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg> No way to reach a customer again</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Zero data on who's coming back</li>
+        </ul>
+      </div>
+      <div class="comp-col new">
+        <h3><span class="tag">Repass wallet pass</span></h3>
+        <ul>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Always in the phone, next to boarding passes</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Nothing to print — ever</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Push an offer to every holder in seconds</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> See visits, redemptions &amp; repeat rate</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section id="how" class="alt">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-eyebrow">How it works</span>
+      <h2>Live in about a week — you do almost nothing.</h2>
+      <p>We handle the Apple Developer account, the certificates, the design, and the software behind it.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><h3>Share your brand</h3><p>Send your logo, colors, and what the card rewards. We design a pass that matches your shop.</p></div>
+      <div class="step"><div class="num">2</div><h3>We deploy it</h3><p>We build the program on our infrastructure and set up your sign-up page and staff scanner.</p></div>
+      <div class="step"><div class="num">3</div><h3>Customers join</h3><p>They tap an NFC card or scan a QR at the counter and the pass drops into their wallet.</p></div>
+      <div class="step"><div class="num">4</div><h3>It runs itself</h3><p>Staff scan to add points or redeem. Passes update instantly, and you push offers anytime.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STATS ================= -->
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-eyebrow">Why wallet passes</span>
+      <h2>Because the wallet is already open.</h2>
+    </div>
+    <div class="why">
+      <div class="stat-cell"><div class="stat">0</div><p>apps to download</p></div>
+      <div class="stat-cell"><div class="stat">1 tap</div><p>to join at the counter</p></div>
+      <div class="stat-cell"><div class="stat">iOS + Android</div><p>covered from day one</p></div>
+      <div class="stat-cell"><div class="stat">Anytime</div><p>push offers to every holder</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section id="contact">
+  <div class="wrap">
+    <div class="cta">
+      <span class="sec-eyebrow">Concept preview</span>
+      <h2>Be one of our first pilot shops.</h2>
+      <p>We're taking on a small number of local businesses to launch with. Free setup for pilot partners in exchange for feedback.</p>
+      <a href="mailto:hello@proviewmedia.co?subject=Wallet%20pass%20pilot" class="btn">
+        Book a pilot
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <div class="cta-note">No commitment · We build the first pass free</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="brand">
+          <span class="mark" style="width:26px;height:26px;border-radius:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M2 10h20"/></svg>
+          </span>
+          Repass
+        </div>
+        <p>Done-for-you Apple &amp; Google Wallet programs for local businesses.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col">
+          <h4>Product</h4>
+          <a href="#gallery">Examples</a>
+          <a href="#programs">Programs</a>
+          <a href="#how">How it works</a>
+        </div>
+        <div class="foot-col">
+          <h4>Company</h4>
+          <a href="#contact">Start a pilot</a>
+          <a href="mailto:hello@proviewmedia.co">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Proview Media Co.</span>
+      <span>Concept preview</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
