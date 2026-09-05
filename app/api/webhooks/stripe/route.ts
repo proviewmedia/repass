@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sendBusinessWelcomeEmail } from "@/lib/resend";
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -33,6 +34,22 @@ export async function POST(request: NextRequest) {
             subscription_status: "active",
           })
           .eq("id", businessId);
+
+        const { data: business } = await supabase
+          .from("businesses")
+          .select("name, owner_user_id")
+          .eq("id", businessId)
+          .single();
+
+        if (business) {
+          const { data: owner } = await supabase.auth.admin.getUserById(business.owner_user_id);
+          const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+          if (owner.user?.email && appUrl) {
+            await sendBusinessWelcomeEmail(owner.user.email, business.name, `${appUrl}/dashboard`).catch((err) =>
+              console.error("Failed to send business welcome email", err),
+            );
+          }
+        }
       }
       break;
     }

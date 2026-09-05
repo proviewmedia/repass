@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createPass } from "@/lib/wallet";
+import { sendWalletLinkEmail } from "@/lib/resend";
 
 export async function joinProgram(slug: string, formData: FormData) {
   const name = String(formData.get("name") || "").trim();
@@ -58,6 +59,12 @@ export async function joinProgram(slug: string, formData: FormData) {
 
   if (insertError) {
     redirect(`/join/${slug}?error=${encodeURIComponent("Something went wrong saving your details — please try again.")}`);
+  }
+
+  if (email) {
+    await sendWalletLinkEmail(email, business!.name, pass.shareUrl).catch((err) =>
+      console.error("Failed to send wallet link email", err),
+    );
   }
 
   redirect(`/join/${slug}/success?shareUrl=${encodeURIComponent(pass.shareUrl)}&name=${encodeURIComponent(name)}`);
