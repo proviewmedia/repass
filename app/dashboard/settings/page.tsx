@@ -6,7 +6,7 @@ import SettingsForm from "./SettingsForm";
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams: { error?: string; saved?: string };
+  searchParams: { error?: string; saved?: string; previewUrl?: string };
 }) {
   const supabase = await createClient();
   const {
@@ -20,7 +20,7 @@ export default async function SettingsPage({
   const { data: business } = await supabase
     .from("businesses")
     .select(
-      "name, program_name, color_preset, logo_url, points_per_action, reward_threshold, reward_description",
+      "name, program_name, color_preset, logo_url, wide_logo_url, icon_url, thumbnail_url, strip_url, sharing_prohibited, points_per_action, reward_threshold, reward_description",
     )
     .eq("owner_user_id", user!.id)
     .single();
@@ -45,12 +45,18 @@ export default async function SettingsPage({
               programName: business!.program_name || business!.name,
               colorPreset: business!.color_preset,
               logoUrl: business!.logo_url,
+              wideLogoUrl: business!.wide_logo_url,
+              iconUrl: business!.icon_url,
+              thumbnailUrl: business!.thumbnail_url,
+              stripUrl: business!.strip_url,
+              allowSharing: !business!.sharing_prohibited,
               pointsPerAction: business!.points_per_action,
               rewardThreshold: business!.reward_threshold,
               rewardDescription: business!.reward_description,
             }}
             error={searchParams.error}
             saved={searchParams.saved === "1"}
+            previewUrl={searchParams.previewUrl}
           />
         </div>
       </div>

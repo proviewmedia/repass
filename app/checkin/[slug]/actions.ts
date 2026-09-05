@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { updatePass } from "@/lib/wallet";
+import { BUSINESS_BRANDING_COLUMNS, toPassBusinessInput, updatePass } from "@/lib/wallet";
 import { checkinCookieName, CHECKIN_COOLDOWN_MS } from "@/lib/checkin";
 
 export async function checkIn(slug: string, customerId: string) {
@@ -11,9 +11,7 @@ export async function checkIn(slug: string, customerId: string) {
 
   const { data: business } = await supabase
     .from("businesses")
-    .select(
-      "id, name, program_name, color_preset, logo_url, points_per_action, reward_threshold, reward_description, subscription_status",
-    )
+    .select(`id, points_per_action, subscription_status, ${BUSINESS_BRANDING_COLUMNS}`)
     .eq("slug", slug)
     .single();
 
@@ -56,14 +54,7 @@ export async function checkIn(slug: string, customerId: string) {
     resulting_balance: newBalance,
   });
 
-  const branding = {
-    name: business!.name,
-    programName: business!.program_name,
-    colorPreset: business!.color_preset,
-    logoUrl: business!.logo_url,
-    rewardThreshold: business!.reward_threshold,
-    rewardDescription: business!.reward_description,
-  };
+  const branding = toPassBusinessInput(business!);
 
   if (customer!.walletwallet_serial) {
     await updatePass(customer!.walletwallet_serial, branding, {

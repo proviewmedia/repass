@@ -17,6 +17,11 @@ export interface PassBusinessInput {
   /** Either a known preset name ("dark", "blue", …) or a "#rrggbb" custom hex color — see isCustomHexColor. */
   colorPreset?: string | null;
   logoUrl?: string | null;
+  wideLogoUrl?: string | null;
+  iconUrl?: string | null;
+  thumbnailUrl?: string | null;
+  stripUrl?: string | null;
+  sharingProhibited?: boolean | null;
   rewardThreshold?: number | null;
   rewardDescription?: string | null;
 }
@@ -36,7 +41,7 @@ export function renderPunchCircles(pointsBalance: number, rewardThreshold: numbe
   return "●".repeat(filled) + "○".repeat(total - filled);
 }
 
-function renderNextRewardMessage(
+export function renderNextRewardMessage(
   pointsBalance: number,
   rewardThreshold: number | null | undefined,
   rewardDescription: string | null | undefined,
@@ -47,6 +52,42 @@ function renderNextRewardMessage(
   return remaining === rewardThreshold
     ? `${remaining} points to ${reward}!`
     : `${remaining} more point${remaining === 1 ? "" : "s"} to ${reward}!`;
+}
+
+// Column list for `.select()` calls against `businesses` wherever a pass needs to be
+// built — pair with toPassBusinessInput() so a new branding field only has to be
+// threaded through in one place instead of every call site.
+export const BUSINESS_BRANDING_COLUMNS =
+  "name, program_name, color_preset, logo_url, wide_logo_url, icon_url, thumbnail_url, strip_url, sharing_prohibited, reward_threshold, reward_description";
+
+export interface BusinessBrandingRow {
+  name: string;
+  program_name?: string | null;
+  color_preset?: string | null;
+  logo_url?: string | null;
+  wide_logo_url?: string | null;
+  icon_url?: string | null;
+  thumbnail_url?: string | null;
+  strip_url?: string | null;
+  sharing_prohibited?: boolean | null;
+  reward_threshold?: number | null;
+  reward_description?: string | null;
+}
+
+export function toPassBusinessInput(row: BusinessBrandingRow): PassBusinessInput {
+  return {
+    name: row.name,
+    programName: row.program_name,
+    colorPreset: row.color_preset,
+    logoUrl: row.logo_url,
+    wideLogoUrl: row.wide_logo_url,
+    iconUrl: row.icon_url,
+    thumbnailUrl: row.thumbnail_url,
+    stripUrl: row.strip_url,
+    sharingProhibited: row.sharing_prohibited,
+    rewardThreshold: row.reward_threshold,
+    rewardDescription: row.reward_description,
+  };
 }
 
 export interface PassCustomerInput {
@@ -101,6 +142,21 @@ export function buildPassBody(business: PassBusinessInput, customer: PassCustome
 
   if (business.logoUrl) {
     body.logoURL = business.logoUrl;
+  }
+  if (business.wideLogoUrl) {
+    body.wideLogoURL = business.wideLogoUrl;
+  }
+  if (business.iconUrl) {
+    body.iconURL = business.iconUrl;
+  }
+  if (business.thumbnailUrl) {
+    body.thumbnailURL = business.thumbnailUrl;
+  }
+  if (business.stripUrl) {
+    body.stripURL = business.stripUrl;
+  }
+  if (business.sharingProhibited != null) {
+    body.sharingProhibited = business.sharingProhibited;
   }
 
   return body;

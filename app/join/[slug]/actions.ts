@@ -4,7 +4,7 @@ import { randomUUID } from "crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createPass } from "@/lib/wallet";
+import { BUSINESS_BRANDING_COLUMNS, createPass, toPassBusinessInput } from "@/lib/wallet";
 import { sendWalletLinkEmail } from "@/lib/resend";
 import { checkinCookieName } from "@/lib/checkin";
 
@@ -20,7 +20,7 @@ export async function joinProgram(slug: string, formData: FormData) {
   const supabase = createAdminClient();
   const { data: business } = await supabase
     .from("businesses")
-    .select("id, name, program_name, color_preset, logo_url, reward_threshold, reward_description, subscription_status")
+    .select(`id, subscription_status, ${BUSINESS_BRANDING_COLUMNS}`)
     .eq("slug", slug)
     .single();
 
@@ -33,17 +33,7 @@ export async function joinProgram(slug: string, formData: FormData) {
 
   let pass;
   try {
-    pass = await createPass(
-      {
-        name: business!.name,
-        programName: business!.program_name,
-        colorPreset: business!.color_preset,
-        logoUrl: business!.logo_url,
-        rewardThreshold: business!.reward_threshold,
-        rewardDescription: business!.reward_description,
-      },
-      { id: customerId, pointsBalance: 0, notification: NOT_STARTED },
-    );
+    pass = await createPass(toPassBusinessInput(business!), { id: customerId, pointsBalance: 0, notification: NOT_STARTED });
   } catch {
     redirect(`/join/${slug}?error=${encodeURIComponent("Couldn't create your card right now — please try again.")}`);
   }

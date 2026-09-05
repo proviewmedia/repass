@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { revokePass, updatePass } from "@/lib/wallet";
+import { BUSINESS_BRANDING_COLUMNS, revokePass, toPassBusinessInput, updatePass, type BusinessBrandingRow } from "@/lib/wallet";
 
 async function requireOwnedCustomer(customerId: string) {
   const supabase = await createClient();
@@ -17,7 +17,7 @@ async function requireOwnedCustomer(customerId: string) {
   const { data } = await supabase
     .from("customers")
     .select(
-      "id, name, business_id, points_balance, last_notification, walletwallet_serial, businesses!inner(owner_user_id, name, program_name, color_preset, logo_url, reward_threshold, reward_description)",
+      `id, name, business_id, points_balance, last_notification, walletwallet_serial, businesses!inner(owner_user_id, ${BUSINESS_BRANDING_COLUMNS})`,
     )
     .eq("id", customerId)
     .is("removed_at", null)
@@ -30,15 +30,7 @@ async function requireOwnedCustomer(customerId: string) {
     points_balance: number;
     last_notification: string;
     walletwallet_serial: string | null;
-    businesses: {
-      owner_user_id: string;
-      name: string;
-      program_name: string | null;
-      color_preset: string | null;
-      logo_url: string | null;
-      reward_threshold: number;
-      reward_description: string;
-    };
+    businesses: BusinessBrandingRow & { owner_user_id: string };
   } | null;
 
   if (!customer || customer.businesses.owner_user_id !== user!.id) {
@@ -82,14 +74,7 @@ export async function updateCustomer(customerId: string, formData: FormData) {
     if (customer.walletwallet_serial) {
       await updatePass(
         customer.walletwallet_serial,
-        {
-          name: business.name,
-          programName: business.program_name,
-          colorPreset: business.color_preset,
-          logoUrl: business.logo_url,
-          rewardThreshold: business.reward_threshold,
-          rewardDescription: business.reward_description,
-        },
+        toPassBusinessInput(business),
         { id: customerId, pointsBalance, notification: customer.last_notification },
       ).catch((err) => console.error(`Failed to push manual balance edit for customer ${customerId}`, err));
     }

@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { updateSettings } from "./actions";
-import { renderPunchCircles } from "@/lib/wallet";
+import { useEffect, useRef, useState } from "react";
+import QRCode from "qrcode";
+import { updateSettings, previewCard } from "./actions";
+import { renderPunchCircles, renderNextRewardMessage } from "@/lib/wallet";
 
 const COLOR_PRESETS: { value: string; label: string; hex: string }[] = [
   { value: "dark", label: "Dark", hex: "#18181b" },
@@ -20,15 +21,79 @@ interface Props {
     programName: string;
     colorPreset: string;
     logoUrl: string | null;
+    wideLogoUrl: string | null;
+    iconUrl: string | null;
+    thumbnailUrl: string | null;
+    stripUrl: string | null;
+    allowSharing: boolean;
     pointsPerAction: number;
     rewardThreshold: number;
     rewardDescription: string;
   };
   error?: string;
   saved?: boolean;
+  previewUrl?: string;
 }
 
-export default function SettingsForm({ initial, error, saved }: Props) {
+function useImageField(initialUrl: string | null) {
+  const [preview, setPreview] = useState<string | null>(initialUrl);
+  const [removed, setRemoved] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function onChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setRemoved(false);
+      setPreview(URL.createObjectURL(file));
+    }
+  }
+
+  function onRemove() {
+    setRemoved(true);
+    setPreview(null);
+    if (inputRef.current) inputRef.current.value = "";
+  }
+
+  return { preview, removed, inputRef, onChange, onRemove };
+}
+
+function ImageField({
+  label,
+  hint,
+  fieldName,
+  removeFieldName,
+  field,
+}: {
+  label: string;
+  hint: string;
+  fieldName: string;
+  removeFieldName: string;
+  field: ReturnType<typeof useImageField>;
+}) {
+  return (
+    <div className="image-field">
+      <label>
+        {label}
+        <input
+          type="file"
+          name={fieldName}
+          ref={field.inputRef}
+          accept="image/png,image/jpeg,image/webp,image/svg+xml"
+          onChange={field.onChange}
+        />
+      </label>
+      <span className="auth-sub image-field-hint">{hint}</span>
+      {field.preview && !field.removed && (
+        <button type="button" className="btn ghost sm" onClick={field.onRemove}>
+          Remove
+        </button>
+      )}
+      {field.removed && <input type="hidden" name={removeFieldName} value="1" />}
+    </div>
+  );
+}
+
+export default function SettingsForm({ initial, error, saved, previewUrl }: Props) {
   const [name, setName] = useState(initial.name);
   const [programName, setProgramName] = useState(initial.programName);
   const isInitialPreset = COLOR_PRESETS.some((c) => c.value === initial.colorPreset);
@@ -39,9 +104,29 @@ export default function SettingsForm({ initial, error, saved }: Props) {
   const [customColor, setCustomColor] = useState(
     HEX_COLOR_RE.test(initial.colorPreset) ? initial.colorPreset : "#4f46e5",
   );
-  const [logoPreview, setLogoPreview] = useState<string | null>(initial.logoUrl);
-  const [removeLogo, setRemoveLogo] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [rewardThreshold, setRewardThreshold] = useState(initial.rewardThreshold);
+  const [rewardDescription, setRewardDescription] = useState(initial.rewardDescription);
+
+  const logo = useImageField(initial.logoUrl);
+  const wideLogo = useImageField(initial.wideLogoUrl);
+  const icon = useImageField(initial.iconUrl);
+  const thumbnail = useImageField(initial.thumbnailUrl);
+  const strip = useImageField(initial.stripUrl);
+
+  const [walletView, setWalletView] = useState<"apple" | "google">("apple");
+  const [showBack, setShowBack] = useState(false);
+  const [mockQr, setMockQr] = useState<string | null>(null);
+  const [realQr, setRealQr] = useState<string | null>(null);
+
+  useEffect(() => {
+    QRCode.toDataURL("PREVIEW", { margin: 1, width: 200 }).then(setMockQr);
+  }, []);
+
+  useEffect(() => {
+    if (previewUrl) {
+      QRCode.toDataURL(previewUrl, { margin: 1, width: 220 }).then(setRealQr);
+    }
+  }, [previewUrl]);
 
   const swatchHex =
     colorMode === "custom" ? customColor : (COLOR_PRESETS.find((c) => c.value === colorPreset) || COLOR_PRESETS[0]).hex;
@@ -55,19 +140,8 @@ export default function SettingsForm({ initial, error, saved }: Props) {
     }
   }
 
-  function onLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) {
-      setRemoveLogo(false);
-      setLogoPreview(URL.createObjectURL(file));
-    }
-  }
-
-  function onRemoveLogo() {
-    setRemoveLogo(true);
-    setLogoPreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  }
+  const showWideOnGoogle = walletView === "google" && wideLogo.preview && !wideLogo.removed;
+  const headerLogoSrc = walletView === "apple" ? logo.preview || wideLogo.preview : logo.preview;
 
   return (
     <div className="settings-layout">
@@ -119,27 +193,50 @@ export default function SettingsForm({ initial, error, saved }: Props) {
           </label>
         )}
 
-        <p className="auth-note">
-          Custom colors and logos are a premium wallet-provider feature. If this stops applying to new or updated
-          cards, contact support.
-        </p>
+        <ImageField
+          label="Logo (160×160)"
+          hint="Round logo, top-left of the card."
+          fieldName="logo"
+          removeFieldName="removeLogo"
+          field={logo}
+        />
+        <ImageField
+          label="Wide logo (1280×400, optional)"
+          hint="Replaces the round logo and name on Google Wallet with a wide wordmark."
+          fieldName="wideLogo"
+          removeFieldName="removeWideLogo"
+          field={wideLogo}
+        />
+        <ImageField
+          label="Thumbnail (180×180, optional)"
+          hint="Shown top-right of the card."
+          fieldName="thumbnail"
+          removeFieldName="removeThumbnail"
+          field={thumbnail}
+        />
+        <ImageField
+          label="Banner image (1080×360, optional)"
+          hint="Switches the card to a wide banner layout behind the title."
+          fieldName="strip"
+          removeFieldName="removeStrip"
+          field={strip}
+        />
+        <ImageField
+          label="Notification icon (120×120, optional)"
+          hint="Used for iOS lock-screen notifications only — not visible on the card face."
+          fieldName="icon"
+          removeFieldName="removeIcon"
+          field={icon}
+        />
 
-        <label>
-          Logo
-          <input
-            type="file"
-            name="logo"
-            ref={fileInputRef}
-            accept="image/png,image/jpeg,image/webp,image/svg+xml"
-            onChange={onLogoChange}
-          />
+        <label className="checkbox-label">
+          <input type="checkbox" name="allowSharing" value="1" defaultChecked={initial.allowSharing} />
+          Let customers share this card with others
         </label>
-        {logoPreview && !removeLogo && (
-          <button type="button" className="btn ghost sm" style={{ alignSelf: "flex-start" }} onClick={onRemoveLogo}>
-            Remove current logo
-          </button>
-        )}
-        {removeLogo && <input type="hidden" name="removeLogo" value="1" />}
+
+        <p className="auth-note">
+          Custom colors and logos require an active WalletWallet Pro plan on the account backing Repass.
+        </p>
 
         <div className="form-row">
           <label>
@@ -148,46 +245,145 @@ export default function SettingsForm({ initial, error, saved }: Props) {
           </label>
           <label>
             Points for a reward
-            <input type="number" name="rewardThreshold" defaultValue={initial.rewardThreshold} min={1} required />
+            <input
+              type="number"
+              name="rewardThreshold"
+              value={rewardThreshold}
+              onChange={(e) => setRewardThreshold(parseInt(e.target.value, 10) || 1)}
+              min={1}
+              required
+            />
           </label>
         </div>
 
         <label>
           What the reward is
-          <input type="text" name="rewardDescription" defaultValue={initial.rewardDescription} required />
+          <input
+            type="text"
+            name="rewardDescription"
+            value={rewardDescription}
+            onChange={(e) => setRewardDescription(e.target.value)}
+            required
+          />
         </label>
 
-        <button type="submit" className="btn">
-          Save changes
-        </button>
+        <div className="settings-actions">
+          <button type="submit" className="btn">
+            Save changes
+          </button>
+          <button type="submit" formAction={previewCard} className="btn ghost">
+            Preview on your phone
+          </button>
+        </div>
+
+        {realQr && (
+          <div className="phone-preview">
+            <span className="auth-sub">Scan with your phone — this is the real card, not a mockup:</span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={realQr} alt="Scan to preview on your phone" width={160} height={160} />
+          </div>
+        )}
       </form>
 
       <div className="card-preview-wrap">
         <span className="auth-sub" style={{ marginBottom: 10, display: "block" }}>
-          Live preview (approximate — exact rendering may vary slightly by wallet app)
+          Live preview (close approximation — use &ldquo;Preview on your phone&rdquo; for the exact card)
         </span>
-        <div className="card-preview" style={{ background: swatchHex }}>
-          <div className="card-preview-head">
-            {logoPreview ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={logoPreview} alt="Logo" className="card-preview-logo" />
-            ) : (
-              <div className="card-preview-logo card-preview-logo--placeholder">
-                {(name || "?").charAt(0).toUpperCase()}
-              </div>
-            )}
-            <span>{name || "Your Business"}</span>
-          </div>
-          <div className="card-preview-title">{programName || name || "Your Program"}</div>
-          <div className="card-preview-points">
-            <span className="card-preview-label">POINTS</span>
-            <span>3</span>
-          </div>
-          <div className="card-preview-points">
-            <span className="card-preview-label">PROGRESS</span>
-            <span className="card-preview-circles">{renderPunchCircles(3, initial.rewardThreshold || 5)}</span>
-          </div>
+
+        <div className="card-preview-toggle">
+          <button
+            type="button"
+            className={walletView === "apple" ? "active" : ""}
+            onClick={() => setWalletView("apple")}
+          >
+            Apple
+          </button>
+          <button
+            type="button"
+            className={walletView === "google" ? "active" : ""}
+            onClick={() => setWalletView("google")}
+          >
+            Google
+          </button>
         </div>
+
+        <div className="card-preview" style={{ background: swatchHex }}>
+          {strip.preview && !strip.removed && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={strip.preview} alt="Banner" className="card-preview-strip" />
+          )}
+
+          {!showBack ? (
+            <>
+              <div className="card-preview-head">
+                {showWideOnGoogle ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={wideLogo.preview!} alt="Wide logo" className="card-preview-wide-logo" />
+                ) : (
+                  <>
+                    {headerLogoSrc ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={headerLogoSrc} alt="Logo" className="card-preview-logo" />
+                    ) : (
+                      <div className="card-preview-logo card-preview-logo--placeholder">
+                        {(name || "?").charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <span>{name || "Your Business"}</span>
+                  </>
+                )}
+              </div>
+
+              <div className="card-preview-title">{programName || name || "Your Program"}</div>
+
+              <div className="card-preview-fields-row">
+                <div className="card-preview-field">
+                  <span className="card-preview-label">POINTS</span>
+                  <span>3</span>
+                </div>
+                <div className="card-preview-field card-preview-field--right">
+                  <span className="card-preview-label">PROGRESS</span>
+                  <span className="card-preview-circles">{renderPunchCircles(3, rewardThreshold || 5)}</span>
+                </div>
+              </div>
+
+              <div className="card-preview-qr-wrap">
+                {mockQr && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={mockQr} alt="QR code" className="card-preview-qr" />
+                )}
+                {walletView === "google" && <div className="card-preview-caption">PREVIEW-0000</div>}
+              </div>
+
+              {walletView === "apple" && (
+                <div className="card-preview-footer">
+                  <span className="card-preview-footer-icon" />
+                  <span>{name || "Your Business"}</span>
+                </div>
+              )}
+
+              {thumbnail.preview && !thumbnail.removed && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={thumbnail.preview} alt="Thumbnail" className="card-preview-thumbnail" />
+              )}
+            </>
+          ) : (
+            <div className="card-preview-back">
+              <div className="card-preview-back-field">
+                <span className="card-preview-label">Notifications</span>
+                <span>(blank until a reward fires)</span>
+              </div>
+              <div className="card-preview-back-field">
+                <span className="card-preview-label">Next reward</span>
+                <span>{renderNextRewardMessage(3, rewardThreshold, rewardDescription)}</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <button type="button" className="btn ghost sm card-preview-flip" onClick={() => setShowBack(!showBack)}>
+          {showBack ? "Show front" : "Show back of card"}
+        </button>
       </div>
     </div>
   );

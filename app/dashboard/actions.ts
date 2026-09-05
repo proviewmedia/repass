@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { updatePass } from "@/lib/wallet";
+import { BUSINESS_BRANDING_COLUMNS, toPassBusinessInput, updatePass } from "@/lib/wallet";
 
 export async function signOut() {
   const supabase = await createClient();
@@ -26,7 +26,7 @@ export async function addPoint(customerId: string) {
 
   const { data: business, error: businessError } = await supabase
     .from("businesses")
-    .select("name, program_name, color_preset, logo_url, points_per_action, reward_threshold, reward_description")
+    .select(`points_per_action, ${BUSINESS_BRANDING_COLUMNS}`)
     .eq("id", customer.business_id)
     .single();
 
@@ -47,14 +47,7 @@ export async function addPoint(customerId: string) {
     resulting_balance: newBalance,
   });
 
-  const branding = {
-    name: business.name,
-    programName: business.program_name,
-    colorPreset: business.color_preset,
-    logoUrl: business.logo_url,
-    rewardThreshold: business.reward_threshold,
-    rewardDescription: business.reward_description,
-  };
+  const branding = toPassBusinessInput(business);
 
   if (customer.walletwallet_serial) {
     await updatePass(customer.walletwallet_serial, branding, {
