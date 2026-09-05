@@ -9,12 +9,19 @@ import { sendWalletLinkEmail } from "@/lib/resend";
 import { checkinCookieName } from "@/lib/checkin";
 
 export async function joinProgram(slug: string, formData: FormData) {
-  const name = String(formData.get("name") || "").trim();
+  const firstName = String(formData.get("firstName") || "").trim();
+  const lastName = String(formData.get("lastName") || "").trim();
   const email = String(formData.get("email") || "").trim();
   const phone = String(formData.get("phone") || "").trim();
 
-  if (!name) {
-    redirect(`/join/${slug}?error=${encodeURIComponent("Your name is required.")}`);
+  if (!firstName || !lastName) {
+    redirect(`/join/${slug}?error=${encodeURIComponent("First and last name are required.")}`);
+  }
+  if (!email || !email.includes("@")) {
+    redirect(`/join/${slug}?error=${encodeURIComponent("A valid email is required.")}`);
+  }
+  if (!phone) {
+    redirect(`/join/${slug}?error=${encodeURIComponent("Phone number is required.")}`);
   }
 
   const supabase = createAdminClient();
@@ -41,9 +48,10 @@ export async function joinProgram(slug: string, formData: FormData) {
   const { error: insertError } = await supabase.from("customers").insert({
     id: customerId,
     business_id: business!.id,
-    name,
-    email: email || null,
-    phone: phone || null,
+    first_name: firstName,
+    last_name: lastName,
+    email,
+    phone,
     points_balance: 0,
     walletwallet_serial: pass.serialNumber,
     share_url: pass.shareUrl,
@@ -55,11 +63,9 @@ export async function joinProgram(slug: string, formData: FormData) {
     redirect(`/join/${slug}?error=${encodeURIComponent("Something went wrong saving your details — please try again.")}`);
   }
 
-  if (email) {
-    await sendWalletLinkEmail(email, business!.name, pass.shareUrl).catch((err) =>
-      console.error("Failed to send wallet link email", err),
-    );
-  }
+  await sendWalletLinkEmail(email, business!.name, pass.shareUrl).catch((err) =>
+    console.error("Failed to send wallet link email", err),
+  );
 
   const cookieStore = await cookies();
   cookieStore.set(checkinCookieName(business!.id), customerId, {
@@ -70,5 +76,5 @@ export async function joinProgram(slug: string, formData: FormData) {
     maxAge: 60 * 60 * 24 * 365,
   });
 
-  redirect(`/join/${slug}/success?shareUrl=${encodeURIComponent(pass.shareUrl)}&name=${encodeURIComponent(name)}`);
+  redirect(`/join/${slug}/success?shareUrl=${encodeURIComponent(pass.shareUrl)}&name=${encodeURIComponent(firstName)}`);
 }

@@ -17,7 +17,7 @@ async function requireOwnedCustomer(customerId: string) {
   const { data } = await supabase
     .from("customers")
     .select(
-      `id, name, business_id, points_balance, last_notification, walletwallet_serial, businesses!inner(owner_user_id, ${BUSINESS_BRANDING_COLUMNS})`,
+      `id, first_name, last_name, business_id, points_balance, last_notification, walletwallet_serial, businesses!inner(owner_user_id, ${BUSINESS_BRANDING_COLUMNS})`,
     )
     .eq("id", customerId)
     .is("removed_at", null)
@@ -25,7 +25,8 @@ async function requireOwnedCustomer(customerId: string) {
 
   const customer = data as unknown as {
     id: string;
-    name: string;
+    first_name: string;
+    last_name: string | null;
     business_id: string;
     points_balance: number;
     last_notification: string;
@@ -41,13 +42,20 @@ async function requireOwnedCustomer(customerId: string) {
 }
 
 export async function updateCustomer(customerId: string, formData: FormData) {
-  const name = String(formData.get("name") || "").trim();
+  const firstName = String(formData.get("firstName") || "").trim();
+  const lastName = String(formData.get("lastName") || "").trim();
   const email = String(formData.get("email") || "").trim();
   const phone = String(formData.get("phone") || "").trim();
   const pointsBalance = Math.max(0, parseInt(String(formData.get("pointsBalance") || "0"), 10) || 0);
 
-  if (!name) {
-    redirect(`/dashboard/customers/${customerId}?error=${encodeURIComponent("Name is required.")}`);
+  if (!firstName || !lastName) {
+    redirect(`/dashboard/customers/${customerId}?error=${encodeURIComponent("First and last name are required.")}`);
+  }
+  if (!email || !email.includes("@")) {
+    redirect(`/dashboard/customers/${customerId}?error=${encodeURIComponent("A valid email is required.")}`);
+  }
+  if (!phone) {
+    redirect(`/dashboard/customers/${customerId}?error=${encodeURIComponent("Phone number is required.")}`);
   }
 
   const { supabase, customer } = await requireOwnedCustomer(customerId);
@@ -56,7 +64,7 @@ export async function updateCustomer(customerId: string, formData: FormData) {
 
   const { error } = await supabase
     .from("customers")
-    .update({ name, email: email || null, phone: phone || null, points_balance: pointsBalance })
+    .update({ first_name: firstName, last_name: lastName, email, phone, points_balance: pointsBalance })
     .eq("id", customerId);
 
   if (error) {
@@ -86,8 +94,9 @@ export async function updateCustomer(customerId: string, formData: FormData) {
 export async function removeCustomer(customerId: string, formData: FormData) {
   const confirmName = String(formData.get("confirmName") || "").trim();
   const { supabase, customer } = await requireOwnedCustomer(customerId);
+  const fullName = `${customer.first_name} ${customer.last_name || ""}`.trim();
 
-  if (confirmName !== customer.name) {
+  if (confirmName !== fullName) {
     redirect(
       `/dashboard/customers/${customerId}?error=${encodeURIComponent("Type the customer's name exactly to confirm removal.")}`,
     );

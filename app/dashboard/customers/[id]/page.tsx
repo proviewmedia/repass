@@ -21,14 +21,15 @@ export default async function EditCustomerPage({
 
   const { data } = await supabase
     .from("customers")
-    .select("id, name, email, phone, points_balance, businesses!inner(owner_user_id)")
+    .select("id, first_name, last_name, email, phone, points_balance, businesses!inner(owner_user_id)")
     .eq("id", params.id)
     .is("removed_at", null)
     .single();
 
   const customer = data as unknown as {
     id: string;
-    name: string;
+    first_name: string;
+    last_name: string | null;
     email: string | null;
     phone: string | null;
     points_balance: number;
@@ -38,6 +39,8 @@ export default async function EditCustomerPage({
   if (!customer || customer.businesses.owner_user_id !== user!.id) {
     notFound();
   }
+
+  const fullName = `${customer!.first_name} ${customer!.last_name || ""}`.trim();
 
   return (
     <main className="auth-page">
@@ -51,17 +54,23 @@ export default async function EditCustomerPage({
           <form action={updateCustomer.bind(null, customer!.id)} className="auth-form">
             {searchParams.error && <p className="auth-error">{searchParams.error}</p>}
 
-            <label>
-              Name
-              <input type="text" name="name" required defaultValue={customer!.name} />
-            </label>
+            <div className="form-row">
+              <label>
+                First name
+                <input type="text" name="firstName" required defaultValue={customer!.first_name} />
+              </label>
+              <label>
+                Last name
+                <input type="text" name="lastName" required defaultValue={customer!.last_name || ""} />
+              </label>
+            </div>
             <label>
               Email
-              <input type="email" name="email" defaultValue={customer!.email || ""} />
+              <input type="email" name="email" required defaultValue={customer!.email || ""} />
             </label>
             <label>
               Phone
-              <input type="tel" name="phone" defaultValue={customer!.phone || ""} />
+              <input type="tel" name="phone" required defaultValue={customer!.phone || ""} />
             </label>
             <label>
               Points balance
@@ -80,7 +89,7 @@ export default async function EditCustomerPage({
             </p>
             <form action={removeCustomer.bind(null, customer!.id)} className="auth-form">
               <label>
-                Type &ldquo;{customer!.name}&rdquo; to confirm
+                Type &ldquo;{fullName}&rdquo; to confirm
                 <input type="text" name="confirmName" required autoComplete="off" />
               </label>
               <button type="submit" className="btn danger">

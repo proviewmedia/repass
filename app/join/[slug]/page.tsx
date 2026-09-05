@@ -36,17 +36,23 @@ export default async function JoinPage({
           ) : (
             <form action={joinProgram.bind(null, params.slug)} className="auth-form">
               {searchParams.error && <p className="auth-error">{searchParams.error}</p>}
+              <div className="form-row">
+                <label>
+                  First name
+                  <input type="text" name="firstName" required autoComplete="given-name" />
+                </label>
+                <label>
+                  Last name
+                  <input type="text" name="lastName" required autoComplete="family-name" />
+                </label>
+              </div>
               <label>
-                Your name
-                <input type="text" name="name" required autoComplete="name" />
+                Email
+                <input type="email" name="email" required autoComplete="email" />
               </label>
               <label>
-                Email (optional)
-                <input type="email" name="email" autoComplete="email" />
-              </label>
-              <label>
-                Phone (optional)
-                <input type="tel" name="phone" autoComplete="tel" />
+                Phone
+                <input type="tel" name="phone" required autoComplete="tel" />
               </label>
               <button type="submit" className="btn">
                 Get my card

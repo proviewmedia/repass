@@ -30,7 +30,7 @@ export default async function DashboardPage({
 
   const { data: customers } = await supabase
     .from("customers")
-    .select("id, name, email, points_balance, created_at")
+    .select("id, first_name, last_name, email, points_balance, created_at")
     .eq("business_id", business!.id)
     .is("removed_at", null)
     .order("created_at", { ascending: false });
@@ -115,7 +115,7 @@ export default async function DashboardPage({
             customers.map((customer) => (
               <div className="dash-row" key={customer.id}>
                 <span>
-                  <div className="dash-name">{customer.name}</div>
+                  <div className="dash-name">{customer.first_name} {customer.last_name}</div>
                   {customer.email && <div className="dash-email">{customer.email}</div>}
                 </span>
                 <span className="dash-points">{customer.points_balance}</span>

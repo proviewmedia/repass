@@ -27,11 +27,12 @@ export default async function CheckinPage({
   const cookieStore = await cookies();
   const customerId = cookieStore.get(checkinCookieName(business!.id))?.value;
 
-  let customer: { id: string; name: string; points_balance: number; last_checkin_at: string | null } | null = null;
+  let customer: { id: string; first_name: string; points_balance: number; last_checkin_at: string | null } | null =
+    null;
   if (customerId) {
     const { data } = await supabase
       .from("customers")
-      .select("id, name, points_balance, last_checkin_at")
+      .select("id, first_name, points_balance, last_checkin_at")
       .eq("id", customerId)
       .eq("business_id", business!.id)
       .single();
@@ -69,7 +70,7 @@ export default async function CheckinPage({
           ) : customer ? (
             <form action={checkIn.bind(null, params.slug, customer.id)} className="auth-form">
               <p className="auth-sub" style={{ marginTop: 0 }}>
-                Welcome back, {customer.name}. You have {customer.points_balance} points.
+                Welcome back, {customer.first_name}. You have {customer.points_balance} points.
               </p>
               <button type="submit" className="btn">
                 Check in &amp; earn a point
