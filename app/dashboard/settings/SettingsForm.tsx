@@ -234,10 +234,6 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
           Let customers share this card with others
         </label>
 
-        <p className="auth-note">
-          Custom colors and logos require an active WalletWallet Pro plan on the account backing Repass.
-        </p>
-
         <div className="form-row">
           <label>
             Points per visit
