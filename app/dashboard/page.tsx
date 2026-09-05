@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import QRCode from "qrcode";
 import { createClient } from "@/lib/supabase/server";
 import { addPoint, signOut } from "./actions";
 
@@ -33,6 +34,8 @@ export default async function DashboardPage() {
   const host = headersList.get("host");
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || (host ? `https://${host}` : "");
   const joinUrl = `${appUrl}/join/${business!.slug}`;
+  const checkinUrl = `${appUrl}/checkin/${business!.slug}`;
+  const checkinQr = await QRCode.toDataURL(checkinUrl, { margin: 1, width: 220 });
   const active = business!.subscription_status === "active";
 
   return (
@@ -69,6 +72,17 @@ export default async function DashboardPage() {
         <div className="dash-share">
           <span className="auth-sub">Share this with customers:</span>
           <code>{joinUrl}</code>
+        </div>
+
+        <div className="dash-checkin">
+          <div>
+            <span className="auth-sub">
+              Print this at the counter — customers scan it themselves to earn a point, no dashboard needed:
+            </span>
+            <code>{checkinUrl}</code>
+          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={checkinQr} alt="Check-in QR code" width={140} height={140} className="checkin-qr" />
         </div>
 
         <div className="dash-table">

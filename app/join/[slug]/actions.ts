@@ -1,10 +1,12 @@
 "use server";
 
 import { randomUUID } from "crypto";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createPass } from "@/lib/wallet";
 import { sendWalletLinkEmail } from "@/lib/resend";
+import { checkinCookieName } from "@/lib/checkin";
 
 export async function joinProgram(slug: string, formData: FormData) {
   const name = String(formData.get("name") || "").trim();
@@ -66,6 +68,15 @@ export async function joinProgram(slug: string, formData: FormData) {
       console.error("Failed to send wallet link email", err),
     );
   }
+
+  const cookieStore = await cookies();
+  cookieStore.set(checkinCookieName(business!.id), customerId, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+  });
 
   redirect(`/join/${slug}/success?shareUrl=${encodeURIComponent(pass.shareUrl)}&name=${encodeURIComponent(name)}`);
 }
