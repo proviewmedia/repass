@@ -20,7 +20,7 @@ export async function joinProgram(slug: string, formData: FormData) {
   const supabase = createAdminClient();
   const { data: business } = await supabase
     .from("businesses")
-    .select("id, name, program_name, color_preset, logo_url, subscription_status")
+    .select("id, name, program_name, color_preset, logo_url, reward_threshold, reward_description, subscription_status")
     .eq("slug", slug)
     .single();
 
@@ -39,6 +39,8 @@ export async function joinProgram(slug: string, formData: FormData) {
         programName: business!.program_name,
         colorPreset: business!.color_preset,
         logoUrl: business!.logo_url,
+        rewardThreshold: business!.reward_threshold,
+        rewardDescription: business!.reward_description,
       },
       { id: customerId, pointsBalance: 0, notification: NOT_STARTED },
     );

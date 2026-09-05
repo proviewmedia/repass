@@ -4,7 +4,11 @@ import QRCode from "qrcode";
 import { createClient } from "@/lib/supabase/server";
 import { addPoint, signOut } from "./actions";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { updated?: string; removed?: string };
+}) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -28,6 +32,7 @@ export default async function DashboardPage() {
     .from("customers")
     .select("id, name, email, points_balance, created_at")
     .eq("business_id", business!.id)
+    .is("removed_at", null)
     .order("created_at", { ascending: false });
 
   const headersList = headers();
@@ -65,6 +70,9 @@ export default async function DashboardPage() {
             </form>
           </div>
         </div>
+
+        {searchParams.updated === "1" && <p className="auth-note">Customer updated.</p>}
+        {searchParams.removed === "1" && <p className="auth-note">Customer removed.</p>}
 
         {!active && (
           <div className="dash-banner">

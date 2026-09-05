@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { updateSettings } from "./actions";
+import { renderPunchCircles } from "@/lib/wallet";
 
 const COLOR_PRESETS: { value: string; label: string; hex: string }[] = [
   { value: "dark", label: "Dark", hex: "#18181b" },
@@ -11,6 +12,7 @@ const COLOR_PRESETS: { value: string; label: string; hex: string }[] = [
   { value: "purple", label: "Purple", hex: "#6d28d9" },
   { value: "orange", label: "Orange", hex: "#c2410c" },
 ];
+const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/;
 
 interface Props {
   initial: {
@@ -29,12 +31,29 @@ interface Props {
 export default function SettingsForm({ initial, error, saved }: Props) {
   const [name, setName] = useState(initial.name);
   const [programName, setProgramName] = useState(initial.programName);
-  const [colorPreset, setColorPreset] = useState(initial.colorPreset);
+  const isInitialPreset = COLOR_PRESETS.some((c) => c.value === initial.colorPreset);
+  const [colorMode, setColorMode] = useState<"preset" | "custom">(
+    !isInitialPreset && HEX_COLOR_RE.test(initial.colorPreset) ? "custom" : "preset",
+  );
+  const [colorPreset, setColorPreset] = useState(isInitialPreset ? initial.colorPreset : "dark");
+  const [customColor, setCustomColor] = useState(
+    HEX_COLOR_RE.test(initial.colorPreset) ? initial.colorPreset : "#4f46e5",
+  );
   const [logoPreview, setLogoPreview] = useState<string | null>(initial.logoUrl);
   const [removeLogo, setRemoveLogo] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const swatch = COLOR_PRESETS.find((c) => c.value === colorPreset) || COLOR_PRESETS[0];
+  const swatchHex =
+    colorMode === "custom" ? customColor : (COLOR_PRESETS.find((c) => c.value === colorPreset) || COLOR_PRESETS[0]).hex;
+
+  function onColorSelectChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    if (e.target.value === "custom") {
+      setColorMode("custom");
+    } else {
+      setColorMode("preset");
+      setColorPreset(e.target.value);
+    }
+  }
 
   function onLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -74,14 +93,36 @@ export default function SettingsForm({ initial, error, saved }: Props) {
 
         <label>
           Card color
-          <select name="colorPreset" value={colorPreset} onChange={(e) => setColorPreset(e.target.value)}>
+          <select
+            name={colorMode === "preset" ? "colorPreset" : undefined}
+            value={colorMode === "custom" ? "custom" : colorPreset}
+            onChange={onColorSelectChange}
+          >
             {COLOR_PRESETS.map((c) => (
               <option key={c.value} value={c.value}>
                 {c.label}
               </option>
             ))}
+            <option value="custom">Custom color…</option>
           </select>
         </label>
+
+        {colorMode === "custom" && (
+          <label>
+            Custom color
+            <input
+              type="color"
+              name="colorPreset"
+              value={customColor}
+              onChange={(e) => setCustomColor(e.target.value)}
+            />
+          </label>
+        )}
+
+        <p className="auth-note">
+          Custom colors and logos are a premium wallet-provider feature. If this stops applying to new or updated
+          cards, contact support.
+        </p>
 
         <label>
           Logo
@@ -125,7 +166,7 @@ export default function SettingsForm({ initial, error, saved }: Props) {
         <span className="auth-sub" style={{ marginBottom: 10, display: "block" }}>
           Live preview (approximate — exact rendering may vary slightly by wallet app)
         </span>
-        <div className="card-preview" style={{ background: swatch.hex }}>
+        <div className="card-preview" style={{ background: swatchHex }}>
           <div className="card-preview-head">
             {logoPreview ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -141,6 +182,10 @@ export default function SettingsForm({ initial, error, saved }: Props) {
           <div className="card-preview-points">
             <span className="card-preview-label">POINTS</span>
             <span>3</span>
+          </div>
+          <div className="card-preview-points">
+            <span className="card-preview-label">PROGRESS</span>
+            <span className="card-preview-circles">{renderPunchCircles(3, initial.rewardThreshold || 5)}</span>
           </div>
         </div>
       </div>

@@ -14,8 +14,39 @@ function authHeaders(): Record<string, string> {
 export interface PassBusinessInput {
   name: string;
   programName?: string | null;
+  /** Either a known preset name ("dark", "blue", …) or a "#rrggbb" custom hex color — see isCustomHexColor. */
   colorPreset?: string | null;
   logoUrl?: string | null;
+  rewardThreshold?: number | null;
+  rewardDescription?: string | null;
+}
+
+export function isCustomHexColor(value: string | null | undefined): value is string {
+  return typeof value === "string" && /^#[0-9a-fA-F]{6}$/.test(value);
+}
+
+// Renders progress toward the next reward as filled/empty circles, capped so a large
+// threshold (e.g. 50) doesn't draw 50 characters onto the card.
+export function renderPunchCircles(pointsBalance: number, rewardThreshold: number, cap = 10): string {
+  if (!rewardThreshold || rewardThreshold <= 0) return "";
+  const progress = pointsBalance % rewardThreshold;
+  const total = Math.min(rewardThreshold, cap);
+  const filled =
+    rewardThreshold <= cap ? progress : Math.min(cap, Math.round((cap * progress) / rewardThreshold));
+  return "●".repeat(filled) + "○".repeat(total - filled);
+}
+
+function renderNextRewardMessage(
+  pointsBalance: number,
+  rewardThreshold: number | null | undefined,
+  rewardDescription: string | null | undefined,
+): string {
+  if (!rewardThreshold || rewardThreshold <= 0) return " ";
+  const remaining = rewardThreshold - (pointsBalance % rewardThreshold);
+  const reward = rewardDescription || "a reward";
+  return remaining === rewardThreshold
+    ? `${remaining} points to ${reward}!`
+    : `${remaining} more point${remaining === 1 ? "" : "s"} to ${reward}!`;
 }
 
 export interface PassCustomerInput {
@@ -39,7 +70,6 @@ export function buildPassBody(business: PassBusinessInput, customer: PassCustome
     barcodeFormat: "QR",
     logoText: business.name,
     organizationName: business.name,
-    colorPreset: business.colorPreset || "dark",
     primaryFields: [{ value: business.programName || business.name }],
     secondaryFields: [
       {
@@ -47,9 +77,27 @@ export function buildPassBody(business: PassBusinessInput, customer: PassCustome
         value: String(customer.pointsBalance),
         changeMessage: "You now have %@ points",
       },
+      {
+        label: "PROGRESS",
+        value: renderPunchCircles(customer.pointsBalance, business.rewardThreshold || 0),
+      },
     ],
-    backFields: [{ label: "Notifications", value: customer.notification, changeMessage: "%@" }],
+    // Index 0 ("Notifications") is the seed-then-bump anchor for the reward-unlock
+    // banner — never move it. New fields must only ever be appended after it.
+    backFields: [
+      { label: "Notifications", value: customer.notification, changeMessage: "%@" },
+      {
+        label: "Next reward",
+        value: renderNextRewardMessage(customer.pointsBalance, business.rewardThreshold, business.rewardDescription),
+      },
+    ],
   };
+
+  if (isCustomHexColor(business.colorPreset)) {
+    body.color = business.colorPreset;
+  } else {
+    body.colorPreset = business.colorPreset || "dark";
+  }
 
   if (business.logoUrl) {
     body.logoURL = business.logoUrl;

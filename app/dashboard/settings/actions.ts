@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { updatePass } from "@/lib/wallet";
+import { isCustomHexColor, updatePass } from "@/lib/wallet";
 
 const COLOR_PRESETS = ["dark", "blue", "green", "red", "purple", "orange"];
 const LOGO_MIME_EXT: Record<string, string> = {
@@ -35,9 +35,8 @@ export async function updateSettings(formData: FormData) {
 
   const name = String(formData.get("name") || "").trim();
   const programName = String(formData.get("programName") || "").trim() || name;
-  const colorPreset = COLOR_PRESETS.includes(String(formData.get("colorPreset")))
-    ? String(formData.get("colorPreset"))
-    : "dark";
+  const rawColor = String(formData.get("colorPreset") || "");
+  const colorPreset = COLOR_PRESETS.includes(rawColor) || isCustomHexColor(rawColor) ? rawColor : "dark";
   const pointsPerAction = Math.max(1, parseInt(String(formData.get("pointsPerAction") || "1"), 10) || 1);
   const rewardThreshold = Math.max(1, parseInt(String(formData.get("rewardThreshold") || "10"), 10) || 10);
   const rewardDescription = String(formData.get("rewardDescription") || "A free reward").trim();
@@ -94,9 +93,10 @@ export async function updateSettings(formData: FormData) {
     .from("customers")
     .select("id, points_balance, last_notification, walletwallet_serial")
     .eq("business_id", business!.id)
+    .is("removed_at", null)
     .not("walletwallet_serial", "is", null);
 
-  const branding = { name, programName, colorPreset, logoUrl };
+  const branding = { name, programName, colorPreset, logoUrl, rewardThreshold, rewardDescription };
   for (const customer of customers || []) {
     await updatePass(customer.walletwallet_serial!, branding, {
       id: customer.id,

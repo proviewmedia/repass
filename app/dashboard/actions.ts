@@ -52,6 +52,8 @@ export async function addPoint(customerId: string) {
     programName: business.program_name,
     colorPreset: business.color_preset,
     logoUrl: business.logo_url,
+    rewardThreshold: business.reward_threshold,
+    rewardDescription: business.reward_description,
   };
 
   if (customer.walletwallet_serial) {

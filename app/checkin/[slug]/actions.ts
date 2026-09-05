@@ -26,6 +26,7 @@ export async function checkIn(slug: string, customerId: string) {
     .select("id, points_balance, last_notification, last_checkin_at, walletwallet_serial")
     .eq("id", customerId)
     .eq("business_id", business!.id)
+    .is("removed_at", null)
     .single();
 
   if (!customer) {
@@ -60,6 +61,8 @@ export async function checkIn(slug: string, customerId: string) {
     programName: business!.program_name,
     colorPreset: business!.color_preset,
     logoUrl: business!.logo_url,
+    rewardThreshold: business!.reward_threshold,
+    rewardDescription: business!.reward_description,
   };
 
   if (customer!.walletwallet_serial) {
@@ -106,6 +109,7 @@ export async function linkByPhone(slug: string, formData: FormData) {
     .select("id")
     .eq("business_id", business!.id)
     .eq("phone", phone)
+    .is("removed_at", null)
     .single();
 
   if (!customer) {

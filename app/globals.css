@@ -46,6 +46,8 @@ img { max-width: 100%; }
 .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border-strong); box-shadow: none; }
 .btn.ghost:hover { border-color: var(--text); box-shadow: none; }
 .btn.sm { padding: 9px 17px; font-size: 14px; }
+.btn.danger { background: #b91c1c; border-color: #b91c1c; }
+.btn.danger:hover { box-shadow: 0 12px 28px -12px #b91c1c80; }
 
 /* Official wallet badges */
 .wallet-badges { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -385,3 +387,8 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 .card-preview-points { display: flex; flex-direction: column; gap: 2px; }
 .card-preview-points span:last-child { font-size: 22px; font-weight: 700; }
 .card-preview-label { font-size: 11px; font-weight: 650; letter-spacing: 0.06em; opacity: 0.85; }
+.card-preview-circles { font-size: 15px; letter-spacing: 2px; }
+
+.danger-zone { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
+.danger-zone h2 { font-size: 16px; font-weight: 680; color: #b91c1c; }
+.danger-zone .auth-form { margin-top: 12px; }
