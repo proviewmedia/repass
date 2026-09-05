@@ -35,7 +35,10 @@ export default async function DashboardPage() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || (host ? `https://${host}` : "");
   const joinUrl = `${appUrl}/join/${business!.slug}`;
   const checkinUrl = `${appUrl}/checkin/${business!.slug}`;
-  const checkinQr = await QRCode.toDataURL(checkinUrl, { margin: 1, width: 220 });
+  const [joinQr, checkinQr] = await Promise.all([
+    QRCode.toDataURL(joinUrl, { margin: 1, width: 220 }),
+    QRCode.toDataURL(checkinUrl, { margin: 1, width: 220 }),
+  ]);
   const active = business!.subscription_status === "active";
 
   return (
@@ -49,6 +52,9 @@ export default async function DashboardPage() {
             </p>
           </div>
           <div className="dash-head-actions">
+            <a href="/dashboard/settings" className="btn ghost sm">
+              Settings
+            </a>
             <a href="/api/stripe/portal" className="btn ghost sm">
               Manage billing
             </a>
@@ -69,20 +75,26 @@ export default async function DashboardPage() {
           </div>
         )}
 
-        <div className="dash-share">
-          <span className="auth-sub">Share this with customers:</span>
-          <code>{joinUrl}</code>
-        </div>
-
-        <div className="dash-checkin">
-          <div>
-            <span className="auth-sub">
-              Print this at the counter — customers scan it themselves to earn a point, no dashboard needed:
-            </span>
-            <code>{checkinUrl}</code>
+        <div className="dash-qr-row">
+          <div className="dash-checkin">
+            <div>
+              <span className="auth-sub">Share this — customers scan it to sign up and add their card to Apple or Google Wallet:</span>
+              <code>{joinUrl}</code>
+            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={joinQr} alt="Join QR code" width={140} height={140} className="checkin-qr" />
           </div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={checkinQr} alt="Check-in QR code" width={140} height={140} className="checkin-qr" />
+
+          <div className="dash-checkin">
+            <div>
+              <span className="auth-sub">
+                Print this at the counter — customers scan it themselves to earn a point, no dashboard needed:
+              </span>
+              <code>{checkinUrl}</code>
+            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={checkinQr} alt="Check-in QR code" width={140} height={140} className="checkin-qr" />
+          </div>
         </div>
 
         <div className="dash-table">
@@ -99,7 +111,10 @@ export default async function DashboardPage() {
                   {customer.email && <div className="dash-email">{customer.email}</div>}
                 </span>
                 <span className="dash-points">{customer.points_balance}</span>
-                <span>
+                <span className="dash-row-actions">
+                  <a href={`/dashboard/customers/${customer.id}`} className="btn ghost sm">
+                    Edit
+                  </a>
                   <form action={addPoint.bind(null, customer.id)}>
                     <button type="submit" className="btn sm">
                       Add a point
