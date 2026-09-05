@@ -306,3 +306,30 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 .foot-col a { display: block; color: var(--text-soft); font-size: 14.5px; margin-bottom: 10px; transition: color .15s; }
 .foot-col a:hover { color: var(--text); }
 .foot-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 44px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--faint); font-size: 13.5px; }
+
+/* ---------- Auth / onboarding ---------- */
+.auth-page { min-height: 100vh; display: flex; align-items: center; padding: 56px 0; background: var(--alt); }
+.auth-wrap { display: flex; justify-content: center; }
+.auth-card { width: 100%; max-width: 420px; background: #fff; border: 1px solid var(--border); border-radius: 20px; padding: 36px; box-shadow: 0 24px 50px -28px #0a0a1f38; }
+.auth-card--wide { max-width: 520px; }
+.auth-card .brand { margin-bottom: 28px; }
+.auth-card h1 { font-size: 26px; letter-spacing: -0.03em; font-weight: 680; }
+.auth-sub { color: var(--muted); font-size: 14.5px; margin-top: 6px; }
+.auth-note { color: var(--text-soft); font-size: 14.5px; margin-top: 20px; background: var(--alt); border-radius: 12px; padding: 14px 16px; }
+.auth-error { color: #b91c1c; font-size: 13.5px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 10px 14px; margin-bottom: 4px; }
+.auth-form { display: flex; flex-direction: column; gap: 16px; margin-top: 24px; }
+.auth-form label { display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; font-weight: 600; color: var(--text-soft); }
+.auth-form input, .auth-form select {
+  font: inherit; font-size: 15px; font-weight: 500; color: var(--text);
+  border: 1px solid var(--border-strong); border-radius: 10px; padding: 10px 13px;
+  background: #fff;
+}
+.auth-form input:focus, .auth-form select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.auth-form .btn { margin-top: 6px; justify-content: center; }
+.auth-alt { margin-top: 22px; font-size: 14px; color: var(--muted); text-align: center; }
+.auth-alt a { color: var(--accent); font-weight: 600; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.slug-input { display: flex; align-items: center; border: 1px solid var(--border-strong); border-radius: 10px; overflow: hidden; }
+.slug-input span { padding: 10px 0 10px 13px; color: var(--faint); font-size: 14px; white-space: nowrap; }
+.slug-input input { border: none; border-radius: 0; flex: 1; min-width: 0; }
+.slug-input input:focus { outline: none; }
