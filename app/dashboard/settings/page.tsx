@@ -1,16 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { updateSettings } from "./actions";
-
-const COLOR_PRESETS = [
-  { value: "dark", label: "Dark" },
-  { value: "blue", label: "Blue" },
-  { value: "green", label: "Green" },
-  { value: "red", label: "Red" },
-  { value: "purple", label: "Purple" },
-  { value: "orange", label: "Orange" },
-];
+import SettingsForm from "./SettingsForm";
 
 export default async function SettingsPage({
   searchParams,
@@ -41,65 +32,26 @@ export default async function SettingsPage({
   return (
     <main className="auth-page">
       <div className="wrap auth-wrap">
-        <div className="auth-card auth-card--wide">
+        <div className="auth-card auth-card--wide settings-card">
           <Link href="/dashboard" className="auth-sub" style={{ display: "inline-block", marginBottom: 8 }}>
             ← Back to dashboard
           </Link>
           <h1>Program settings</h1>
           <p className="auth-sub">Changes to your card&apos;s name, color, or logo push live to every customer&apos;s wallet.</p>
 
-          <form action={updateSettings} className="auth-form">
-            {searchParams.error && <p className="auth-error">{searchParams.error}</p>}
-            {searchParams.saved === "1" && (
-              <p className="auth-note">Saved — updated cards are pushing out to customers now.</p>
-            )}
-
-            <label>
-              Business name
-              <input type="text" name="name" required defaultValue={business!.name} />
-            </label>
-
-            <label>
-              Program name (shown on the card)
-              <input type="text" name="programName" defaultValue={business!.program_name || business!.name} />
-            </label>
-
-            <label>
-              Card color
-              <select name="colorPreset" defaultValue={business!.color_preset}>
-                {COLOR_PRESETS.map((c) => (
-                  <option key={c.value} value={c.value}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label>
-              Logo image URL (optional)
-              <input type="url" name="logoUrl" placeholder="https://…" defaultValue={business!.logo_url || ""} />
-            </label>
-
-            <div className="form-row">
-              <label>
-                Points per visit
-                <input type="number" name="pointsPerAction" defaultValue={business!.points_per_action} min={1} required />
-              </label>
-              <label>
-                Points for a reward
-                <input type="number" name="rewardThreshold" defaultValue={business!.reward_threshold} min={1} required />
-              </label>
-            </div>
-
-            <label>
-              What the reward is
-              <input type="text" name="rewardDescription" defaultValue={business!.reward_description} required />
-            </label>
-
-            <button type="submit" className="btn">
-              Save changes
-            </button>
-          </form>
+          <SettingsForm
+            initial={{
+              name: business!.name,
+              programName: business!.program_name || business!.name,
+              colorPreset: business!.color_preset,
+              logoUrl: business!.logo_url,
+              pointsPerAction: business!.points_per_action,
+              rewardThreshold: business!.reward_threshold,
+              rewardDescription: business!.reward_description,
+            }}
+            error={searchParams.error}
+            saved={searchParams.saved === "1"}
+          />
         </div>
       </div>
     </main>
