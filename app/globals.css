@@ -14,6 +14,7 @@
   --accent: #4f46e5;
   --maxw: 1120px;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --radius: 0.875rem;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
@@ -46,8 +47,6 @@ img { max-width: 100%; }
 .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border-strong); box-shadow: none; }
 .btn.ghost:hover { border-color: var(--text); box-shadow: none; }
 .btn.sm { padding: 9px 17px; font-size: 14px; }
-.btn.danger { background: #b91c1c; border-color: #b91c1c; }
-.btn.danger:hover { box-shadow: 0 12px 28px -12px #b91c1c80; }
 
 /* Official wallet badges */
 .wallet-badges { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -310,28 +309,13 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 
 /* ---------- Auth / onboarding ---------- */
 .auth-page { min-height: 100vh; display: flex; align-items: center; padding: 56px 0; background: var(--alt); }
+@media (max-width: 640px) { .auth-page { padding: 28px 0; } }
 .auth-wrap { display: flex; justify-content: center; min-width: 0; }
 .auth-wrap > * { min-width: 0; }
-.auth-card { width: 100%; max-width: 420px; background: #fff; border: 1px solid var(--border); border-radius: 20px; padding: 36px; box-shadow: 0 24px 50px -28px #0a0a1f38; }
-.auth-card--wide { max-width: 520px; }
-.auth-card .brand { margin-bottom: 28px; }
-.auth-card h1 { font-size: 26px; letter-spacing: -0.03em; font-weight: 680; }
 .auth-sub { color: var(--muted); font-size: 14.5px; margin-top: 6px; }
 .auth-note { color: var(--text-soft); font-size: 14.5px; margin-top: 20px; background: var(--alt); border-radius: 12px; padding: 14px 16px; }
-.auth-error { color: #b91c1c; font-size: 13.5px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 10px 14px; margin-bottom: 4px; }
-.auth-form { display: flex; flex-direction: column; gap: 16px; margin-top: 24px; }
-.auth-form label { display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; font-weight: 600; color: var(--text-soft); }
-.auth-form input, .auth-form select {
-  font: inherit; font-size: 15px; font-weight: 500; color: var(--text);
-  border: 1px solid var(--border-strong); border-radius: 10px; padding: 10px 13px;
-  background: #fff;
-}
-.auth-form input:focus, .auth-form select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-.auth-form .btn { margin-top: 6px; justify-content: center; }
 .auth-alt { margin-top: 22px; font-size: 14px; color: var(--muted); text-align: center; }
 .auth-alt a { color: var(--accent); font-weight: 600; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-@media (max-width: 420px) { .form-row { grid-template-columns: 1fr; } }
 .slug-input { display: flex; align-items: center; border: 1px solid var(--border-strong); border-radius: 10px; overflow: hidden; }
 .slug-input span { padding: 10px 0 10px 13px; color: var(--faint); font-size: 14px; white-space: nowrap; }
 .slug-input input { border: none; border-radius: 0; flex: 1; min-width: 0; }
@@ -339,6 +323,8 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 
 /* ---------- Dashboard ---------- */
 .dash { min-height: 100vh; background: var(--alt); padding: 48px 0 80px; }
+@media (max-width: 640px) { .dash { padding: 24px 0 56px; } }
+@media (max-width: 640px) { .dash-head h1 { font-size: 22px; } }
 .dash-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .dash-head h1 { font-size: 28px; letter-spacing: -0.03em; font-weight: 680; }
 .dash-head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -347,11 +333,6 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
   background: #fff7ed; border: 1px solid #fed7aa; color: #7c2d12; border-radius: 14px;
   padding: 14px 18px; margin-top: 24px; font-size: 14.5px;
 }
-.dash-share {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  margin-top: 24px; background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px;
-}
-.dash-share code { font-size: 13.5px; background: var(--alt); border-radius: 8px; padding: 4px 9px; color: var(--text-soft); }
 .dash-qr-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 24px; }
 @media (max-width: 780px) { .dash-qr-row { grid-template-columns: 1fr; } }
 .dash-checkin {
@@ -382,10 +363,8 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 }
 
 /* ---------- Settings: form + live card preview ---------- */
-.settings-card { max-width: 760px; }
-.settings-layout { display: grid; grid-template-columns: 1fr 260px; gap: 32px; margin-top: 24px; align-items: start; }
+.settings-layout { display: grid; grid-template-columns: 1fr 260px; gap: 32px; align-items: start; }
 @media (max-width: 700px) { .settings-layout { grid-template-columns: 1fr; } .card-preview-wrap { position: static; } }
-.settings-layout .auth-form { margin-top: 0; }
 .card-preview-wrap { position: sticky; top: 24px; }
 .card-preview-toggle { display: inline-flex; background: var(--alt); border-radius: 10px; padding: 3px; margin-bottom: 12px; gap: 2px; }
 .card-preview-toggle button { border: none; background: transparent; padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
@@ -417,13 +396,4 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 .card-preview-back-field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
 .card-preview-flip { margin-top: 10px; }
 
-.image-field { display: flex; flex-direction: column; gap: 4px; }
-.image-field-hint { margin-top: -2px; }
-.auth-form label.checkbox-label { flex-direction: row; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
-.settings-actions { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
-.settings-actions .btn { margin-top: 0; }
 .phone-preview { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 16px; padding: 14px; background: var(--alt); border-radius: 12px; }
-
-.danger-zone { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); }
-.danger-zone h2 { font-size: 16px; font-weight: 680; color: #b91c1c; }
-.danger-zone .auth-form { margin-top: 12px; }

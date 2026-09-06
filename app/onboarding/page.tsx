@@ -1,70 +1,59 @@
 import { createBusiness } from "./actions";
-
-const COLOR_PRESETS = [
-  { value: "dark", label: "Dark" },
-  { value: "blue", label: "Blue" },
-  { value: "green", label: "Green" },
-  { value: "red", label: "Red" },
-  { value: "purple", label: "Purple" },
-  { value: "orange", label: "Orange" },
-];
+import ColorPresetField from "./ColorPresetField";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert } from "@/components/ui/alert";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
 export default function OnboardingPage({ searchParams }: { searchParams: { error?: string } }) {
   return (
     <main className="auth-page">
       <div className="wrap auth-wrap">
-        <div className="auth-card auth-card--wide">
-          <h1>Set up your program</h1>
-          <p className="auth-sub">This takes about a minute. You can change any of this later.</p>
+        <Card className="w-full max-w-[480px]">
+          <CardHeader>
+            <CardTitle className="text-2xl">Set up your program</CardTitle>
+            <CardDescription>This takes about a minute. You can change any of this later.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form action={createBusiness} className="flex flex-col gap-4">
+              {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
 
-          <form action={createBusiness} className="auth-form">
-            {searchParams.error && <p className="auth-error">{searchParams.error}</p>}
-
-            <label>
-              Business name
-              <input type="text" name="name" required placeholder="Café Lumen" />
-            </label>
-
-            <label>
-              Sign-up page URL
-              <div className="slug-input">
-                <span>repass.app/join/</span>
-                <input type="text" name="slug" placeholder="cafe-lumen" pattern="[a-z0-9-]*" />
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="name">Business name</Label>
+                <Input id="name" type="text" name="name" required placeholder="Café Lumen" />
               </div>
-            </label>
 
-            <label>
-              Card color
-              <select name="colorPreset" defaultValue="dark">
-                {COLOR_PRESETS.map((c) => (
-                  <option key={c.value} value={c.value}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="slug">Sign-up page URL</Label>
+                <div className="slug-input">
+                  <span>repass.app/join/</span>
+                  <input id="slug" type="text" name="slug" placeholder="cafe-lumen" pattern="[a-z0-9-]*" />
+                </div>
+              </div>
 
-            <div className="form-row">
-              <label>
-                Points per visit
-                <input type="number" name="pointsPerAction" defaultValue={1} min={1} required />
-              </label>
-              <label>
-                Points for a reward
-                <input type="number" name="rewardThreshold" defaultValue={10} min={1} required />
-              </label>
-            </div>
+              <ColorPresetField />
 
-            <label>
-              What the reward is
-              <input type="text" name="rewardDescription" defaultValue="A free item" required />
-            </label>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="pointsPerAction">Points per visit</Label>
+                  <Input id="pointsPerAction" type="number" name="pointsPerAction" defaultValue={1} min={1} required />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="rewardThreshold">Points for a reward</Label>
+                  <Input id="rewardThreshold" type="number" name="rewardThreshold" defaultValue={10} min={1} required />
+                </div>
+              </div>
 
-            <button type="submit" className="btn">
-              Continue to billing
-            </button>
-          </form>
-        </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="rewardDescription">What the reward is</Label>
+                <Input id="rewardDescription" type="text" name="rewardDescription" defaultValue="A free item" required />
+              </div>
+
+              <Button type="submit">Continue to billing</Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </main>
   );

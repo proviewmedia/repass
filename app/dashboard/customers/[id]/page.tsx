@@ -2,6 +2,11 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { updateCustomer, removeCustomer } from "./actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert } from "@/components/ui/alert";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
 export default async function EditCustomerPage({
   params,
@@ -45,58 +50,79 @@ export default async function EditCustomerPage({
   return (
     <main className="auth-page">
       <div className="wrap auth-wrap">
-        <div className="auth-card">
-          <Link href="/dashboard" className="auth-sub" style={{ display: "inline-block", marginBottom: 8 }}>
-            ← Back to dashboard
-          </Link>
-          <h1>Edit customer</h1>
-
-          <form action={updateCustomer.bind(null, customer!.id)} className="auth-form">
-            {searchParams.error && <p className="auth-error">{searchParams.error}</p>}
-
-            <div className="form-row">
-              <label>
-                First name
-                <input type="text" name="firstName" required defaultValue={customer!.first_name} />
-              </label>
-              <label>
-                Last name
-                <input type="text" name="lastName" required defaultValue={customer!.last_name || ""} />
-              </label>
-            </div>
-            <label>
-              Email
-              <input type="email" name="email" required defaultValue={customer!.email || ""} />
-            </label>
-            <label>
-              Phone
-              <input type="tel" name="phone" required defaultValue={customer!.phone || ""} />
-            </label>
-            <label>
-              Points balance
-              <input type="number" name="pointsBalance" min={0} required defaultValue={customer!.points_balance} />
-            </label>
-
-            <button type="submit" className="btn">
-              Save
-            </button>
-          </form>
-
-          <div className="danger-zone">
-            <h2>Danger zone</h2>
-            <p className="auth-sub">
-              Removes their wallet pass and takes them off your active customer list. Their point history is kept.
-            </p>
-            <form action={removeCustomer.bind(null, customer!.id)} className="auth-form">
-              <label>
-                Type &ldquo;{fullName}&rdquo; to confirm
-                <input type="text" name="confirmName" required autoComplete="off" />
-              </label>
-              <button type="submit" className="btn danger">
-                Remove customer
-              </button>
-            </form>
+        <div className="flex w-full max-w-[520px] flex-col gap-5 sm:gap-6">
+          <div>
+            <Link href="/dashboard" className="auth-sub" style={{ display: "inline-block", marginBottom: 8 }}>
+              ← Back to dashboard
+            </Link>
+            <h1 className="text-[26px] font-bold tracking-tight">Edit customer</h1>
           </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Customer info</CardTitle>
+              <CardDescription>Changes here don&apos;t push a wallet notification.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form action={updateCustomer.bind(null, customer!.id)} className="flex flex-col gap-4">
+                {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="firstName">First name</Label>
+                    <Input id="firstName" type="text" name="firstName" required defaultValue={customer!.first_name} />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="lastName">Last name</Label>
+                    <Input id="lastName" type="text" name="lastName" required defaultValue={customer!.last_name || ""} />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" name="email" required defaultValue={customer!.email || ""} />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input id="phone" type="tel" name="phone" required defaultValue={customer!.phone || ""} />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="pointsBalance">Points balance</Label>
+                  <Input
+                    id="pointsBalance"
+                    type="number"
+                    name="pointsBalance"
+                    min={0}
+                    required
+                    defaultValue={customer!.points_balance}
+                  />
+                </div>
+
+                <Button type="submit" className="self-start">
+                  Save
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          <Card className="border-destructive/30">
+            <CardHeader>
+              <CardTitle className="text-destructive">Danger zone</CardTitle>
+              <CardDescription>
+                Removes their wallet pass and takes them off your active customer list. Their point history is kept.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form action={removeCustomer.bind(null, customer!.id)} className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="confirmName">Type &ldquo;{fullName}&rdquo; to confirm</Label>
+                  <Input id="confirmName" type="text" name="confirmName" required autoComplete="off" />
+                </div>
+                <Button type="submit" variant="destructive" className="self-start">
+                  Remove customer
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </main>

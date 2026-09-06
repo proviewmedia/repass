@@ -9,8 +9,24 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        border: "var(--border)",
+        input: "var(--border-strong)",
+        ring: "var(--accent)",
+        background: "var(--bg)",
+        foreground: "var(--text)",
+        "foreground-soft": "var(--text-soft)",
+        primary: { DEFAULT: "var(--text)", foreground: "#ffffff" },
+        secondary: { DEFAULT: "var(--alt)", foreground: "var(--text)" },
+        muted: { DEFAULT: "var(--alt)", foreground: "var(--muted)" },
+        accent: { DEFAULT: "var(--alt)", foreground: "var(--text)" },
+        destructive: { DEFAULT: "#b91c1c", foreground: "#ffffff" },
+        card: { DEFAULT: "var(--bg)", foreground: "var(--text)" },
+        popover: { DEFAULT: "var(--bg)", foreground: "var(--text)" },
+      },
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 3px)",
+        sm: "calc(var(--radius) - 5px)",
       },
     },
   },

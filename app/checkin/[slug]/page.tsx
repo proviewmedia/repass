@@ -3,6 +3,11 @@ import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkinCookieName, CHECKIN_COOLDOWN_MS } from "@/lib/checkin";
 import { checkIn, linkByPhone } from "./actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert } from "@/components/ui/alert";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
 export default async function CheckinPage({
   params,
@@ -47,50 +52,53 @@ export default async function CheckinPage({
   return (
     <main className="auth-page">
       <div className="wrap auth-wrap">
-        <div className="auth-card" style={{ textAlign: "center" }}>
-          <h1>{business!.program_name || business!.name}</h1>
-          <p className="auth-sub">
-            Earn a point every visit — {business!.reward_threshold} points gets you {business!.reward_description}.
-          </p>
+        <Card className="w-full max-w-[420px] text-center">
+          <CardHeader>
+            <CardTitle className="text-2xl">{business!.program_name || business!.name}</CardTitle>
+            <CardDescription>
+              Earn a point every visit — {business!.reward_threshold} points gets you {business!.reward_description}.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
 
-          {searchParams.error && <p className="auth-error" style={{ marginTop: 20 }}>{searchParams.error}</p>}
-
-          {closed ? (
-            <p className="auth-note">This program isn&apos;t accepting check-ins right now.</p>
-          ) : searchParams.success === "1" ? (
-            <p className="auth-note">
-              You earned a point! You&apos;re now at {searchParams.points} points. Check your wallet pass for the
-              update.
-            </p>
-          ) : onCooldown ? (
-            <p className="auth-note">
-              You&apos;re already checked in for today{customer ? ` — ${customer.points_balance} points` : ""}.
-              Come back on your next visit.
-            </p>
-          ) : customer ? (
-            <form action={checkIn.bind(null, params.slug, customer.id)} className="auth-form">
-              <p className="auth-sub" style={{ marginTop: 0 }}>
-                Welcome back, {customer.first_name}. You have {customer.points_balance} points.
-              </p>
-              <button type="submit" className="btn">
-                Check in &amp; earn a point
-              </button>
-            </form>
-          ) : (
-            <form action={linkByPhone.bind(null, params.slug)} className="auth-form">
-              <label>
-                Phone number you signed up with
-                <input type="tel" name="phone" required autoComplete="tel" />
-              </label>
-              <button type="submit" className="btn">
-                Find my card
-              </button>
-              <p className="auth-alt">
-                Not signed up yet? <a href={`/join/${params.slug}`}>Join the program</a>.
-              </p>
-            </form>
-          )}
-        </div>
+            {closed ? (
+              <Alert>This program isn&apos;t accepting check-ins right now.</Alert>
+            ) : searchParams.success === "1" ? (
+              <Alert>
+                You earned a point! You&apos;re now at {searchParams.points} points. Check your wallet pass for the
+                update.
+              </Alert>
+            ) : onCooldown ? (
+              <Alert>
+                You&apos;re already checked in for today{customer ? ` — ${customer.points_balance} points` : ""}.
+                Come back on your next visit.
+              </Alert>
+            ) : customer ? (
+              <form action={checkIn.bind(null, params.slug, customer.id)} className="flex flex-col gap-4">
+                <p className="auth-sub">
+                  Welcome back, {customer.first_name}. You have {customer.points_balance} points.
+                </p>
+                <Button type="submit" className="w-full justify-center">
+                  Check in &amp; earn a point
+                </Button>
+              </form>
+            ) : (
+              <form action={linkByPhone.bind(null, params.slug)} className="flex flex-col gap-4">
+                <div className="flex flex-col gap-1.5 text-left">
+                  <Label htmlFor="phone">Phone number you signed up with</Label>
+                  <Input id="phone" type="tel" name="phone" required autoComplete="tel" />
+                </div>
+                <Button type="submit" className="w-full justify-center">
+                  Find my card
+                </Button>
+                <p className="auth-alt">
+                  Not signed up yet? <a href={`/join/${params.slug}`}>Join the program</a>.
+                </p>
+              </form>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </main>
   );

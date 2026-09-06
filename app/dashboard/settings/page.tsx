@@ -32,12 +32,14 @@ export default async function SettingsPage({
   return (
     <main className="auth-page">
       <div className="wrap auth-wrap">
-        <div className="auth-card auth-card--wide settings-card">
-          <Link href="/dashboard" className="auth-sub" style={{ display: "inline-block", marginBottom: 8 }}>
-            ← Back to dashboard
-          </Link>
-          <h1>Program settings</h1>
-          <p className="auth-sub">Changes to your card&apos;s name, color, or logo push live to every customer&apos;s wallet.</p>
+        <div className="flex w-full max-w-[900px] flex-col gap-5 sm:gap-6">
+          <div>
+            <Link href="/dashboard" className="auth-sub" style={{ display: "inline-block", marginBottom: 8 }}>
+              ← Back to dashboard
+            </Link>
+            <h1 className="text-[26px] font-bold tracking-tight">Program settings</h1>
+            <p className="auth-sub">Changes to your card&apos;s name, color, or logo push live to every customer&apos;s wallet.</p>
+          </div>
 
           <SettingsForm
             initial={{

@@ -1,6 +1,11 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { joinProgram } from "./actions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert } from "@/components/ui/alert";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 
 export default async function JoinPage({
   params,
@@ -25,41 +30,42 @@ export default async function JoinPage({
   return (
     <main className="auth-page">
       <div className="wrap auth-wrap">
-        <div className="auth-card">
-          <h1>{business!.program_name || business!.name}</h1>
-          <p className="auth-sub">
-            Earn a point every visit — {business!.reward_threshold} points gets you {business!.reward_description}.
-          </p>
-
-          {closed ? (
-            <p className="auth-note">This program isn&apos;t accepting new members right now.</p>
-          ) : (
-            <form action={joinProgram.bind(null, params.slug)} className="auth-form">
-              {searchParams.error && <p className="auth-error">{searchParams.error}</p>}
-              <div className="form-row">
-                <label>
-                  First name
-                  <input type="text" name="firstName" required autoComplete="given-name" />
-                </label>
-                <label>
-                  Last name
-                  <input type="text" name="lastName" required autoComplete="family-name" />
-                </label>
-              </div>
-              <label>
-                Email
-                <input type="email" name="email" required autoComplete="email" />
-              </label>
-              <label>
-                Phone
-                <input type="tel" name="phone" required autoComplete="tel" />
-              </label>
-              <button type="submit" className="btn">
-                Get my card
-              </button>
-            </form>
-          )}
-        </div>
+        <Card className="w-full max-w-[420px]">
+          <CardHeader>
+            <CardTitle className="text-2xl">{business!.program_name || business!.name}</CardTitle>
+            <CardDescription>
+              Earn a point every visit — {business!.reward_threshold} points gets you {business!.reward_description}.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {closed ? (
+              <Alert>This program isn&apos;t accepting new members right now.</Alert>
+            ) : (
+              <form action={joinProgram.bind(null, params.slug)} className="flex flex-col gap-4">
+                {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="firstName">First name</Label>
+                    <Input id="firstName" type="text" name="firstName" required autoComplete="given-name" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="lastName">Last name</Label>
+                    <Input id="lastName" type="text" name="lastName" required autoComplete="family-name" />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" name="email" required autoComplete="email" />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input id="phone" type="tel" name="phone" required autoComplete="tel" />
+                </div>
+                <Button type="submit">Get my card</Button>
+              </form>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </main>
   );
