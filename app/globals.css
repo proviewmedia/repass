@@ -327,21 +327,6 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 @media (max-width: 640px) { .dash-head h1 { font-size: 22px; } }
 .dash-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .dash-head h1 { font-size: 28px; letter-spacing: -0.03em; font-weight: 680; }
-.dash-head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-.dash-banner {
-  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-  background: #fff7ed; border: 1px solid #fed7aa; color: #7c2d12; border-radius: 14px;
-  padding: 14px 18px; margin-top: 24px; font-size: 14.5px;
-}
-.dash-qr-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 24px; }
-@media (max-width: 780px) { .dash-qr-row { grid-template-columns: 1fr; } }
-.dash-checkin {
-  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-  background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 14px 18px;
-}
-.dash-checkin code { display: block; margin-top: 6px; font-size: 13.5px; background: var(--alt); border-radius: 8px; padding: 4px 9px; color: var(--text-soft); }
-.checkin-qr { border-radius: 8px; border: 1px solid var(--border); flex-shrink: 0; }
-.dash-table { margin-top: 24px; background: #fff; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
 .dash-row { display: grid; grid-template-columns: 1fr 100px auto; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
 .dash-row-actions { display: flex; gap: 8px; }
 .dash-row:last-child { border-bottom: none; }
