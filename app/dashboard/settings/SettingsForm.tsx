@@ -324,8 +324,11 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
                   type="number"
                   name="rewardThreshold"
                   value={rewardThreshold}
-                  onChange={(e) => setRewardThreshold(parseInt(e.target.value, 10) || 1)}
+                  onChange={(e) =>
+                    setRewardThreshold(Math.min(14, Math.max(1, parseInt(e.target.value, 10) || 1)))
+                  }
                   min={1}
+                  max={14}
                   required
                 />
               </div>
@@ -419,8 +422,10 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
                 </div>
                 <div className="card-preview-field card-preview-field--right">
                   <span className="card-preview-label">PROGRESS</span>
-                  <span className="card-preview-circles">{renderPunchCircles(3, rewardThreshold || 5)}</span>
                 </div>
+              </div>
+              <div className="card-preview-circles-row">
+                <span className="card-preview-circles">{renderPunchCircles(3, rewardThreshold || 5)}</span>
               </div>
 
               <div className="card-preview-qr-wrap">

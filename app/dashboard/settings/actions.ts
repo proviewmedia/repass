@@ -50,7 +50,7 @@ function parseBrandingFields(formData: FormData) {
   const programName = String(formData.get("programName") || "").trim() || name;
   const rawColor = String(formData.get("colorPreset") || "");
   const colorPreset = COLOR_PRESETS.includes(rawColor) || isCustomHexColor(rawColor) ? rawColor : "dark";
-  const rewardThreshold = Math.max(1, parseInt(String(formData.get("rewardThreshold") || "10"), 10) || 10);
+  const rewardThreshold = Math.min(14, Math.max(1, parseInt(String(formData.get("rewardThreshold") || "10"), 10) || 10));
   const rewardDescription = String(formData.get("rewardDescription") || "A free reward").trim();
   const sharingProhibited = formData.get("allowSharing") !== "1";
   return { name, programName, colorPreset, rewardThreshold, rewardDescription, sharingProhibited };

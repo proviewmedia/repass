@@ -32,7 +32,7 @@ export function isCustomHexColor(value: string | null | undefined): value is str
 
 // Renders progress toward the next reward as filled/empty circles, capped so a large
 // threshold (e.g. 50) doesn't draw 50 characters onto the card.
-export function renderPunchCircles(pointsBalance: number, rewardThreshold: number, cap = 10): string {
+export function renderPunchCircles(pointsBalance: number, rewardThreshold: number, cap = 14): string {
   if (!rewardThreshold || rewardThreshold <= 0) return "";
   const progress = pointsBalance % rewardThreshold;
   const total = Math.min(rewardThreshold, cap);

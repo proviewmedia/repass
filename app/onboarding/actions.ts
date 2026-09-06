@@ -30,7 +30,7 @@ export async function createBusiness(formData: FormData) {
     ? String(formData.get("colorPreset"))
     : "dark";
   const pointsPerAction = Math.max(1, parseInt(String(formData.get("pointsPerAction") || "1"), 10) || 1);
-  const rewardThreshold = Math.max(1, parseInt(String(formData.get("rewardThreshold") || "10"), 10) || 10);
+  const rewardThreshold = Math.min(14, Math.max(1, parseInt(String(formData.get("rewardThreshold") || "10"), 10) || 10));
   const rewardDescription = String(formData.get("rewardDescription") || "A free reward").trim();
 
   if (!name || !slug) {

@@ -41,7 +41,7 @@ export default function OnboardingPage({ searchParams }: { searchParams: { error
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="rewardThreshold">Points for a reward</Label>
-                  <Input id="rewardThreshold" type="number" name="rewardThreshold" defaultValue={10} min={1} required />
+                  <Input id="rewardThreshold" type="number" name="rewardThreshold" defaultValue={10} min={1} max={14} required />
                 </div>
               </div>
 
