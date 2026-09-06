@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -157,6 +158,8 @@ export async function updateSettings(formData: FormData) {
     }).catch((err) => console.error(`Failed to refresh pass for customer ${customer.id}`, err));
   }
 
+  revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard");
   redirect("/dashboard/settings?saved=1");
 }
 

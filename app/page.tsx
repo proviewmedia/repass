@@ -42,7 +42,9 @@ export default function Home() {
             <a href="#gallery">Examples</a>
             <a href="#programs">Programs</a>
             <a href="#how">How it works</a>
-            <Link href="/login">Log in</Link>
+            <Link href="/login" className="btn ghost sm">
+              Log in
+            </Link>
             <Link href="/signup" className="btn sm">
               Start your program
             </Link>
