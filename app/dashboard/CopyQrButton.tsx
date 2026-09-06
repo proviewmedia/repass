@@ -4,6 +4,22 @@ import { useState } from "react";
 import { Check, ImageDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("timed out")), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      },
+    );
+  });
+}
+
 export default function CopyQrButton({ dataUrl, filename }: { dataUrl: string; filename: string }) {
   const [status, setStatus] = useState<"idle" | "copied" | "downloaded">("idle");
 
@@ -14,11 +30,12 @@ export default function CopyQrButton({ dataUrl, filename }: { dataUrl: string; f
       }
       const res = await fetch(dataUrl);
       const blob = await res.blob();
-      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+      // Some browsers silently hang instead of rejecting when a clipboard
+      // image write can't complete — race it so this can never hang the
+      // button, and always fall back to a real download.
+      await withTimeout(navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]), 1500);
       setStatus("copied");
     } catch {
-      // Clipboard image writes aren't reliably supported everywhere — fall
-      // back to a plain download so the button always does something useful.
       const a = document.createElement("a");
       a.href = dataUrl;
       a.download = filename;
