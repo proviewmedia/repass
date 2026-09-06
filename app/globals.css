@@ -331,6 +331,7 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 .auth-alt { margin-top: 22px; font-size: 14px; color: var(--muted); text-align: center; }
 .auth-alt a { color: var(--accent); font-weight: 600; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 420px) { .form-row { grid-template-columns: 1fr; } }
 .slug-input { display: flex; align-items: center; border: 1px solid var(--border-strong); border-radius: 10px; overflow: hidden; }
 .slug-input span { padding: 10px 0 10px 13px; color: var(--faint); font-size: 14px; white-space: nowrap; }
 .slug-input input { border: none; border-radius: 0; flex: 1; min-width: 0; }
@@ -368,11 +369,22 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 .dash-email { color: var(--muted); font-size: 13px; margin-top: 2px; }
 .dash-points { font-size: 18px; font-weight: 680; }
 .dash-empty { padding: 40px 20px; text-align: center; color: var(--muted); font-size: 14.5px; }
+@media (max-width: 640px) {
+  .dash-row--head { display: none; }
+  .dash-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "name name" "points actions";
+    row-gap: 10px;
+  }
+  .dash-row > span:first-child { grid-area: name; }
+  .dash-row > .dash-points { grid-area: points; align-self: center; }
+  .dash-row > .dash-row-actions { grid-area: actions; justify-self: end; }
+}
 
 /* ---------- Settings: form + live card preview ---------- */
 .settings-card { max-width: 760px; }
 .settings-layout { display: grid; grid-template-columns: 1fr 260px; gap: 32px; margin-top: 24px; align-items: start; }
-@media (max-width: 700px) { .settings-layout { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .settings-layout { grid-template-columns: 1fr; } .card-preview-wrap { position: static; } }
 .settings-layout .auth-form { margin-top: 0; }
 .card-preview-wrap { position: sticky; top: 24px; }
 .card-preview-toggle { display: inline-flex; background: var(--alt); border-radius: 10px; padding: 3px; margin-bottom: 12px; gap: 2px; }
