@@ -1,4 +1,5 @@
 import Link from "next/link";
+import QRCode from "qrcode";
 
 const checkIcon = (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -18,7 +19,18 @@ const oldXIcon = (
   </svg>
 );
 
-export default function Home() {
+export default async function Home() {
+  const [cafeLumenQr, bloomVineQr, tacoVerdeQr, fadeRoomQr, ironYardQr, cornerMarketQr] = await Promise.all(
+    [
+      "https://repass.app/join/cafe-lumen",
+      "https://repass.app/join/bloom-and-vine",
+      "https://repass.app/join/taco-verde",
+      "https://repass.app/join/fade-room",
+      "https://repass.app/join/iron-yard",
+      "https://repass.app/join/corner-market",
+    ].map((url) => QRCode.toDataURL(url, { margin: 0, width: 136 })),
+  );
+
   return (
     <>
       <nav>
@@ -174,7 +186,8 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="barcode-box">
-                      <div className="barcode qr" />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={cafeLumenQr} alt="QR code" className="barcode qr" />
                     </div>
                   </div>
                 </div>
@@ -253,7 +266,8 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="barcode-box">
-                    <div className="barcode qr" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={cafeLumenQr} alt="QR code" className="barcode qr" />
                   </div>
                 </div>
               </div>
@@ -287,7 +301,8 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="barcode-box">
-                    <div className="barcode qr" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={bloomVineQr} alt="QR code" className="barcode qr" />
                   </div>
                 </div>
               </div>
@@ -321,7 +336,8 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="barcode-box">
-                    <div className="barcode qr" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={tacoVerdeQr} alt="QR code" className="barcode qr" />
                   </div>
                 </div>
               </div>
@@ -355,7 +371,8 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="barcode-box">
-                    <div className="barcode qr" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={fadeRoomQr} alt="QR code" className="barcode qr" />
                   </div>
                 </div>
               </div>
@@ -389,7 +406,8 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="barcode-box">
-                    <div className="barcode qr" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={ironYardQr} alt="QR code" className="barcode qr" />
                   </div>
                 </div>
               </div>
@@ -423,7 +441,8 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="barcode-box">
-                    <div className="barcode qr" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={cornerMarketQr} alt="QR code" className="barcode qr" />
                   </div>
                 </div>
               </div>

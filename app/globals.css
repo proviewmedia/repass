@@ -179,16 +179,7 @@ h1 em { font-style: normal; color: var(--muted); }
   background: #fff; border-radius: 8px; padding: 8px; margin-top: 15px;
   display: flex; flex-direction: column; align-items: center; gap: 5px;
 }
-.barcode {
-  width: 100%; height: 40px;
-  background-image: repeating-linear-gradient(90deg, #0a0a0f 0, #0a0a0f 2px, #fff 2px, #fff 3px, #0a0a0f 3px, #0a0a0f 4px, #fff 4px, #fff 6px, #0a0a0f 6px, #0a0a0f 9px, #fff 9px, #fff 10px);
-}
-.barcode.qr {
-  height: 68px; width: 68px; border-radius: 4px;
-  background-image: linear-gradient(90deg, #0a0a0f 40%, transparent 0), linear-gradient(#0a0a0f 40%, transparent 0);
-  background-size: 8px 8px; background-color: #fff;
-}
-.barcode-alt { font-size: 9px; letter-spacing: .14em; color: #6b7280; font-variant-numeric: tabular-nums; }
+.barcode.qr { height: 68px; width: 68px; border-radius: 4px; display: block; }
 
 /* ---------- Industries strip ---------- */
 .strip { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--alt); }
