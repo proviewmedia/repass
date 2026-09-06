@@ -67,7 +67,7 @@ export default async function EditCustomerPage({
               <form action={updateCustomer.bind(null, customer!.id)} className="flex flex-col gap-4">
                 {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
 
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div className="flex flex-col gap-1.5">
                     <Label htmlFor="firstName">First name</Label>
                     <Input id="firstName" type="text" name="firstName" required defaultValue={customer!.first_name} />

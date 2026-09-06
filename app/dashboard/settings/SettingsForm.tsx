@@ -175,7 +175,7 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
             <CardDescription>Your business name, card title, and color.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="name">Business name</Label>
                 <Input id="name" type="text" name="name" required value={name} onChange={(e) => setName(e.target.value)} />
@@ -305,7 +305,7 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
               </Label>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="pointsPerAction">Points per visit</Label>
                 <Input

@@ -8,6 +8,7 @@ const alertVariants = cva("rounded-xl border px-4 py-3 text-[13.5px] leading-rel
     variant: {
       default: "border-border bg-secondary text-secondary-foreground",
       destructive: "border-destructive/30 bg-destructive/5 text-destructive",
+      warning: "border-[#fed7aa] bg-[#fff7ed] text-[#7c2d12]",
     },
   },
   defaultVariants: {
