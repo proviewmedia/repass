@@ -1,8 +1,9 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import QRCode from "qrcode";
-import { Settings, CreditCard, LogOut, Users, Sparkles, Gift, UserPlus, ScanLine, AlertTriangle } from "lucide-react";
+import { Settings, CreditCard, LogOut, Users, Sparkles, Gift, UserPlus, ScanLine, AlertTriangle, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { isCurrentUserAdmin } from "@/lib/admin";
 import { addPoint, signOut } from "./actions";
 import CopyLinkButton from "./CopyLinkButton";
 import CopyQrButton from "./CopyQrButton";
@@ -87,8 +88,10 @@ export default async function DashboardPage({
     .eq("owner_user_id", user!.id)
     .single();
 
+  const isAdmin = await isCurrentUserAdmin();
+
   if (!business) {
-    redirect("/onboarding");
+    redirect(isAdmin ? "/admin" : "/onboarding");
   }
 
   const { data: customers } = await supabase
@@ -127,6 +130,14 @@ export default async function DashboardPage({
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            {isAdmin && (
+              <Button asChild variant="ghost" size="sm">
+                <a href="/admin">
+                  <ShieldCheck className="h-4 w-4" />
+                  Admin
+                </a>
+              </Button>
+            )}
             <Button asChild variant="ghost" size="sm">
               <a href="/dashboard/settings">
                 <Settings className="h-4 w-4" />
