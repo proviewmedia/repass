@@ -34,7 +34,7 @@ export default function OnboardingPage({ searchParams }: { searchParams: { error
 
               <ColorPresetField />
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="pointsPerAction">Points per visit</Label>
                   <Input id="pointsPerAction" type="number" name="pointsPerAction" defaultValue={1} min={1} required />
