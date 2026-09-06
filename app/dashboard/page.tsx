@@ -60,7 +60,7 @@ function QRCard({
         <div className="flex flex-col items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={qrSrc} alt={qrAlt} width={140} height={140} className="rounded-lg border border-border" />
-          <CopyQrButton dataUrl={qrSrc} />
+          <CopyQrButton dataUrl={qrSrc} filename={`${qrAlt.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`} />
         </div>
       </CardContent>
     </Card>
