@@ -5,6 +5,7 @@ import { Settings, CreditCard, LogOut, Users, Sparkles, Gift, UserPlus, ScanLine
 import { createClient } from "@/lib/supabase/server";
 import { addPoint, signOut } from "./actions";
 import CopyLinkButton from "./CopyLinkButton";
+import CopyQrButton from "./CopyQrButton";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -56,9 +57,10 @@ function QRCard({
           <code className="min-w-0 flex-1 truncate font-mono text-[12.5px] text-foreground-soft">{url}</code>
           <CopyLinkButton value={url} />
         </div>
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={qrSrc} alt={qrAlt} width={140} height={140} className="rounded-lg border border-border" />
+          <CopyQrButton dataUrl={qrSrc} />
         </div>
       </CardContent>
     </Card>

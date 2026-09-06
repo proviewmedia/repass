@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import { Check } from "lucide-react";
 import { updateSettings, previewCard } from "./actions";
+import SubmitButton from "./SubmitButton";
 import { renderPunchCircles, renderNextRewardMessage } from "@/lib/wallet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -348,11 +349,16 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
           </CardContent>
         </Card>
 
-        <div className="flex flex-wrap gap-3">
-          <Button type="submit">Save changes</Button>
-          <Button type="submit" formAction={previewCard} variant="ghost">
+        <div className="flex flex-wrap items-center gap-3">
+          <SubmitButton pendingText="Saving…">Save changes</SubmitButton>
+          <SubmitButton formAction={previewCard} variant="ghost" pendingText="Generating…">
             Preview on your phone
-          </Button>
+          </SubmitButton>
+          {saved && (
+            <span className="flex items-center gap-1.5 text-[13.5px] font-medium text-emerald-600">
+              <Check className="h-4 w-4" /> Saved
+            </span>
+          )}
         </div>
 
         {realQr && (
