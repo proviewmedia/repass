@@ -1,4 +1,5 @@
 import Link from "next/link";
+import QRCode from "qrcode";
 
 const checkIcon = (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -18,7 +19,8 @@ const oldXIcon = (
   </svg>
 );
 
-export default function Home() {
+export default async function Home() {
+  const mockQr = await QRCode.toDataURL("https://proviewstudio.com", { margin: 0, width: 136 });
   return (
     <>
       <nav>
@@ -174,7 +176,8 @@ export default function Home() {
                       </div>
                     </div>
                     <div className="barcode-box">
-                      <div className="barcode qr" />
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={mockQr} alt="QR code" className="barcode qr" />
                     </div>
                   </div>
                 </div>
