@@ -173,14 +173,9 @@ h1 em { font-style: normal; color: var(--muted); }
 .field-label { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--pass-label); font-weight: 650; }
 .field-val { font-size: 14px; font-weight: 600; margin-top: 2px; line-height: 1.2; }
 .field.right { text-align: right; }
-.pass-primary { margin: 16px 0 4px; }
-.pass-primary .field-val { font-size: 29px; font-weight: 720; letter-spacing: -0.025em; }
-.pass-primary .unit { font-size: 14px; font-weight: 500; color: var(--pass-label); }
-.pass-sub { display: flex; gap: 26px; margin-top: 14px; }
-.stamps { display: flex; gap: 6px; margin: 16px 0 6px; flex-wrap: wrap; }
-.stamp { width: 21px; height: 21px; border-radius: 50%; border: 1.5px solid var(--pass-label); display: grid; place-items: center; }
-.stamp.on { background: var(--pass-fg); border-color: var(--pass-fg); }
-.stamp.on svg { stroke: var(--pass-bg); }
+.pass-title { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; margin-top: 14px; line-height: 1.2; }
+.pass-sub { display: flex; justify-content: space-between; gap: 26px; margin-top: 14px; }
+.pass-circles { letter-spacing: 2px; }
 .barcode-box {
   background: #fff; border-radius: 8px; padding: 8px; margin-top: 15px;
   display: flex; flex-direction: column; align-items: center; gap: 5px;

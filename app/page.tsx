@@ -1,11 +1,5 @@
 import Link from "next/link";
 
-const stampCheck = (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 6 9 17l-5-5" />
-  </svg>
-);
-
 const checkIcon = (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 6 9 17l-5-5" />
@@ -40,7 +34,7 @@ export default function Home() {
           </div>
           <div className="nav-links">
             <a href="#gallery">Examples</a>
-            <a href="#programs">Programs</a>
+            <a href="#features">Features</a>
             <a href="#how">How it works</a>
             <Link href="/login" className="btn ghost sm">
               Log in
@@ -63,8 +57,8 @@ export default function Home() {
               Loyalty cards that live in your customers&apos; <em>phones.</em>
             </h1>
             <p className="lead">
-              Repass designs and runs Apple &amp; Google Wallet programs for local businesses — loyalty, coupons, and
-              memberships that update themselves. You run your shop. We handle the tech.
+              Repass designs and runs Apple &amp; Google Wallet loyalty programs for local businesses — points cards
+              that update themselves. You run your shop. We handle the tech.
             </p>
             <div className="hero-cta">
               <Link href="/signup" className="btn">
@@ -134,14 +128,17 @@ export default function Home() {
                   <div className="s">3 passes</div>
                 </div>
                 <div className="stack">
-                  <div className="pass" style={{ "--pass-bg": "#0f5132", "--pass-fg": "#ffffff", "--pass-label": "#ffffffb0" } as React.CSSProperties}>
+                  <div className="pass" style={{ "--pass-bg": "#1e3a5f", "--pass-fg": "#eaf2ff", "--pass-label": "#eaf2ffa6" } as React.CSSProperties}>
                     <div className="pass-row">
                       <div className="pass-brand">
-                        <span className="pl">IY</span> Iron Yard
+                        <span className="pl" style={{ background: "#7fb2ff", color: "#0f2340" }}>
+                          IY
+                        </span>{" "}
+                        Iron Yard
                       </div>
                       <div className="field right">
-                        <div className="field-label">Member</div>
-                        <div className="field-val">All-Access</div>
+                        <div className="field-label">Points</div>
+                        <div className="field-val">40</div>
                       </div>
                     </div>
                   </div>
@@ -164,34 +161,20 @@ export default function Home() {
                         </span>{" "}
                         Café Lumen
                       </div>
-                      <div className="field right">
-                        <div className="field-label">Reward at</div>
-                        <div className="field-val">10 drinks</div>
-                      </div>
                     </div>
-                    <div className="stamps">
-                      {Array.from({ length: 7 }).map((_, i) => (
-                        <span className="stamp on" key={i}>
-                          {stampCheck}
-                        </span>
-                      ))}
-                      <span className="stamp" />
-                      <span className="stamp" />
-                      <span className="stamp" />
-                    </div>
+                    <div className="pass-title">Café Lumen Rewards</div>
                     <div className="pass-sub">
                       <div className="field">
-                        <div className="field-label">Progress</div>
-                        <div className="field-val">7 / 10</div>
+                        <div className="field-label">Points</div>
+                        <div className="field-val">7</div>
                       </div>
-                      <div className="field">
-                        <div className="field-label">Member</div>
-                        <div className="field-val">Ava M.</div>
+                      <div className="field right">
+                        <div className="field-label">Progress</div>
+                        <div className="field-val pass-circles">●●●●●●●○○○</div>
                       </div>
                     </div>
                     <div className="barcode-box">
-                      <div className="barcode" />
-                      <div className="barcode-alt">CL-4821-0075</div>
+                      <div className="barcode qr" />
                     </div>
                   </div>
                 </div>
@@ -257,31 +240,27 @@ export default function Home() {
                       </span>{" "}
                       Café Lumen
                     </div>
+                  </div>
+                  <div className="pass-title">Café Lumen Rewards</div>
+                  <div className="pass-sub">
+                    <div className="field">
+                      <div className="field-label">Points</div>
+                      <div className="field-val">7</div>
+                    </div>
                     <div className="field right">
-                      <div className="field-label">Reward at</div>
-                      <div className="field-val">10 drinks</div>
+                      <div className="field-label">Progress</div>
+                      <div className="field-val pass-circles">●●●●●●●○○○</div>
                     </div>
                   </div>
-                  <div className="stamps">
-                    {Array.from({ length: 7 }).map((_, i) => (
-                      <span className="stamp on" key={i}>
-                        {stampCheck}
-                      </span>
-                    ))}
-                    <span className="stamp" />
-                    <span className="stamp" />
-                    <span className="stamp" />
-                  </div>
                   <div className="barcode-box">
-                    <div className="barcode" />
-                    <div className="barcode-alt">CL-4821-0075</div>
+                    <div className="barcode qr" />
                   </div>
                 </div>
               </div>
               <div className="gcap">
-                <div className="type">Loyalty · Stamp card</div>
+                <div className="type">Loyalty program</div>
                 <div className="name">Café Lumen</div>
-                <div className="desc">Buy 10, get one free</div>
+                <div className="desc">Free drink every 10 visits</div>
               </div>
             </div>
 
@@ -295,37 +274,27 @@ export default function Home() {
                       </span>{" "}
                       Bloom &amp; Vine
                     </div>
-                    <div className="field right">
-                      <div className="field-label">Tier</div>
-                      <div className="field-val">Rose</div>
-                    </div>
                   </div>
-                  <div className="pass-primary">
-                    <div className="field-label">Points balance</div>
-                    <div className="field-val">
-                      320 <span className="unit">pts</span>
-                    </div>
-                  </div>
+                  <div className="pass-title">Bloom &amp; Vine Rewards</div>
                   <div className="pass-sub">
                     <div className="field">
-                      <div className="field-label">Member</div>
-                      <div className="field-val">Ava Morales</div>
+                      <div className="field-label">Points</div>
+                      <div className="field-val">4</div>
                     </div>
-                    <div className="field">
-                      <div className="field-label">Next reward</div>
-                      <div className="field-val">80 pts</div>
+                    <div className="field right">
+                      <div className="field-label">Progress</div>
+                      <div className="field-val pass-circles">●●●●○○○○</div>
                     </div>
                   </div>
                   <div className="barcode-box">
-                    <div className="barcode" />
-                    <div className="barcode-alt">BV-0192-4471</div>
+                    <div className="barcode qr" />
                   </div>
                 </div>
               </div>
               <div className="gcap">
-                <div className="type">Loyalty · Points</div>
+                <div className="type">Loyalty program</div>
                 <div className="name">Bloom &amp; Vine</div>
-                <div className="desc">Earn points on every purchase</div>
+                <div className="desc">Free bouquet every 8 visits</div>
               </div>
             </div>
 
@@ -339,35 +308,27 @@ export default function Home() {
                       </span>{" "}
                       Taco Verde
                     </div>
-                    <div className="field right">
-                      <div className="field-label">Expires</div>
-                      <div className="field-val">Aug 31</div>
-                    </div>
                   </div>
-                  <div className="pass-primary">
-                    <div className="field-label">Your offer</div>
-                    <div className="field-val">20% OFF</div>
-                  </div>
+                  <div className="pass-title">Taco Verde Rewards</div>
                   <div className="pass-sub">
                     <div className="field">
-                      <div className="field-label">Applies to</div>
-                      <div className="field-val">Next order</div>
+                      <div className="field-label">Points</div>
+                      <div className="field-val">3</div>
                     </div>
-                    <div className="field">
-                      <div className="field-label">Code</div>
-                      <div className="field-val">VERDE20</div>
+                    <div className="field right">
+                      <div className="field-label">Progress</div>
+                      <div className="field-val pass-circles">●●●○○○</div>
                     </div>
                   </div>
                   <div className="barcode-box">
-                    <div className="barcode" />
-                    <div className="barcode-alt">TV-COUPON-20OFF</div>
+                    <div className="barcode qr" />
                   </div>
                 </div>
               </div>
               <div className="gcap">
-                <div className="type">Coupon · Promo</div>
+                <div className="type">Loyalty program</div>
                 <div className="name">Taco Verde</div>
-                <div className="desc">Redeemable, one-tap offers</div>
+                <div className="desc">Free entrée every 6 visits</div>
               </div>
             </div>
 
@@ -381,35 +342,27 @@ export default function Home() {
                       </span>{" "}
                       Fade Room
                     </div>
-                    <div className="field right">
-                      <div className="field-label">Status</div>
-                      <div className="field-val">Gold</div>
-                    </div>
                   </div>
-                  <div className="pass-primary">
-                    <div className="field-label">Membership</div>
-                    <div className="field-val">Unlimited</div>
-                  </div>
+                  <div className="pass-title">Fade Room Rewards</div>
                   <div className="pass-sub">
                     <div className="field">
-                      <div className="field-label">Member since</div>
-                      <div className="field-val">2026</div>
+                      <div className="field-label">Points</div>
+                      <div className="field-val">9</div>
                     </div>
-                    <div className="field">
-                      <div className="field-label">Visits</div>
-                      <div className="field-val">18</div>
+                    <div className="field right">
+                      <div className="field-label">Progress</div>
+                      <div className="field-val pass-circles">●●●●●●●●●○</div>
                     </div>
                   </div>
                   <div className="barcode-box">
-                    <div className="barcode" />
-                    <div className="barcode-alt">FR-GOLD-3390</div>
+                    <div className="barcode qr" />
                   </div>
                 </div>
               </div>
               <div className="gcap">
-                <div className="type">Membership</div>
+                <div className="type">Loyalty program</div>
                 <div className="name">Fade Room</div>
-                <div className="desc">Tiers, status &amp; perks</div>
+                <div className="desc">Free cut every 10 visits</div>
               </div>
             </div>
 
@@ -423,35 +376,27 @@ export default function Home() {
                       </span>{" "}
                       Iron Yard
                     </div>
-                    <div className="field right">
-                      <div className="field-label">Access</div>
-                      <div className="field-val">All hours</div>
-                    </div>
                   </div>
-                  <div className="pass-primary">
-                    <div className="field-label">Plan</div>
-                    <div className="field-val">All-Access</div>
-                  </div>
+                  <div className="pass-title">Iron Yard Rewards</div>
                   <div className="pass-sub">
                     <div className="field">
-                      <div className="field-label">Member</div>
-                      <div className="field-val">M. Morales</div>
+                      <div className="field-label">Points</div>
+                      <div className="field-val">2</div>
                     </div>
-                    <div className="field">
-                      <div className="field-label">ID</div>
-                      <div className="field-val">#0451</div>
+                    <div className="field right">
+                      <div className="field-label">Progress</div>
+                      <div className="field-val pass-circles">●●○○○</div>
                     </div>
                   </div>
                   <div className="barcode-box">
                     <div className="barcode qr" />
-                    <div className="barcode-alt">IY-0451</div>
                   </div>
                 </div>
               </div>
               <div className="gcap">
-                <div className="type">Membership · Access</div>
+                <div className="type">Loyalty program</div>
                 <div className="name">Iron Yard</div>
-                <div className="desc">Scan-in with a QR code</div>
+                <div className="desc">Free class every 5 visits</div>
               </div>
             </div>
 
@@ -465,93 +410,87 @@ export default function Home() {
                       </span>{" "}
                       Corner Market
                     </div>
-                    <div className="field right">
-                      <div className="field-label">Card</div>
-                      <div className="field-val">Store</div>
-                    </div>
                   </div>
-                  <div className="pass-primary">
-                    <div className="field-label">Balance</div>
-                    <div className="field-val">$45.00</div>
-                  </div>
+                  <div className="pass-title">Corner Market Rewards</div>
                   <div className="pass-sub">
                     <div className="field">
-                      <div className="field-label">Member</div>
-                      <div className="field-val">A. Morales</div>
+                      <div className="field-label">Points</div>
+                      <div className="field-val">5</div>
                     </div>
-                    <div className="field">
-                      <div className="field-label">Since</div>
-                      <div className="field-val">May 2026</div>
+                    <div className="field right">
+                      <div className="field-label">Progress</div>
+                      <div className="field-val pass-circles">●●●●●○○○○○</div>
                     </div>
                   </div>
                   <div className="barcode-box">
-                    <div className="barcode" />
-                    <div className="barcode-alt">CM-8820-1174</div>
+                    <div className="barcode qr" />
                   </div>
                 </div>
               </div>
               <div className="gcap">
-                <div className="type">Store card</div>
+                <div className="type">Loyalty program</div>
                 <div className="name">Corner Market</div>
-                <div className="desc">Reloadable store credit</div>
+                <div className="desc">$10 off every 10 visits</div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ================= PROGRAMS ================= */}
-      <section id="programs" className="alt">
+      {/* ================= FEATURES ================= */}
+      <section id="features" className="alt">
         <div className="wrap">
           <div className="sec-head">
-            <span className="sec-eyebrow">Programs</span>
-            <h2>Three ways to bring customers back.</h2>
-            <p>Start with one or run all three. Each is a branded pass your customers keep in their wallet.</p>
+            <span className="sec-eyebrow">Features</span>
+            <h2>Everything you need to run a points program.</h2>
+            <p>One loyalty card, fully branded, with no software for you to learn.</p>
           </div>
           <div className="grid-3">
             <div className="card">
               <div className="ic">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M12 7v10M8.5 9.5a2.5 2.5 0 0 1 5 0c0 3-5 1.5-5 4a2.5 2.5 0 0 0 5 0" />
+                  <rect x="2" y="5" width="20" height="14" rx="2.5" />
+                  <path d="M2 10h20" />
+                  <circle cx="7" cy="7.6" r="1.1" fill="currentColor" stroke="none" />
                 </svg>
               </div>
-              <h3>Loyalty &amp; stamp cards</h3>
-              <p>Digital punch cards and points that track themselves.</p>
+              <h3>Your card, your brand</h3>
+              <p>Set your colors, logo, and reward — the design pushes to every customer&apos;s phone instantly.</p>
               <ul>
-                <li>{checkIcon} Buy-9-get-1-free, or points</li>
-                <li>{checkIcon} Updates instantly at the counter</li>
-                <li>{checkIcon} Never lost, never reprinted</li>
+                <li>{checkIcon} Custom colors and logo</li>
+                <li>{checkIcon} Your own points rule and reward</li>
+                <li>{checkIcon} Changes update every card at once</li>
               </ul>
             </div>
             <div className="card">
               <div className="ic">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 3H4a1 1 0 0 0-1 1v5l11 11 6-6L9 3Z" />
-                  <circle cx="7.5" cy="7.5" r="1.5" fill="currentColor" />
+                  <rect x="3" y="3" width="7" height="7" rx="1" />
+                  <rect x="14" y="3" width="7" height="7" rx="1" />
+                  <rect x="3" y="14" width="7" height="7" rx="1" />
+                  <path d="M14 14h3v3h-3zM19 14h2v2h-2zM14 19h2v2h-2zM19 19h2v2h-2z" />
                 </svg>
               </div>
-              <h3>Coupons &amp; promos</h3>
-              <p>Redeemable offers delivered straight to the wallet.</p>
+              <h3>Self-serve at the counter</h3>
+              <p>Two QR codes handle sign-up and check-in — no dashboard needed on a busy shift.</p>
               <ul>
-                <li>{checkIcon} Percent-off, BOGO, first-visit</li>
-                <li>{checkIcon} Set an expiry date</li>
-                <li>{checkIcon} Push to everyone who holds it</li>
+                <li>{checkIcon} Customers scan to join and add their card</li>
+                <li>{checkIcon} A second QR lets them earn a point themselves</li>
+                <li>{checkIcon} Print once, reuse every day</li>
               </ul>
             </div>
             <div className="card">
               <div className="ic">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="5" width="20" height="14" rx="2" />
-                  <path d="M2 10h20M6 15h4" />
+                  <path d="M13 2 3 14h7l-1 8 11-14h-7l1-6Z" />
                 </svg>
               </div>
-              <h3>Membership &amp; store cards</h3>
-              <p>VIP tiers, gym access, store credit — always current.</p>
+              <h3>One tap from your dashboard</h3>
+              <p>Or add a point yourself and watch it land on the customer&apos;s phone in real time.</p>
               <ul>
-                <li>{checkIcon} Tiers, status &amp; member IDs</li>
-                <li>{checkIcon} QR / barcode scan-in</li>
-                <li>{checkIcon} Message members directly</li>
+                <li>{checkIcon} See every customer and their balance</li>
+                <li>{checkIcon} Add a point in one click</li>
+                <li>{checkIcon} The wallet pass updates instantly</li>
               </ul>
             </div>
           </div>
@@ -584,9 +523,9 @@ export default function Home() {
               </h3>
               <ul>
                 <li>{newCheckIcon} Always in the phone, next to boarding passes</li>
-                <li>{newCheckIcon} Nothing to print — ever</li>
-                <li>{newCheckIcon} Push an offer to every holder in seconds</li>
-                <li>{newCheckIcon} See visits, redemptions &amp; repeat rate</li>
+                <li>{newCheckIcon} Nothing to print or restock — ever</li>
+                <li>{newCheckIcon} Change the design once, every card updates</li>
+                <li>{newCheckIcon} Customers scan to join or earn a point themselves</li>
               </ul>
             </div>
           </div>
@@ -647,8 +586,8 @@ export default function Home() {
               <p>covered from day one</p>
             </div>
             <div className="stat-cell">
-              <div className="stat">Anytime</div>
-              <p>push offers to every holder</p>
+              <div className="stat">Instant</div>
+              <p>pass updates the moment you add a point</p>
             </div>
           </div>
         </div>
@@ -692,7 +631,7 @@ export default function Home() {
               <div className="foot-col">
                 <h4>Product</h4>
                 <a href="#gallery">Examples</a>
-                <a href="#programs">Programs</a>
+                <a href="#features">Features</a>
                 <a href="#how">How it works</a>
               </div>
               <div className="foot-col">
