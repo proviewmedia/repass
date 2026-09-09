@@ -19,7 +19,12 @@ export async function GET(request: NextRequest) {
     .single();
 
   if (!business?.stripe_customer_id) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const url = new URL("/dashboard", request.url);
+    url.searchParams.set(
+      "error",
+      "No billing account on file yet — subscribe first, then Billing will open your Stripe portal.",
+    );
+    return NextResponse.redirect(url);
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;

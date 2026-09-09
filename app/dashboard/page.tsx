@@ -65,7 +65,7 @@ function QRCard({
   );
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams: { error?: string } }) {
   const { supabase, business } = await getCurrentBusiness();
 
   const { count: totalCustomers } = await supabase
@@ -110,13 +110,15 @@ export default async function DashboardPage() {
       <div className="wrap flex flex-col gap-5 sm:gap-6">
         <div className="dash-head">
           <div>
-            <h1>{business.name}</h1>
+            <h1>Dashboard</h1>
             <p className="auth-sub">
-              {business.points_per_action} pt/visit · {activeTierCount ?? 0} reward{(activeTierCount ?? 0) === 1 ? "" : "s"}{" "}
-              available
+              {business.name} · {business.points_per_action} pt/visit · {activeTierCount ?? 0} reward
+              {(activeTierCount ?? 0) === 1 ? "" : "s"} available
             </p>
           </div>
         </div>
+
+        {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
 
         {!active && (
           <Alert variant="warning">

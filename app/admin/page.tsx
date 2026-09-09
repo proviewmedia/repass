@@ -33,7 +33,7 @@ export default async function AdminPage() {
   }
 
   return (
-    <main className="dash">
+    <main className="dash-content">
       <div className="wrap flex flex-col gap-5 sm:gap-6">
         <div className="dash-head">
           <div>

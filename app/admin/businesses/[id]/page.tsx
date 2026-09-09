@@ -45,7 +45,7 @@ export default async function AdminBusinessPage({ params }: { params: { id: stri
     .order("points_cost", { ascending: true });
 
   return (
-    <main className="dash">
+    <main className="dash-content">
       <div className="wrap flex flex-col gap-5 sm:gap-6">
         <div>
           <a href="/admin" className="auth-sub inline-flex items-center gap-1.5 hover:underline">
