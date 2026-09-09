@@ -20,7 +20,7 @@ export default async function SettingsPage({
   const { data: business } = await supabase
     .from("businesses")
     .select(
-      "name, program_name, color_preset, logo_url, wide_logo_url, icon_url, thumbnail_url, strip_url, sharing_prohibited, points_per_action, reward_threshold, reward_description",
+      "name, program_name, color_preset, logo_url, wide_logo_url, icon_url, thumbnail_url, strip_url, sharing_prohibited, points_per_action",
     )
     .eq("owner_user_id", user!.id)
     .single();
@@ -42,6 +42,14 @@ export default async function SettingsPage({
           </div>
 
           <Link
+            href="/dashboard/settings/rewards"
+            className="flex items-center justify-between rounded-2xl border border-border bg-card px-5 py-4 text-[14.5px] font-medium hover:border-input sm:px-6"
+          >
+            <span>Rewards — manage what customers can redeem and what it costs</span>
+            <span aria-hidden="true">→</span>
+          </Link>
+
+          <Link
             href="/dashboard/settings/connections"
             className="flex items-center justify-between rounded-2xl border border-border bg-card px-5 py-4 text-[14.5px] font-medium hover:border-input sm:px-6"
           >
@@ -61,8 +69,6 @@ export default async function SettingsPage({
               stripUrl: business!.strip_url,
               allowSharing: !business!.sharing_prohibited,
               pointsPerAction: business!.points_per_action,
-              rewardThreshold: business!.reward_threshold,
-              rewardDescription: business!.reward_description,
             }}
             error={searchParams.error}
             saved={searchParams.saved === "1"}

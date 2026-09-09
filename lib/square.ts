@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { SquareClient, SquareEnvironment, WebhooksHelper } from "square";
 import { decrypt, encrypt } from "@/lib/crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -15,7 +16,7 @@ function oauthBaseUrl(): string {
 export function buildAuthorizeUrl(state: string): string {
   const params = new URLSearchParams({
     client_id: process.env.SQUARE_APPLICATION_ID!,
-    scope: "MERCHANT_PROFILE_READ CUSTOMERS_READ PAYMENTS_READ",
+    scope: "MERCHANT_PROFILE_READ CUSTOMERS_READ PAYMENTS_READ ORDERS_READ ITEMS_READ ITEMS_WRITE",
     session: "false",
     state,
   });
@@ -97,6 +98,7 @@ export async function getValidAccessToken(connection: PosConnectionRow): Promise
 export interface SquarePaymentDetails {
   status: string;
   customerId: string | null;
+  orderId: string | null;
 }
 
 // Wraps a single Payments API call with a reactive refresh-on-401 fallback, in
@@ -104,16 +106,20 @@ export interface SquarePaymentDetails {
 export async function fetchPayment(connection: PosConnectionRow, paymentId: string): Promise<SquarePaymentDetails> {
   const run = async (accessToken: string) => client(accessToken).payments.get({ paymentId });
 
+  const toDetails = (result: Awaited<ReturnType<typeof run>>): SquarePaymentDetails => ({
+    status: result.payment?.status || "",
+    customerId: result.payment?.customerId || null,
+    orderId: result.payment?.orderId || null,
+  });
+
   let accessToken = await getValidAccessToken(connection);
   try {
-    const result = await run(accessToken);
-    return { status: result.payment?.status || "", customerId: result.payment?.customerId || null };
+    return toDetails(await run(accessToken));
   } catch (err) {
     const isUnauthorized = err instanceof Error && "statusCode" in err && (err as { statusCode?: number }).statusCode === 401;
     if (!isUnauthorized) throw err;
     accessToken = await refreshConnection(connection);
-    const result = await run(accessToken);
-    return { status: result.payment?.status || "", customerId: result.payment?.customerId || null };
+    return toDetails(await run(accessToken));
   }
 }
 
@@ -132,6 +138,77 @@ export async function fetchCustomerContact(
     phone: result.customer?.phoneNumber || null,
     email: result.customer?.emailAddress || null,
   };
+}
+
+export interface SquareDiscount {
+  id: string;
+  name: string;
+}
+
+// Lists the merchant's existing Catalog discounts, for the "pick an existing
+// discount" step of linking a reward tier to Square.
+export async function listDiscounts(connection: PosConnectionRow): Promise<SquareDiscount[]> {
+  const accessToken = await getValidAccessToken(connection);
+  const pager = await client(accessToken).catalog.list({ types: "DISCOUNT" });
+  const out: SquareDiscount[] = [];
+  for await (const obj of pager) {
+    if (obj.type !== "DISCOUNT" || !obj.id) continue;
+    out.push({ id: obj.id, name: obj.discountData?.name || "Untitled discount" });
+  }
+  return out;
+}
+
+export interface CreateDiscountParams {
+  name: string;
+  kind: "fixed_amount" | "fixed_percentage";
+  /** Whole-cent integer. Required when kind is "fixed_amount". */
+  amountCents?: number;
+  /** Decimal string, e.g. "100" for 100% off. Required when kind is "fixed_percentage". */
+  percentage?: string;
+}
+
+// Creates a new Catalog discount via batchUpsert, so a business never has to
+// leave Repass to set up a reward's Square side. Square has no "free item"
+// discount type — a free-item reward should use a fixed amount matching the
+// item's price, or a 100% fixed percentage.
+export async function createDiscount(connection: PosConnectionRow, params: CreateDiscountParams): Promise<SquareDiscount> {
+  const accessToken = await getValidAccessToken(connection);
+  const result = await client(accessToken).catalog.batchUpsert({
+    idempotencyKey: randomUUID(),
+    batches: [
+      {
+        objects: [
+          {
+            type: "DISCOUNT",
+            id: "#repass-reward-discount",
+            discountData: {
+              name: params.name,
+              discountType: params.kind === "fixed_amount" ? "FIXED_AMOUNT" : "FIXED_PERCENTAGE",
+              ...(params.kind === "fixed_amount"
+                ? { amountMoney: { amount: BigInt(params.amountCents ?? 0), currency: "USD" } }
+                : { percentage: params.percentage ?? "100" }),
+            },
+          },
+        ],
+      },
+    ],
+  });
+
+  const created = result.objects?.[0];
+  if (!created?.id) {
+    throw new Error("Square did not return the created discount");
+  }
+  return { id: created.id, name: params.name };
+}
+
+// Fetches an order's applied Catalog discount ids, to check against a
+// business's reward-tier links.
+export async function fetchOrderDiscountIds(connection: PosConnectionRow, orderId: string): Promise<string[]> {
+  const accessToken = await getValidAccessToken(connection);
+  const result = await client(accessToken).orders.get({ orderId });
+  return (result.order?.discounts || [])
+    .map((d) => d.catalogObjectId)
+    .filter((id): id is string => Boolean(id));
 }
 
 // Webhook subscriptions belong to the application, not to individual connected

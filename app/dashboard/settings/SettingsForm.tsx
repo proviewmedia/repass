@@ -5,7 +5,7 @@ import QRCode from "qrcode";
 import { Check } from "lucide-react";
 import { updateSettings, previewCard } from "./actions";
 import SubmitButton from "./SubmitButton";
-import { renderPunchCircles, renderNextRewardMessage } from "@/lib/wallet";
+import { renderNextRewardMessage } from "@/lib/wallet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,8 +36,6 @@ interface Props {
     stripUrl: string | null;
     allowSharing: boolean;
     pointsPerAction: number;
-    rewardThreshold: number;
-    rewardDescription: string;
   };
   error?: string;
   saved?: boolean;
@@ -125,9 +123,6 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
   const [customColor, setCustomColor] = useState(
     HEX_COLOR_RE.test(initial.colorPreset) ? initial.colorPreset : "#4f46e5",
   );
-  const [rewardThreshold, setRewardThreshold] = useState(initial.rewardThreshold);
-  const [rewardDescription, setRewardDescription] = useState(initial.rewardDescription);
-
   const logo = useImageField(initial.logoUrl);
   const wideLogo = useImageField(initial.wideLogoUrl);
   const icon = useImageField(initial.iconUrl);
@@ -296,7 +291,13 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
         <Card>
           <CardHeader>
             <CardTitle>Points rule</CardTitle>
-            <CardDescription>What earns a point, and what it unlocks.</CardDescription>
+            <CardDescription>
+              What earns a point. Manage rewards and their point costs on the{" "}
+              <a href="/dashboard/settings/rewards" className="underline">
+                Rewards page
+              </a>
+              .
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2.5">
@@ -306,43 +307,14 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
               </Label>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="pointsPerAction">Points per visit</Label>
-                <Input
-                  id="pointsPerAction"
-                  type="number"
-                  name="pointsPerAction"
-                  defaultValue={initial.pointsPerAction}
-                  min={1}
-                  required
-                />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="rewardThreshold">Points for a reward</Label>
-                <Input
-                  id="rewardThreshold"
-                  type="number"
-                  name="rewardThreshold"
-                  value={rewardThreshold}
-                  onChange={(e) =>
-                    setRewardThreshold(Math.min(14, Math.max(1, parseInt(e.target.value, 10) || 1)))
-                  }
-                  min={1}
-                  max={14}
-                  required
-                />
-              </div>
-            </div>
-
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="rewardDescription">What the reward is</Label>
+              <Label htmlFor="pointsPerAction">Points per visit</Label>
               <Input
-                id="rewardDescription"
-                type="text"
-                name="rewardDescription"
-                value={rewardDescription}
-                onChange={(e) => setRewardDescription(e.target.value)}
+                id="pointsPerAction"
+                type="number"
+                name="pointsPerAction"
+                defaultValue={initial.pointsPerAction}
+                min={1}
                 required
               />
             </div>
@@ -426,12 +398,6 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
                   <span className="card-preview-label">POINTS</span>
                   <span>3</span>
                 </div>
-                <div className="card-preview-field card-preview-field--right">
-                  <span className="card-preview-label">PROGRESS</span>
-                </div>
-              </div>
-              <div className="card-preview-circles-row">
-                <span className="card-preview-circles">{renderPunchCircles(3, rewardThreshold || 5)}</span>
               </div>
 
               <div className="card-preview-qr-wrap">
@@ -462,7 +428,7 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
               </div>
               <div className="card-preview-back-field">
                 <span className="card-preview-label">Next reward</span>
-                <span>{renderNextRewardMessage(3, rewardThreshold, rewardDescription)}</span>
+                <span>{renderNextRewardMessage(3, [{ pointsCost: 10, label: "a reward" }])}</span>
               </div>
             </div>
           )}

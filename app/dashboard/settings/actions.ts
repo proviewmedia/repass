@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createPass, isCustomHexColor, updatePass } from "@/lib/wallet";
+import { createPass, isCustomHexColor, updatePass, type RewardTier } from "@/lib/wallet";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 const COLOR_PRESETS = ["dark", "blue", "green", "red", "purple", "orange"];
 const IMAGE_MIME_EXT: Record<string, string> = {
@@ -50,10 +51,18 @@ function parseBrandingFields(formData: FormData) {
   const programName = String(formData.get("programName") || "").trim() || name;
   const rawColor = String(formData.get("colorPreset") || "");
   const colorPreset = COLOR_PRESETS.includes(rawColor) || isCustomHexColor(rawColor) ? rawColor : "dark";
-  const rewardThreshold = Math.min(14, Math.max(1, parseInt(String(formData.get("rewardThreshold") || "10"), 10) || 10));
-  const rewardDescription = String(formData.get("rewardDescription") || "A free reward").trim();
   const sharingProhibited = formData.get("allowSharing") !== "1";
-  return { name, programName, colorPreset, rewardThreshold, rewardDescription, sharingProhibited };
+  return { name, programName, colorPreset, sharingProhibited };
+}
+
+async function fetchActiveTiers(supabase: SupabaseClient, businessId: string): Promise<RewardTier[]> {
+  const { data } = await supabase
+    .from("reward_tiers")
+    .select("points_cost, label")
+    .eq("business_id", businessId)
+    .is("archived_at", null)
+    .order("points_cost", { ascending: true });
+  return (data || []).map((t) => ({ pointsCost: t.points_cost, label: t.label }));
 }
 
 export async function updateSettings(formData: FormData) {
@@ -76,8 +85,7 @@ export async function updateSettings(formData: FormData) {
     redirect("/onboarding");
   }
 
-  const { name, programName, colorPreset, rewardThreshold, rewardDescription, sharingProhibited } =
-    parseBrandingFields(formData);
+  const { name, programName, colorPreset, sharingProhibited } = parseBrandingFields(formData);
   const pointsPerAction = Math.max(1, parseInt(String(formData.get("pointsPerAction") || "1"), 10) || 1);
 
   if (!name) {
@@ -118,8 +126,6 @@ export async function updateSettings(formData: FormData) {
       strip_url: stripUrl!,
       sharing_prohibited: sharingProhibited,
       points_per_action: pointsPerAction,
-      reward_threshold: rewardThreshold,
-      reward_description: rewardDescription,
     })
     .eq("id", business!.id);
 
@@ -137,6 +143,8 @@ export async function updateSettings(formData: FormData) {
     .is("removed_at", null)
     .not("walletwallet_serial", "is", null);
 
+  const rewardTiers = await fetchActiveTiers(supabase, business!.id);
+
   const branding = {
     name,
     programName,
@@ -147,8 +155,7 @@ export async function updateSettings(formData: FormData) {
     thumbnailUrl,
     stripUrl,
     sharingProhibited,
-    rewardThreshold,
-    rewardDescription,
+    rewardTiers,
   };
   for (const customer of customers || []) {
     await updatePass(customer.walletwallet_serial!, branding, {
@@ -186,8 +193,7 @@ export async function previewCard(formData: FormData) {
     redirect("/onboarding");
   }
 
-  const { name, programName, colorPreset, rewardThreshold, rewardDescription, sharingProhibited } =
-    parseBrandingFields(formData);
+  const { name, programName, colorPreset, sharingProhibited } = parseBrandingFields(formData);
 
   let logoUrl: string | null,
     wideLogoUrl: string | null,
@@ -210,6 +216,8 @@ export async function previewCard(formData: FormData) {
     redirect(`/dashboard/settings?error=${encodeURIComponent((err as Error).message)}`);
   }
 
+  const rewardTiers = await fetchActiveTiers(supabase, business!.id);
+
   const branding = {
     name,
     programName,
@@ -220,8 +228,7 @@ export async function previewCard(formData: FormData) {
     thumbnailUrl,
     stripUrl,
     sharingProhibited,
-    rewardThreshold,
-    rewardDescription,
+    rewardTiers,
   };
   const previewCustomer = { id: `preview-${business!.id}`, pointsBalance: 3, notification: " " };
 

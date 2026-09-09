@@ -84,7 +84,7 @@ export default async function DashboardPage({
 
   const { data: business } = await supabase
     .from("businesses")
-    .select("id, name, slug, subscription_status, reward_threshold, reward_description, points_per_action")
+    .select("id, name, slug, subscription_status, points_per_action")
     .eq("owner_user_id", user!.id)
     .single();
 
@@ -101,6 +101,18 @@ export default async function DashboardPage({
     .is("removed_at", null)
     .order("created_at", { ascending: false });
 
+  const { count: activeTierCount } = await supabase
+    .from("reward_tiers")
+    .select("id", { count: "exact", head: true })
+    .eq("business_id", business!.id)
+    .is("archived_at", null);
+
+  const { count: totalRewards } = await supabase
+    .from("point_events")
+    .select("id", { count: "exact", head: true })
+    .eq("business_id", business!.id)
+    .lt("delta", 0);
+
   const headersList = headers();
   const host = headersList.get("host");
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || (host ? `https://${host}` : "");
@@ -114,10 +126,6 @@ export default async function DashboardPage({
 
   const totalCustomers = customers?.length ?? 0;
   const totalPoints = (customers ?? []).reduce((sum, c) => sum + c.points_balance, 0);
-  const totalRewards = (customers ?? []).reduce(
-    (sum, c) => sum + Math.floor(c.points_balance / business!.reward_threshold),
-    0,
-  );
 
   return (
     <main className="dash">
@@ -126,7 +134,8 @@ export default async function DashboardPage({
           <div>
             <h1>{business!.name}</h1>
             <p className="auth-sub">
-              {business!.points_per_action} pt/visit · {business!.reward_threshold} pts = {business!.reward_description}
+              {business!.points_per_action} pt/visit · {activeTierCount ?? 0} reward{(activeTierCount ?? 0) === 1 ? "" : "s"}{" "}
+              available
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -179,7 +188,7 @@ export default async function DashboardPage({
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
           <StatCard icon={<Users className="h-5 w-5" />} label="Customers" value={totalCustomers} />
           <StatCard icon={<Sparkles className="h-5 w-5" />} label="Points given out" value={totalPoints} />
-          <StatCard icon={<Gift className="h-5 w-5" />} label="Rewards earned" value={totalRewards} />
+          <StatCard icon={<Gift className="h-5 w-5" />} label="Rewards earned" value={totalRewards ?? 0} />
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

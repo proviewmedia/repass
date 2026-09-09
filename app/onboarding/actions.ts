@@ -30,8 +30,8 @@ export async function createBusiness(formData: FormData) {
     ? String(formData.get("colorPreset"))
     : "dark";
   const pointsPerAction = Math.max(1, parseInt(String(formData.get("pointsPerAction") || "1"), 10) || 1);
-  const rewardThreshold = Math.min(14, Math.max(1, parseInt(String(formData.get("rewardThreshold") || "10"), 10) || 10));
-  const rewardDescription = String(formData.get("rewardDescription") || "A free reward").trim();
+  const rewardPointsCost = Math.max(1, parseInt(String(formData.get("rewardThreshold") || "10"), 10) || 10);
+  const rewardLabel = String(formData.get("rewardDescription") || "A free reward").trim();
 
   if (!name || !slug) {
     redirect(`/onboarding?error=${encodeURIComponent("Business name is required.")}`);
@@ -46,8 +46,6 @@ export async function createBusiness(formData: FormData) {
       program_name: name,
       color_preset: colorPreset,
       points_per_action: pointsPerAction,
-      reward_threshold: rewardThreshold,
-      reward_description: rewardDescription,
     })
     .select("id")
     .single();
@@ -56,6 +54,12 @@ export async function createBusiness(formData: FormData) {
     const message = error.code === "23505" ? "That URL is already taken — try another." : error.message;
     redirect(`/onboarding?error=${encodeURIComponent(message)}`);
   }
+
+  // A new business's first reward — more can be added later on the Rewards
+  // settings page, optionally linked to a Square discount once connected.
+  await supabase
+    .from("reward_tiers")
+    .insert({ business_id: business!.id, points_cost: rewardPointsCost, label: rewardLabel });
 
   redirect(`/api/stripe/checkout?businessId=${business!.id}`);
 }

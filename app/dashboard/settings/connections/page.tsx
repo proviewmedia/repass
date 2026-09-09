@@ -73,11 +73,19 @@ export default async function ConnectionsPage({
             </CardHeader>
             <CardContent>
               {connection ? (
-                <form action={disconnectSquare}>
-                  <Button type="submit" variant="ghost" size="sm">
-                    Disconnect
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button asChild variant="ghost" size="sm">
+                    <a href="/api/square/connect">
+                      <PlugZap className="h-4 w-4" />
+                      Reconnect (needed for reward redemption)
+                    </a>
                   </Button>
-                </form>
+                  <form action={disconnectSquare}>
+                    <Button type="submit" variant="ghost" size="sm">
+                      Disconnect
+                    </Button>
+                  </form>
+                </div>
               ) : (
                 <Button asChild size="sm">
                   <a href="/api/square/connect">

@@ -11,6 +11,11 @@ function authHeaders(): Record<string, string> {
   };
 }
 
+export interface RewardTier {
+  pointsCost: number;
+  label: string;
+}
+
 export interface PassBusinessInput {
   name: string;
   programName?: string | null;
@@ -22,43 +27,38 @@ export interface PassBusinessInput {
   thumbnailUrl?: string | null;
   stripUrl?: string | null;
   sharingProhibited?: boolean | null;
-  rewardThreshold?: number | null;
-  rewardDescription?: string | null;
+  /** Active (non-archived) reward tiers, cheapest first. */
+  rewardTiers?: RewardTier[];
 }
 
 export function isCustomHexColor(value: string | null | undefined): value is string {
   return typeof value === "string" && /^#[0-9a-fA-F]{6}$/.test(value);
 }
 
-// Renders progress toward the next reward as filled/empty circles, capped so a large
-// threshold (e.g. 50) doesn't draw 50 characters onto the card.
-export function renderPunchCircles(pointsBalance: number, rewardThreshold: number, cap = 14): string {
-  if (!rewardThreshold || rewardThreshold <= 0) return "";
-  const progress = pointsBalance % rewardThreshold;
-  const total = Math.min(rewardThreshold, cap);
-  const filled =
-    rewardThreshold <= cap ? progress : Math.min(cap, Math.round((cap * progress) / rewardThreshold));
-  return "●".repeat(filled) + "○".repeat(total - filled);
-}
+// "3 more points to a free coffee!" for the cheapest tier not yet reached, or a
+// generic nudge once every active tier is already redeemable, or a blank line if
+// the business has no active tiers at all.
+export function renderNextRewardMessage(pointsBalance: number, tiers: RewardTier[] | null | undefined): string {
+  const unreached = (tiers || [])
+    .filter((t) => t.pointsCost > pointsBalance)
+    .sort((a, b) => a.pointsCost - b.pointsCost);
 
-export function renderNextRewardMessage(
-  pointsBalance: number,
-  rewardThreshold: number | null | undefined,
-  rewardDescription: string | null | undefined,
-): string {
-  if (!rewardThreshold || rewardThreshold <= 0) return " ";
-  const remaining = rewardThreshold - (pointsBalance % rewardThreshold);
-  const reward = rewardDescription || "a reward";
-  return remaining === rewardThreshold
-    ? `${remaining} points to ${reward}!`
-    : `${remaining} more point${remaining === 1 ? "" : "s"} to ${reward}!`;
+  if (unreached.length > 0) {
+    const next = unreached[0];
+    const remaining = next.pointsCost - pointsBalance;
+    return `${remaining} more point${remaining === 1 ? "" : "s"} to ${next.label}!`;
+  }
+
+  if (tiers && tiers.length > 0) return "🎁 You have a reward available!";
+
+  return " ";
 }
 
 // Column list for `.select()` calls against `businesses` wherever a pass needs to be
 // built — pair with toPassBusinessInput() so a new branding field only has to be
 // threaded through in one place instead of every call site.
 export const BUSINESS_BRANDING_COLUMNS =
-  "name, program_name, color_preset, logo_url, wide_logo_url, icon_url, thumbnail_url, strip_url, sharing_prohibited, reward_threshold, reward_description";
+  "name, program_name, color_preset, logo_url, wide_logo_url, icon_url, thumbnail_url, strip_url, sharing_prohibited";
 
 export interface BusinessBrandingRow {
   name: string;
@@ -70,11 +70,9 @@ export interface BusinessBrandingRow {
   thumbnail_url?: string | null;
   strip_url?: string | null;
   sharing_prohibited?: boolean | null;
-  reward_threshold?: number | null;
-  reward_description?: string | null;
 }
 
-export function toPassBusinessInput(row: BusinessBrandingRow): PassBusinessInput {
+export function toPassBusinessInput(row: BusinessBrandingRow, rewardTiers: RewardTier[] = []): PassBusinessInput {
   return {
     name: row.name,
     programName: row.program_name,
@@ -85,8 +83,7 @@ export function toPassBusinessInput(row: BusinessBrandingRow): PassBusinessInput
     thumbnailUrl: row.thumbnail_url,
     stripUrl: row.strip_url,
     sharingProhibited: row.sharing_prohibited,
-    rewardThreshold: row.reward_threshold,
-    rewardDescription: row.reward_description,
+    rewardTiers,
   };
 }
 
@@ -118,10 +115,6 @@ export function buildPassBody(business: PassBusinessInput, customer: PassCustome
         value: String(customer.pointsBalance),
         changeMessage: "You now have %@ points",
       },
-      {
-        label: "PROGRESS",
-        value: renderPunchCircles(customer.pointsBalance, business.rewardThreshold || 0),
-      },
     ],
     // Index 0 ("Notifications") is the seed-then-bump anchor for the reward-unlock
     // banner — never move it. New fields must only ever be appended after it.
@@ -129,7 +122,7 @@ export function buildPassBody(business: PassBusinessInput, customer: PassCustome
       { label: "Notifications", value: customer.notification, changeMessage: "%@" },
       {
         label: "Next reward",
-        value: renderNextRewardMessage(customer.pointsBalance, business.rewardThreshold, business.rewardDescription),
+        value: renderNextRewardMessage(customer.pointsBalance, business.rewardTiers),
       },
     ],
   };

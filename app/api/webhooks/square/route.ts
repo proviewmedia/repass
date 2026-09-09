@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { awardPoints } from "@/lib/points";
-import { fetchCustomerContact, fetchPayment, verifyWebhookSignature, type PosConnectionRow } from "@/lib/square";
+import {
+  fetchCustomerContact,
+  fetchOrderDiscountIds,
+  fetchPayment,
+  verifyWebhookSignature,
+  type PosConnectionRow,
+} from "@/lib/square";
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -67,7 +73,11 @@ export async function POST(request: NextRequest) {
     }
 
     const baseQuery = () =>
-      admin.from("customers").select("id").eq("business_id", connection.business_id).is("removed_at", null);
+      admin
+        .from("customers")
+        .select("id, points_balance")
+        .eq("business_id", connection.business_id)
+        .is("removed_at", null);
 
     let customer = contact.phone ? (await baseQuery().eq("phone", contact.phone).maybeSingle()).data : null;
     if (!customer && contact.email) {
@@ -78,13 +88,47 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
-    await awardPoints({
-      supabase: admin,
-      customerId: customer.id,
-      businessId: connection.business_id,
-      source: "square",
-      externalEventId: paymentId,
-    });
+    // A reward-discount applied to this order means "redemption attempt" —
+    // resolved before deciding whether to earn, so the two are never both
+    // applied for the same sale.
+    const { data: linkedTiers } = await admin
+      .from("reward_tiers")
+      .select("id, points_cost, label, square_discount_id")
+      .eq("business_id", connection.business_id)
+      .is("archived_at", null)
+      .not("square_discount_id", "is", null);
+
+    let matchedTier: { points_cost: number; label: string } | null = null;
+    if (linkedTiers && linkedTiers.length > 0 && payment.orderId) {
+      const orderDiscountIds = await fetchOrderDiscountIds(connection, payment.orderId);
+      matchedTier =
+        linkedTiers.find((t) => t.square_discount_id && orderDiscountIds.includes(t.square_discount_id)) || null;
+    }
+
+    if (matchedTier) {
+      if (customer.points_balance >= matchedTier.points_cost) {
+        await awardPoints({
+          supabase: admin,
+          customerId: customer.id,
+          businessId: connection.business_id,
+          source: "square",
+          delta: -matchedTier.points_cost,
+          externalEventId: paymentId,
+        });
+      } else {
+        console.info(
+          `Skipped redemption for customer ${customer.id}: balance ${customer.points_balance} below tier cost ${matchedTier.points_cost}`,
+        );
+      }
+    } else {
+      await awardPoints({
+        supabase: admin,
+        customerId: customer.id,
+        businessId: connection.business_id,
+        source: "square",
+        externalEventId: paymentId,
+      });
+    }
   } catch (err) {
     console.error("Square webhook processing failed", err);
     return NextResponse.json({ error: "Processing failed" }, { status: 500 });

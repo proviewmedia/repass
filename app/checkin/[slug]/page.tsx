@@ -19,13 +19,25 @@ export default async function CheckinPage({
   const supabase = createAdminClient();
   const { data: business } = await supabase
     .from("businesses")
-    .select("id, name, program_name, reward_threshold, reward_description, subscription_status")
+    .select("id, name, program_name, subscription_status")
     .eq("slug", params.slug)
     .single();
 
   if (!business) {
     notFound();
   }
+
+  const { data: tiers } = await supabase
+    .from("reward_tiers")
+    .select("points_cost, label")
+    .eq("business_id", business!.id)
+    .is("archived_at", null)
+    .order("points_cost", { ascending: true });
+
+  const rewardCopy =
+    tiers && tiers.length > 0
+      ? `Earn a point every visit — redeem for ${tiers.map((t) => `${t.points_cost} pts: ${t.label}`).join(", ")}.`
+      : "Earn a point every visit.";
 
   const closed = business!.subscription_status !== "active";
 
@@ -55,9 +67,7 @@ export default async function CheckinPage({
         <Card className="w-full max-w-[420px] text-center">
           <CardHeader>
             <CardTitle className="text-2xl">{business!.program_name || business!.name}</CardTitle>
-            <CardDescription>
-              Earn a point every visit — {business!.reward_threshold} points gets you {business!.reward_description}.
-            </CardDescription>
+            <CardDescription>{rewardCopy}</CardDescription>
           </CardHeader>
           <CardContent>
             {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}

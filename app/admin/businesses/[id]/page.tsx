@@ -22,7 +22,7 @@ export default async function AdminBusinessPage({ params }: { params: { id: stri
   const admin = createAdminClient();
   const { data: business } = await admin
     .from("businesses")
-    .select("id, name, slug, subscription_status, reward_threshold, reward_description, points_per_action, created_at")
+    .select("id, name, slug, subscription_status, points_per_action, created_at")
     .eq("id", params.id)
     .single();
 
@@ -37,6 +37,13 @@ export default async function AdminBusinessPage({ params }: { params: { id: stri
     .is("removed_at", null)
     .order("created_at", { ascending: false });
 
+  const { data: tiers } = await admin
+    .from("reward_tiers")
+    .select("points_cost, label")
+    .eq("business_id", business.id)
+    .is("archived_at", null)
+    .order("points_cost", { ascending: true });
+
   return (
     <main className="dash">
       <div className="wrap flex flex-col gap-5 sm:gap-6">
@@ -50,8 +57,11 @@ export default async function AdminBusinessPage({ params }: { params: { id: stri
           <div>
             <h1>{business.name}</h1>
             <p className="auth-sub">
-              /{business.slug} · {business.points_per_action} pt/visit · {business.reward_threshold} pts ={" "}
-              {business.reward_description} · {business.subscription_status || "no subscription"}
+              /{business.slug} · {business.points_per_action} pt/visit ·{" "}
+              {tiers && tiers.length > 0
+                ? tiers.map((t) => `${t.points_cost} pts = ${t.label}`).join(", ")
+                : "no rewards configured"}{" "}
+              · {business.subscription_status || "no subscription"}
             </p>
           </div>
         </div>
