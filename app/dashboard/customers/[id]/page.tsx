@@ -48,12 +48,14 @@ export default async function EditCustomerPage({
 
   return (
     <main className="dash-content">
-      <div className="wrap flex justify-center">
-        <div className="flex w-full max-w-[520px] flex-col gap-5 sm:gap-6">
+      <div className="wrap flex flex-col gap-5 sm:gap-6">
+        <div className="dash-head">
           <div>
-            <h1 className="text-[26px] font-bold tracking-tight">Edit customer</h1>
+            <h1>Edit customer</h1>
           </div>
+        </div>
 
+        <div className="flex w-full max-w-[520px] flex-col gap-5 sm:gap-6">
           <Card>
             <CardHeader>
               <CardTitle>Customer info</CardTitle>

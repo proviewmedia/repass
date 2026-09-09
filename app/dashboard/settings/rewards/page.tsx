@@ -36,35 +36,35 @@ export default async function RewardsPage({
 
   return (
     <main className="dash-content">
-      <div className="wrap flex justify-center">
-        <div className="flex w-full max-w-[900px] flex-col gap-5 sm:gap-6">
+      <div className="wrap flex flex-col gap-5 sm:gap-6">
+        <div className="dash-head">
           <div>
-            <h1 className="text-[26px] font-bold tracking-tight">Rewards</h1>
+            <h1>Rewards</h1>
             <p className="auth-sub">
-              What customers can redeem, and what it costs. Link a reward to a Square discount and staff can apply it
-              at checkout — the points come off automatically.
+              What customers can redeem, and what it costs. Link a reward to a Square discount and staff can apply
+              it at checkout — the points come off automatically.
             </p>
           </div>
-
-          {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
-          {searchParams.saved === "1" && <Alert>Saved.</Alert>}
-          {squareError && <Alert variant="destructive">{squareError}</Alert>}
-          {!connection && (
-            <Alert>
-              Connect Square to link rewards to a discount and redeem them automatically —{" "}
-              <a href="/dashboard/settings/connections" className="underline">
-                Connections
-              </a>
-              .
-            </Alert>
-          )}
-
-          <RewardsForm
-            tiers={tiers || []}
-            squareConnected={!!connection && !squareError}
-            squareDiscounts={squareDiscounts}
-          />
         </div>
+
+        {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
+        {searchParams.saved === "1" && <Alert>Saved.</Alert>}
+        {squareError && <Alert variant="destructive">{squareError}</Alert>}
+        {!connection && (
+          <Alert>
+            Connect Square to link rewards to a discount and redeem them automatically —{" "}
+            <a href="/dashboard/settings/connections" className="underline">
+              Connections
+            </a>
+            .
+          </Alert>
+        )}
+
+        <RewardsForm
+          tiers={tiers || []}
+          squareConnected={!!connection && !squareError}
+          squareDiscounts={squareDiscounts}
+        />
       </div>
     </main>
   );

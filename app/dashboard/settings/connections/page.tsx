@@ -22,14 +22,15 @@ export default async function ConnectionsPage({
 
   return (
     <main className="dash-content">
-      <div className="wrap flex justify-center">
-        <div className="flex w-full max-w-[900px] flex-col gap-5 sm:gap-6">
+      <div className="wrap flex flex-col gap-5 sm:gap-6">
+        <div className="dash-head">
           <div>
-            <h1 className="text-[26px] font-bold tracking-tight">Connections</h1>
+            <h1>Connections</h1>
             <p className="auth-sub">
               Connect your point-of-sale system so a completed sale awards a point automatically — no QR scan needed.
             </p>
           </div>
+        </div>
 
           {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
           {searchParams.connected === "square" && <Alert>Square connected — new sales will start earning points.</Alert>}
@@ -81,7 +82,6 @@ export default async function ConnectionsPage({
               <CardDescription>Coming soon — pending Toast partner approval.</CardDescription>
             </CardHeader>
           </Card>
-        </div>
       </div>
     </main>
   );
