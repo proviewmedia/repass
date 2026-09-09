@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { BUSINESS_BRANDING_COLUMNS, toPassBusinessInput, updatePass } from "@/lib/wallet";
+import { awardPoints } from "@/lib/points";
 import { checkinCookieName, CHECKIN_COOLDOWN_MS } from "@/lib/checkin";
 
 export async function checkIn(slug: string, customerId: string) {
@@ -11,7 +11,7 @@ export async function checkIn(slug: string, customerId: string) {
 
   const { data: business } = await supabase
     .from("businesses")
-    .select(`id, points_per_action, subscription_status, ${BUSINESS_BRANDING_COLUMNS}`)
+    .select("id, subscription_status")
     .eq("slug", slug)
     .single();
 
@@ -21,7 +21,7 @@ export async function checkIn(slug: string, customerId: string) {
 
   const { data: customer } = await supabase
     .from("customers")
-    .select("id, points_balance, last_notification, last_checkin_at, walletwallet_serial")
+    .select("id, last_checkin_at")
     .eq("id", customerId)
     .eq("business_id", business!.id)
     .is("removed_at", null)
@@ -38,41 +38,13 @@ export async function checkIn(slug: string, customerId: string) {
     }
   }
 
-  const oldBalance = customer!.points_balance;
-  const newBalance = oldBalance + business!.points_per_action;
-  const crossedReward =
-    Math.floor(oldBalance / business!.reward_threshold) < Math.floor(newBalance / business!.reward_threshold);
-
-  await supabase
-    .from("customers")
-    .update({ points_balance: newBalance, last_checkin_at: new Date().toISOString() })
-    .eq("id", customerId);
-  await supabase.from("point_events").insert({
-    customer_id: customerId,
-    business_id: business!.id,
-    delta: business!.points_per_action,
-    resulting_balance: newBalance,
+  const { newBalance } = await awardPoints({
+    supabase,
+    customerId,
+    businessId: business!.id,
+    source: "checkin",
+    extraCustomerFields: { last_checkin_at: new Date().toISOString() },
   });
-
-  const branding = toPassBusinessInput(business!);
-
-  if (customer!.walletwallet_serial) {
-    await updatePass(customer!.walletwallet_serial, branding, {
-      id: customerId,
-      pointsBalance: newBalance,
-      notification: customer!.last_notification,
-    });
-
-    if (crossedReward) {
-      const message = `🎉 Reward unlocked: ${business!.reward_description}!`;
-      await updatePass(customer!.walletwallet_serial, branding, {
-        id: customerId,
-        pointsBalance: newBalance,
-        notification: message,
-      });
-      await supabase.from("customers").update({ last_notification: message }).eq("id", customerId);
-    }
-  }
 
   redirect(`/checkin/${slug}?success=1&points=${newBalance}`);
 }

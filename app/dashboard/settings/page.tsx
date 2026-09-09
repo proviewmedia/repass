@@ -41,6 +41,14 @@ export default async function SettingsPage({
             <p className="auth-sub">Changes to your card&apos;s name, color, or logo push live to every customer&apos;s wallet.</p>
           </div>
 
+          <Link
+            href="/dashboard/settings/connections"
+            className="flex items-center justify-between rounded-2xl border border-border bg-card px-5 py-4 text-[14.5px] font-medium hover:border-input sm:px-6"
+          >
+            <span>Connections — award points automatically from Square &amp; Toast sales</span>
+            <span aria-hidden="true">→</span>
+          </Link>
+
           <SettingsForm
             initial={{
               name: business!.name,
