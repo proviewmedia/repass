@@ -16,7 +16,7 @@ function oauthBaseUrl(): string {
 export function buildAuthorizeUrl(state: string): string {
   const params = new URLSearchParams({
     client_id: process.env.SQUARE_APPLICATION_ID!,
-    scope: "MERCHANT_PROFILE_READ CUSTOMERS_READ PAYMENTS_READ",
+    scope: "MERCHANT_PROFILE_READ CUSTOMERS_READ PAYMENTS_READ DEVELOPER_APPLICATION_WEBHOOKS_WRITE",
     session: "false",
     state,
   });
