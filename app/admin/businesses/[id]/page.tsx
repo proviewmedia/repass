@@ -46,7 +46,7 @@ export default async function AdminBusinessPage({ params }: { params: { id: stri
 
   return (
     <main className="dash-content">
-      <div className="wrap flex flex-col gap-5 sm:gap-6">
+      <div className="flex flex-col gap-5 sm:gap-6">
         <div>
           <a href="/admin" className="auth-sub inline-flex items-center gap-1.5 hover:underline">
             <ArrowLeft className="h-3.5 w-3.5" /> All businesses

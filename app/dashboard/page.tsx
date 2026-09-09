@@ -107,7 +107,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
 
   return (
     <main className="dash-content">
-      <div className="wrap flex flex-col gap-5 sm:gap-6">
+      <div className="flex flex-col gap-5 sm:gap-6">
         <div className="dash-head">
           <div>
             <h1>Dashboard</h1>
