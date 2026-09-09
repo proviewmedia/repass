@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { decrypt } from "@/lib/crypto";
 import { awardPoints } from "@/lib/points";
 import { fetchCustomerContact, fetchPayment, verifyWebhookSignature, type PosConnectionRow } from "@/lib/square";
 
@@ -10,6 +9,17 @@ export async function POST(request: NextRequest) {
 
   if (!signatureHeader) {
     return NextResponse.json({ error: "Missing signature" }, { status: 400 });
+  }
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
+  const valid = await verifyWebhookSignature({
+    requestBody: body,
+    signatureHeader,
+    notificationUrl: `${appUrl}/api/webhooks/square`,
+  });
+
+  if (!valid) {
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
   let payload: { merchant_id?: string; type?: string; data?: { id?: string } };
@@ -24,37 +34,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing merchant_id" }, { status: 400 });
   }
 
+  if (payload.type !== "payment.updated" || !payload.data?.id) {
+    return NextResponse.json({ received: true });
+  }
+
   const admin = createAdminClient();
   const { data: connection } = await admin
     .from("pos_connections")
-    .select(
-      "id, business_id, external_merchant_id, access_token, refresh_token, token_expires_at, webhook_signature_key",
-    )
+    .select("id, business_id, external_merchant_id, access_token, refresh_token, token_expires_at")
     .eq("provider", "square")
     .eq("external_merchant_id", merchantId)
     .is("disconnected_at", null)
     .single<PosConnectionRow>();
 
-  // No connection (or a disconnected one) for this merchant — nothing to verify
-  // against, and nothing to do. Not an error: Square may still be delivering
-  // events from before a disconnect.
+  // No connection (or a disconnected one) for this merchant — nothing to do.
+  // Not an error: Square may still be delivering events from before a disconnect.
   if (!connection) {
-    return NextResponse.json({ received: true });
-  }
-
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
-  const valid = await verifyWebhookSignature({
-    requestBody: body,
-    signatureHeader,
-    signatureKey: decrypt(connection.webhook_signature_key),
-    notificationUrl: `${appUrl}/api/webhooks/square`,
-  });
-
-  if (!valid) {
-    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
-  }
-
-  if (payload.type !== "payment.updated" || !payload.data?.id) {
     return NextResponse.json({ received: true });
   }
 

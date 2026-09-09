@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { encrypt, verifyState } from "@/lib/crypto";
-import { createWebhookSubscription, exchangeCodeForToken, listLocationIds } from "@/lib/square";
+import { exchangeCodeForToken, listLocationIds } from "@/lib/square";
 
 export async function GET(request: NextRequest) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
@@ -30,7 +30,6 @@ export async function GET(request: NextRequest) {
   try {
     const { accessToken, refreshToken, merchantId, expiresAt } = await exchangeCodeForToken(code);
     const locationIds = await listLocationIds(accessToken);
-    const { signatureKey } = await createWebhookSubscription(accessToken, `${appUrl}/api/webhooks/square`);
 
     const admin = createAdminClient();
     const { error: upsertError } = await admin
@@ -44,7 +43,6 @@ export async function GET(request: NextRequest) {
           access_token: encrypt(accessToken),
           refresh_token: encrypt(refreshToken),
           token_expires_at: expiresAt,
-          webhook_signature_key: encrypt(signatureKey),
           connected_at: new Date().toISOString(),
           disconnected_at: null,
         },

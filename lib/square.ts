@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import { SquareClient, SquareEnvironment, WebhooksHelper } from "square";
 import { decrypt, encrypt } from "@/lib/crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -16,7 +15,7 @@ function oauthBaseUrl(): string {
 export function buildAuthorizeUrl(state: string): string {
   const params = new URLSearchParams({
     client_id: process.env.SQUARE_APPLICATION_ID!,
-    scope: "MERCHANT_PROFILE_READ CUSTOMERS_READ PAYMENTS_READ DEVELOPER_APPLICATION_WEBHOOKS_WRITE",
+    scope: "MERCHANT_PROFILE_READ CUSTOMERS_READ PAYMENTS_READ",
     session: "false",
     state,
   });
@@ -30,7 +29,6 @@ export interface PosConnectionRow {
   access_token: string;
   refresh_token: string;
   token_expires_at: string;
-  webhook_signature_key: string;
 }
 
 function client(accessToken: string): SquareClient {
@@ -59,24 +57,6 @@ export async function exchangeCodeForToken(code: string) {
 export async function listLocationIds(accessToken: string): Promise<string[]> {
   const result = await client(accessToken).locations.list();
   return (result.locations || []).map((l) => l.id!).filter(Boolean);
-}
-
-// Square's dashboard-created webhook subscriptions can be scoped app-wide, but
-// connections made through OAuth need their own subscription so each business
-// gets its own signature key for verifying inbound events.
-export async function createWebhookSubscription(accessToken: string, notificationUrl: string) {
-  const result = await client(accessToken).webhooks.subscriptions.create({
-    idempotencyKey: randomUUID(),
-    subscription: {
-      name: `repass-${Date.now()}`,
-      eventTypes: ["payment.updated"],
-      notificationUrl,
-    },
-  });
-  if (!result.subscription?.id || !result.subscription?.signatureKey) {
-    throw new Error("Square webhook subscription creation returned an incomplete response");
-  }
-  return { subscriptionId: result.subscription.id, signatureKey: result.subscription.signatureKey };
 }
 
 // Access tokens expire in 30 days. Proactively refresh with a few days of
@@ -154,11 +134,17 @@ export async function fetchCustomerContact(
   };
 }
 
+// Webhook subscriptions belong to the application, not to individual connected
+// merchants (Square rejects subscription-management calls made with a merchant's
+// OAuth token). So there is exactly one subscription for all of Repass, created
+// once in the Square Developer Dashboard, with one signature key for the whole app.
 export async function verifyWebhookSignature(params: {
   requestBody: string;
   signatureHeader: string;
-  signatureKey: string;
   notificationUrl: string;
 }): Promise<boolean> {
-  return WebhooksHelper.verifySignature(params);
+  return WebhooksHelper.verifySignature({
+    ...params,
+    signatureKey: process.env.SQUARE_WEBHOOK_SIGNATURE_KEY!,
+  });
 }
