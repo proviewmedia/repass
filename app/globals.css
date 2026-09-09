@@ -323,6 +323,12 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 /* ---------- Dashboard ---------- */
 .dash { min-height: 100vh; background: var(--alt); padding: 48px 0 80px; }
 @media (max-width: 640px) { .dash { padding: 24px 0 56px; } }
+
+/* Content wrapper for pages rendered inside the dashboard sidebar shell —
+   same background/spacing as .dash but no forced viewport height or
+   vertical centering, since the sidebar layout already handles the frame. */
+.dash-content { background: var(--alt); padding: 40px 0 64px; }
+@media (max-width: 640px) { .dash-content { padding: 24px 0 48px; } }
 @media (max-width: 640px) { .dash-head h1 { font-size: 22px; } }
 .dash-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .dash-head h1 { font-size: 28px; letter-spacing: -0.03em; font-weight: 680; }

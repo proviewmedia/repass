@@ -35,7 +35,7 @@ async function requireOwnedCustomer(customerId: string) {
   } | null;
 
   if (!customer || customer.businesses.owner_user_id !== user!.id) {
-    redirect("/dashboard?error=" + encodeURIComponent("Customer not found."));
+    redirect("/dashboard/customers?error=" + encodeURIComponent("Customer not found."));
   }
 
   return { supabase, customer: customer! };
@@ -88,7 +88,7 @@ export async function updateCustomer(customerId: string, formData: FormData) {
     }
   }
 
-  redirect("/dashboard?updated=1");
+  redirect("/dashboard/customers?updated=1");
 }
 
 export async function removeCustomer(customerId: string, formData: FormData) {
@@ -110,5 +110,5 @@ export async function removeCustomer(customerId: string, formData: FormData) {
 
   await supabase.from("customers").update({ removed_at: new Date().toISOString() }).eq("id", customerId);
 
-  redirect("/dashboard?removed=1");
+  redirect("/dashboard/customers?removed=1");
 }

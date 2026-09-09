@@ -26,5 +26,5 @@ export async function addPoint(customerId: string) {
 
   await awardPoints({ supabase, customerId, businessId: customer.business_id, source: "manual" });
 
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/customers");
 }

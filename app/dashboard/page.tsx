@@ -1,15 +1,12 @@
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import QRCode from "qrcode";
-import { Settings, CreditCard, LogOut, Users, Sparkles, Gift, UserPlus, ScanLine, AlertTriangle, ShieldCheck } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
-import { isCurrentUserAdmin } from "@/lib/admin";
-import { addPoint, signOut } from "./actions";
+import { Users, Sparkles, Gift, UserPlus, ScanLine, AlertTriangle } from "lucide-react";
+import { getCurrentBusiness } from "@/lib/current-business";
 import CopyLinkButton from "./CopyLinkButton";
 import CopyQrButton from "./CopyQrButton";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
   return (
@@ -68,108 +65,58 @@ function QRCard({
   );
 }
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: { updated?: string; removed?: string };
-}) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default async function DashboardPage() {
+  const { supabase, business } = await getCurrentBusiness();
 
-  if (!user) {
-    redirect("/login?redirectTo=/dashboard");
-  }
-
-  const { data: business } = await supabase
-    .from("businesses")
-    .select("id, name, slug, subscription_status, points_per_action")
-    .eq("owner_user_id", user!.id)
-    .single();
-
-  const isAdmin = await isCurrentUserAdmin();
-
-  if (!business) {
-    redirect(isAdmin ? "/admin" : "/onboarding");
-  }
+  const { count: totalCustomers } = await supabase
+    .from("customers")
+    .select("id", { count: "exact", head: true })
+    .eq("business_id", business.id)
+    .is("removed_at", null);
 
   const { data: customers } = await supabase
     .from("customers")
-    .select("id, first_name, last_name, email, points_balance, created_at")
-    .eq("business_id", business!.id)
-    .is("removed_at", null)
-    .order("created_at", { ascending: false });
+    .select("points_balance")
+    .eq("business_id", business.id)
+    .is("removed_at", null);
 
   const { count: activeTierCount } = await supabase
     .from("reward_tiers")
     .select("id", { count: "exact", head: true })
-    .eq("business_id", business!.id)
+    .eq("business_id", business.id)
     .is("archived_at", null);
 
   const { count: totalRewards } = await supabase
     .from("point_events")
     .select("id", { count: "exact", head: true })
-    .eq("business_id", business!.id)
+    .eq("business_id", business.id)
     .lt("delta", 0);
 
   const headersList = headers();
   const host = headersList.get("host");
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || (host ? `https://${host}` : "");
-  const joinUrl = `${appUrl}/join/${business!.slug}`;
-  const checkinUrl = `${appUrl}/checkin/${business!.slug}`;
+  const joinUrl = `${appUrl}/join/${business.slug}`;
+  const checkinUrl = `${appUrl}/checkin/${business.slug}`;
   const [joinQr, checkinQr] = await Promise.all([
     QRCode.toDataURL(joinUrl, { margin: 1, width: 220 }),
     QRCode.toDataURL(checkinUrl, { margin: 1, width: 220 }),
   ]);
-  const active = business!.subscription_status === "active";
+  const active = business.subscription_status === "active";
 
-  const totalCustomers = customers?.length ?? 0;
   const totalPoints = (customers ?? []).reduce((sum, c) => sum + c.points_balance, 0);
 
   return (
-    <main className="dash">
+    <main className="dash-content">
       <div className="wrap flex flex-col gap-5 sm:gap-6">
         <div className="dash-head">
           <div>
-            <h1>{business!.name}</h1>
+            <h1>{business.name}</h1>
             <p className="auth-sub">
-              {business!.points_per_action} pt/visit · {activeTierCount ?? 0} reward{(activeTierCount ?? 0) === 1 ? "" : "s"}{" "}
+              {business.points_per_action} pt/visit · {activeTierCount ?? 0} reward{(activeTierCount ?? 0) === 1 ? "" : "s"}{" "}
               available
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {isAdmin && (
-              <Button asChild variant="ghost" size="sm">
-                <a href="/admin">
-                  <ShieldCheck className="h-4 w-4" />
-                  Admin
-                </a>
-              </Button>
-            )}
-            <Button asChild variant="ghost" size="sm">
-              <a href="/dashboard/settings">
-                <Settings className="h-4 w-4" />
-                Settings
-              </a>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <a href="/api/stripe/portal">
-                <CreditCard className="h-4 w-4" />
-                Billing
-              </a>
-            </Button>
-            <form action={signOut}>
-              <Button type="submit" variant="ghost" size="sm">
-                <LogOut className="h-4 w-4" />
-                Log out
-              </Button>
-            </form>
-          </div>
         </div>
-
-        {searchParams.updated === "1" && <Alert>Customer updated.</Alert>}
-        {searchParams.removed === "1" && <Alert>Customer removed.</Alert>}
 
         {!active && (
           <Alert variant="warning">
@@ -179,14 +126,14 @@ export default async function DashboardPage({
                 <span>Your subscription isn&apos;t active yet, so your join page is closed to new customers.</span>
               </div>
               <Button asChild size="sm">
-                <a href={`/api/stripe/checkout?businessId=${business!.id}`}>Subscribe — $49/mo</a>
+                <a href={`/api/stripe/checkout?businessId=${business.id}`}>Subscribe — $49/mo</a>
               </Button>
             </div>
           </Alert>
         )}
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-          <StatCard icon={<Users className="h-5 w-5" />} label="Customers" value={totalCustomers} />
+          <StatCard icon={<Users className="h-5 w-5" />} label="Customers" value={totalCustomers ?? 0} />
           <StatCard icon={<Sparkles className="h-5 w-5" />} label="Points given out" value={totalPoints} />
           <StatCard icon={<Gift className="h-5 w-5" />} label="Rewards earned" value={totalRewards ?? 0} />
         </div>
@@ -211,43 +158,6 @@ export default async function DashboardPage({
             qrAlt="Check-in QR code"
           />
         </div>
-
-        <Card className="overflow-hidden">
-          <CardHeader className="flex-row items-center justify-between gap-2">
-            <CardTitle>Customers</CardTitle>
-            <span className="text-sm font-medium text-muted-foreground">{totalCustomers}</span>
-          </CardHeader>
-          <div className="border-t border-border">
-            <div className="dash-row dash-row--head">
-              <span>Customer</span>
-              <span>Points</span>
-              <span />
-            </div>
-            {customers && customers.length > 0 ? (
-              customers.map((customer) => (
-                <div className="dash-row" key={customer.id}>
-                  <span>
-                    <div className="dash-name">{customer.first_name} {customer.last_name}</div>
-                    {customer.email && <div className="dash-email">{customer.email}</div>}
-                  </span>
-                  <span className="dash-points">{customer.points_balance}</span>
-                  <span className="dash-row-actions">
-                    <a href={`/dashboard/customers/${customer.id}`} className="btn ghost sm">
-                      Edit
-                    </a>
-                    <form action={addPoint.bind(null, customer.id)}>
-                      <button type="submit" className="btn sm">
-                        Add a point
-                      </button>
-                    </form>
-                  </span>
-                </div>
-              ))
-            ) : (
-              <p className="dash-empty">No customers yet — share your join link above to get your first one.</p>
-            )}
-          </div>
-        </Card>
       </div>
     </main>
   );

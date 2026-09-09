@@ -1,5 +1,4 @@
 import { redirect, notFound } from "next/navigation";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { updateCustomer, removeCustomer } from "./actions";
 import { Button } from "@/components/ui/button";
@@ -48,13 +47,10 @@ export default async function EditCustomerPage({
   const fullName = `${customer!.first_name} ${customer!.last_name || ""}`.trim();
 
   return (
-    <main className="auth-page">
-      <div className="wrap auth-wrap">
+    <main className="dash-content">
+      <div className="wrap flex justify-center">
         <div className="flex w-full max-w-[520px] flex-col gap-5 sm:gap-6">
           <div>
-            <Link href="/dashboard" className="auth-sub" style={{ display: "inline-block", marginBottom: 8 }}>
-              ← Back to dashboard
-            </Link>
             <h1 className="text-[26px] font-bold tracking-tight">Edit customer</h1>
           </div>
 

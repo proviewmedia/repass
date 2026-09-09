@@ -1,7 +1,5 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
 import { CheckCircle2, PlugZap } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentBusiness } from "@/lib/current-business";
 import { Alert } from "@/components/ui/alert";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,24 +10,7 @@ export default async function ConnectionsPage({
 }: {
   searchParams: { connected?: string; disconnected?: string; error?: string };
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login?redirectTo=/dashboard/settings/connections");
-  }
-
-  const { data: business } = await supabase
-    .from("businesses")
-    .select("id")
-    .eq("owner_user_id", user!.id)
-    .single();
-
-  if (!business) {
-    redirect("/onboarding");
-  }
+  const { supabase, business } = await getCurrentBusiness();
 
   const { data: connection } = await supabase
     .from("pos_connections")
@@ -40,13 +21,10 @@ export default async function ConnectionsPage({
     .maybeSingle();
 
   return (
-    <main className="auth-page">
-      <div className="wrap auth-wrap">
+    <main className="dash-content">
+      <div className="wrap flex justify-center">
         <div className="flex w-full max-w-[900px] flex-col gap-5 sm:gap-6">
           <div>
-            <Link href="/dashboard/settings" className="auth-sub" style={{ display: "inline-block", marginBottom: 8 }}>
-              ← Back to settings
-            </Link>
             <h1 className="text-[26px] font-bold tracking-tight">Connections</h1>
             <p className="auth-sub">
               Connect your point-of-sale system so a completed sale awards a point automatically — no QR scan needed.

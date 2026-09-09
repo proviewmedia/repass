@@ -1,6 +1,4 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentBusiness } from "@/lib/current-business";
 import { listDiscounts, type PosConnectionRow } from "@/lib/square";
 import { Alert } from "@/components/ui/alert";
 import RewardsForm from "./RewardsForm";
@@ -10,20 +8,7 @@ export default async function RewardsPage({
 }: {
   searchParams: { saved?: string; error?: string };
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login?redirectTo=/dashboard/settings/rewards");
-  }
-
-  const { data: business } = await supabase.from("businesses").select("id").eq("owner_user_id", user!.id).single();
-
-  if (!business) {
-    redirect("/onboarding");
-  }
+  const { supabase, business } = await getCurrentBusiness();
 
   const { data: tiers } = await supabase
     .from("reward_tiers")
@@ -50,13 +35,10 @@ export default async function RewardsPage({
   }
 
   return (
-    <main className="auth-page">
-      <div className="wrap auth-wrap">
+    <main className="dash-content">
+      <div className="wrap flex justify-center">
         <div className="flex w-full max-w-[900px] flex-col gap-5 sm:gap-6">
           <div>
-            <Link href="/dashboard/settings" className="auth-sub" style={{ display: "inline-block", marginBottom: 8 }}>
-              ← Back to settings
-            </Link>
             <h1 className="text-[26px] font-bold tracking-tight">Rewards</h1>
             <p className="auth-sub">
               What customers can redeem, and what it costs. Link a reward to a Square discount and staff can apply it

@@ -1,6 +1,4 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentBusiness } from "@/lib/current-business";
 import SettingsForm from "./SettingsForm";
 
 export default async function SettingsPage({
@@ -8,54 +6,24 @@ export default async function SettingsPage({
 }: {
   searchParams: { error?: string; saved?: string; previewUrl?: string };
 }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login?redirectTo=/dashboard/settings");
-  }
+  const { supabase, business: currentBusiness } = await getCurrentBusiness();
 
   const { data: business } = await supabase
     .from("businesses")
     .select(
       "name, program_name, color_preset, logo_url, wide_logo_url, icon_url, thumbnail_url, strip_url, sharing_prohibited, points_per_action",
     )
-    .eq("owner_user_id", user!.id)
+    .eq("id", currentBusiness.id)
     .single();
 
-  if (!business) {
-    redirect("/onboarding");
-  }
-
   return (
-    <main className="auth-page">
-      <div className="wrap auth-wrap">
+    <main className="dash-content">
+      <div className="wrap flex justify-center">
         <div className="flex w-full max-w-[900px] flex-col gap-5 sm:gap-6">
           <div>
-            <Link href="/dashboard" className="auth-sub" style={{ display: "inline-block", marginBottom: 8 }}>
-              ← Back to dashboard
-            </Link>
-            <h1 className="text-[26px] font-bold tracking-tight">Program settings</h1>
+            <h1 className="text-[26px] font-bold tracking-tight">Card Design</h1>
             <p className="auth-sub">Changes to your card&apos;s name, color, or logo push live to every customer&apos;s wallet.</p>
           </div>
-
-          <Link
-            href="/dashboard/settings/rewards"
-            className="flex items-center justify-between rounded-2xl border border-border bg-card px-5 py-4 text-[14.5px] font-medium hover:border-input sm:px-6"
-          >
-            <span>Rewards — manage what customers can redeem and what it costs</span>
-            <span aria-hidden="true">→</span>
-          </Link>
-
-          <Link
-            href="/dashboard/settings/connections"
-            className="flex items-center justify-between rounded-2xl border border-border bg-card px-5 py-4 text-[14.5px] font-medium hover:border-input sm:px-6"
-          >
-            <span>Connections — award points automatically from Square &amp; Toast sales</span>
-            <span aria-hidden="true">→</span>
-          </Link>
 
           <SettingsForm
             initial={{
