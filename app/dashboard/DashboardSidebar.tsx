@@ -77,7 +77,7 @@ export default function DashboardSidebar({ businessName, isAdmin }: { businessNa
       </aside>
 
       {/* Mobile top bar */}
-      <div className="relative sm:hidden">
+      <div className="relative w-full self-start sm:hidden">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <span className="text-[15px] font-bold tracking-tight">{businessName}</span>
           <button type="button" onClick={() => setOpen((v) => !v)} className="p-1.5 text-foreground" aria-label="Toggle navigation">
