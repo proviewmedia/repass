@@ -111,33 +111,35 @@ function TierRow({ tier, squareConnected, squareDiscounts }: { tier: Tier; squar
 
   return (
     <div className="flex flex-col gap-3 border-b border-border p-4 last:border-b-0">
-      <form action={updateRewardTier.bind(null, tier.id)} className="flex flex-wrap items-end gap-3">
-        <div className="flex flex-col gap-1">
-          <Label className="text-[12px] text-muted-foreground">Reward</Label>
-          <Input name="label" defaultValue={tier.label} className="w-48" required />
-        </div>
-        <div className="flex flex-col gap-1">
-          <Label className="text-[12px] text-muted-foreground">Points cost</Label>
-          <Input name="pointsCost" type="number" min={1} defaultValue={tier.points_cost} className="w-24" required />
-        </div>
-        <Button type="submit" variant="ghost" size="sm">
-          Save
-        </Button>
-      </form>
-
-      <div className="flex flex-wrap items-center gap-2 text-[13px]">
-        {linkedName ? (
-          <Badge variant="success">
-            <Link2 className="h-3.5 w-3.5" /> Linked to: {linkedName}
-          </Badge>
-        ) : (
-          <Badge variant="warning">Not linked to Square</Badge>
-        )}
-        <form action={archiveRewardTier.bind(null, tier.id)}>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <form action={updateRewardTier.bind(null, tier.id)} className="flex flex-wrap items-end gap-3">
+          <div className="flex flex-col gap-1">
+            <Label className="text-[12px] text-muted-foreground">Reward</Label>
+            <Input name="label" defaultValue={tier.label} className="w-48" required />
+          </div>
+          <div className="flex flex-col gap-1">
+            <Label className="text-[12px] text-muted-foreground">Points cost</Label>
+            <Input name="pointsCost" type="number" min={1} defaultValue={tier.points_cost} className="w-24" required />
+          </div>
           <Button type="submit" variant="ghost" size="sm">
-            <Archive className="h-3.5 w-3.5" /> Archive
+            Save
           </Button>
         </form>
+
+        <div className="flex flex-wrap items-center gap-2 text-[13px]">
+          {linkedName ? (
+            <Badge variant="success">
+              <Link2 className="h-3.5 w-3.5" /> Linked to: {linkedName}
+            </Badge>
+          ) : (
+            <Badge variant="warning">Not linked to Square</Badge>
+          )}
+          <form action={archiveRewardTier.bind(null, tier.id)}>
+            <Button type="submit" variant="ghost" size="sm">
+              <Archive className="h-3.5 w-3.5" /> Archive
+            </Button>
+          </form>
+        </div>
       </div>
 
       {!linkedName && squareConnected && (
