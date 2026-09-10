@@ -53,7 +53,7 @@ function DiscountPicker({ squareDiscounts }: { squareDiscounts: SquareDiscount[]
       </div>
 
       {mode === "existing" ? (
-        <select name="existingDiscountId" className="h-9 rounded-lg border border-input bg-transparent px-2 text-[13.5px]">
+        <select name="existingDiscountId" className="h-9 rounded-lg border border-input bg-transparent px-2 text-[15px]">
           {squareDiscounts.map((d) => (
             <option key={d.id} value={d.id}>
               {d.name}
@@ -213,7 +213,7 @@ export default function RewardsForm({
             <Card className="mt-3 overflow-hidden opacity-70">
               <div>
                 {archived.map((tier) => (
-                  <div key={tier.id} className="flex items-center justify-between border-b border-border p-4 last:border-b-0 text-[13.5px]">
+                  <div key={tier.id} className="flex items-center justify-between border-b border-border p-4 last:border-b-0 text-[13px]">
                     <span>
                       {tier.label} — {tier.points_cost} pts
                     </span>

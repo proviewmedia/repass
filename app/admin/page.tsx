@@ -56,7 +56,7 @@ export default async function AdminPage() {
                   <TableRow>
                     <TableHead>Business</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Customers</TableHead>
+                    <TableHead className="text-right">Customers</TableHead>
                     <TableHead>Joined</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -68,7 +68,7 @@ export default async function AdminPage() {
                           <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
                           <span>
                             {b.name}
-                            <span className="ml-2 font-mono text-[12.5px] font-normal text-muted-foreground">/{b.slug}</span>
+                            <span className="ml-2 font-mono text-[13px] font-normal text-muted-foreground">/{b.slug}</span>
                           </span>
                         </a>
                       </TableCell>
@@ -77,7 +77,7 @@ export default async function AdminPage() {
                           {b.subscription_status || "none"}
                         </Badge>
                       </TableCell>
-                      <TableCell className="font-medium">{countByBusiness.get(b.id) || 0}</TableCell>
+                      <TableCell className="text-right font-medium tabular-nums">{countByBusiness.get(b.id) || 0}</TableCell>
                       <TableCell className="text-muted-foreground">{new Date(b.created_at).toLocaleDateString()}</TableCell>
                     </TableRow>
                   ))}

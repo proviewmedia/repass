@@ -6,6 +6,7 @@ import { Check } from "lucide-react";
 import { updateSettings, previewCard } from "./actions";
 import SubmitButton from "./SubmitButton";
 import { renderNextRewardMessage } from "@/lib/wallet";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -106,7 +107,7 @@ function ImageField({
           className="hidden"
         />
       </div>
-      <p className="text-[12.5px] text-muted-foreground">{hint}</p>
+      <p className="text-[13px] text-muted-foreground">{hint}</p>
       {field.removed && <input type="hidden" name={removeFieldName} value="1" />}
     </div>
   );
@@ -202,7 +203,7 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
                     >
                       <Check className="h-4 w-4 text-white" strokeWidth={3} />
                     </RadioGroupItem>
-                    <Label htmlFor={`color-${c.value}`} className="cursor-pointer text-[11.5px] font-medium text-muted-foreground">
+                    <Label htmlFor={`color-${c.value}`} className="cursor-pointer text-[12px] font-medium text-muted-foreground">
                       {c.label}
                     </Label>
                   </div>
@@ -221,7 +222,7 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
                   >
                     <Check className="h-4 w-4 text-white" strokeWidth={3} style={{ filter: "drop-shadow(0 0 1px #0006)" }} />
                   </RadioGroupItem>
-                  <Label htmlFor="color-custom" className="cursor-pointer text-[11.5px] font-medium text-muted-foreground">
+                  <Label htmlFor="color-custom" className="cursor-pointer text-[12px] font-medium text-muted-foreground">
                     Custom
                   </Label>
                 </div>
@@ -327,9 +328,9 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
             Preview on your phone
           </SubmitButton>
           {saved && (
-            <span className="flex items-center gap-1.5 text-[13.5px] font-medium text-emerald-600">
-              <Check className="h-4 w-4" /> Saved
-            </span>
+            <Badge variant="success">
+              <Check className="h-3.5 w-3.5" /> Saved
+            </Badge>
           )}
         </div>
 

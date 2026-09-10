@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-const alertVariants = cva("rounded-xl border px-4 py-3 text-[13.5px] leading-relaxed", {
+const alertVariants = cva("rounded-xl border px-4 py-3 text-[13px] leading-relaxed", {
   variants: {
     variant: {
       default: "border-border bg-secondary text-secondary-foreground",

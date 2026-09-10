@@ -111,7 +111,7 @@ export default async function BillingPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Date</TableHead>
-                    <TableHead>Amount</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
                     <TableHead />
                   </TableRow>
                 </TableHeader>
@@ -122,7 +122,7 @@ export default async function BillingPage() {
                         <div className="font-semibold">{inv.date}</div>
                         <div className="mt-0.5 text-[13px] text-muted-foreground">{inv.status}</div>
                       </TableCell>
-                      <TableCell className="text-[18px] font-bold">{inv.amount}</TableCell>
+                      <TableCell className="text-right text-[18px] font-bold tabular-nums">{inv.amount}</TableCell>
                       <TableCell>
                         {inv.url && (
                           <div className="flex justify-end">

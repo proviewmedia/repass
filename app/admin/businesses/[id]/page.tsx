@@ -79,7 +79,7 @@ export default async function AdminBusinessPage({ params }: { params: { id: stri
                 <TableHeader>
                   <TableRow>
                     <TableHead>Customer</TableHead>
-                    <TableHead>Points</TableHead>
+                    <TableHead className="text-right">Points</TableHead>
                     <TableHead />
                   </TableRow>
                 </TableHeader>
@@ -93,7 +93,7 @@ export default async function AdminBusinessPage({ params }: { params: { id: stri
                         {customer.email && <div className="mt-0.5 text-[13px] text-muted-foreground">{customer.email}</div>}
                         {customer.phone && <div className="mt-0.5 text-[13px] text-muted-foreground">{customer.phone}</div>}
                       </TableCell>
-                      <TableCell className="text-[18px] font-bold">{customer.points_balance}</TableCell>
+                      <TableCell className="text-right text-[18px] font-bold tabular-nums">{customer.points_balance}</TableCell>
                       <TableCell />
                     </TableRow>
                   ))}

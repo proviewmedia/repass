@@ -16,8 +16,8 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
           {icon}
         </div>
         <div>
-          <div className="text-xl font-bold leading-none tracking-tight">{value.toLocaleString()}</div>
-          <div className="mt-1 text-[12.5px] text-muted-foreground">{label}</div>
+          <div className="text-xl font-bold leading-none tracking-tight tabular-nums">{value.toLocaleString()}</div>
+          <div className="mt-1 text-[13px] text-muted-foreground">{label}</div>
         </div>
       </CardContent>
     </Card>
@@ -52,7 +52,7 @@ function QRCard({
           </div>
         </div>
         <div className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2">
-          <code className="min-w-0 flex-1 truncate font-mono text-[12.5px] text-foreground-soft">{url}</code>
+          <code className="min-w-0 flex-1 truncate font-mono text-[13px] text-foreground-soft">{url}</code>
           <CopyLinkButton value={url} />
         </div>
         <div className="flex flex-col items-center gap-2">
