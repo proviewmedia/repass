@@ -43,7 +43,7 @@ function NavLink({ href, label, active, onClick }: { href: string; label: string
 function NavList({ isAdmin, onNavigate }: { isAdmin: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
-    <div role="navigation" className="flex flex-col gap-5">
+    <div role="navigation" className="flex flex-col gap-4">
       {NAV_GROUPS.map((group) => (
         <div key={group.label} className="flex flex-col gap-1">
           <div className={GROUP_LABEL_CLASS}>{group.label}</div>
@@ -75,8 +75,8 @@ export default function DashboardSidebar({ businessName, isAdmin }: { businessNa
   return (
     <>
       {/* Desktop sidebar — fixed to the viewport, never scrolls with page content */}
-      <aside className="hidden w-60 shrink-0 flex-col border-r border-border px-4 pb-4 pt-8 sm:flex sm:h-screen sm:overflow-y-auto">
-        <div className="px-3 pb-6 text-[20px] font-bold tracking-[-0.02em]">{businessName}</div>
+      <aside className="hidden w-60 shrink-0 flex-col border-r border-border px-4 pb-4 pt-6 sm:flex sm:h-screen sm:overflow-y-auto">
+        <div className="px-3 pb-5 text-[19px] font-bold tracking-[-0.02em]">{businessName}</div>
         <NavList isAdmin={isAdmin} />
         <form action={signOut} className="mt-auto pt-6">
           <button type="submit" className={ITEM_CLASS}>

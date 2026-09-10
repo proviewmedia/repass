@@ -156,7 +156,7 @@ export default function RewardsForm({
   const [showArchived, setShowArchived] = useState(false);
 
   return (
-    <div className="flex flex-col gap-5 sm:gap-6">
+    <div className="flex flex-col gap-4 sm:gap-5">
       <Card className="overflow-hidden">
         <CardHeader>
           <CardTitle>Active rewards</CardTitle>

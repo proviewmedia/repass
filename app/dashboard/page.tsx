@@ -30,15 +30,15 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
 function HeroStatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
   return (
     <Card className="h-full border-[var(--border-strong)]">
-      <CardContent className="flex h-full flex-col justify-center gap-3 p-6 sm:p-7">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+      <CardContent className="flex h-full flex-col justify-center gap-2 p-5 sm:p-6">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
           {icon}
         </div>
         <div>
-          <div className="text-[52px] font-bold leading-none tracking-tight tabular-nums">
+          <div className="text-[44px] font-bold leading-none tracking-tight tabular-nums">
             {value.toLocaleString()}
           </div>
-          <div className="mt-2 text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
+          <div className="mt-1.5 text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
         </div>
       </CardContent>
     </Card>
@@ -64,7 +64,7 @@ function QRCard({
 }) {
   return (
     <Card>
-      <CardContent className="flex flex-col gap-4 p-5 sm:p-6">
+      <CardContent className="flex flex-col gap-3 p-4 sm:p-5">
         <div className="flex items-start gap-3">
           <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${iconClass}`}>{icon}</div>
           <div>
@@ -128,7 +128,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
 
   return (
     <main className="dash-content">
-      <div className="flex flex-col gap-5 sm:gap-6">
+      <div className="flex flex-col gap-4 sm:gap-5">
         <div className="dash-head">
           <div>
             <h1>Dashboard</h1>

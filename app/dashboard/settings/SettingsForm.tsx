@@ -162,7 +162,7 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
 
   return (
     <div className="settings-layout">
-      <form action={updateSettings} className="flex flex-col gap-5 sm:gap-6" encType="multipart/form-data">
+      <form action={updateSettings} className="flex flex-col gap-4 sm:gap-5" encType="multipart/form-data">
         {error && <Alert variant="destructive">{error}</Alert>}
         {saved && <Alert>Saved — updated cards are pushing out to customers now.</Alert>}
 

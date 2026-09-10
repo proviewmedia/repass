@@ -30,7 +30,7 @@ export default async function ConnectionsPage({
 
   return (
     <main className="dash-content">
-      <div className="flex flex-col gap-5 sm:gap-6">
+      <div className="flex flex-col gap-4 sm:gap-5">
         <div className="dash-head">
           <div>
             <h1>Connections</h1>

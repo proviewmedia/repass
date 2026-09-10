@@ -18,7 +18,7 @@ export default async function SettingsPage({
 
   return (
     <main className="dash-content">
-      <div className="flex flex-col gap-5 sm:gap-6">
+      <div className="flex flex-col gap-4 sm:gap-5">
         <div className="dash-head">
           <div>
             <h1>Card Design</h1>
