@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 
   const session = await getStripe().billingPortal.sessions.create({
     customer: business.stripe_customer_id,
-    return_url: `${appUrl}/dashboard`,
+    return_url: `${appUrl}/dashboard/billing`,
   });
 
   return NextResponse.redirect(session.url, { status: 303 });

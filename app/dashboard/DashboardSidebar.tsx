@@ -28,13 +28,11 @@ function NavLink({ href, label, active, onClick }: { href: string; label: string
 function NavList({ isAdmin, onNavigate }: { isAdmin: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
-    <nav className="flex flex-col gap-1">
+    <div role="navigation" className="flex flex-col gap-1">
       {NAV_ITEMS.map((item) => (
         <NavLink key={item.href} href={item.href} label={item.label} active={pathname === item.href} onClick={onNavigate} />
       ))}
-      <a href="/api/stripe/portal" className={ITEM_CLASS}>
-        Billing
-      </a>
+      <NavLink href="/dashboard/billing" label="Billing" active={pathname === "/dashboard/billing"} onClick={onNavigate} />
       {isAdmin && (
         <NavLink
           href="/admin"
@@ -43,7 +41,7 @@ function NavList({ isAdmin, onNavigate }: { isAdmin: boolean; onNavigate?: () =>
           onClick={onNavigate}
         />
       )}
-    </nav>
+    </div>
   );
 }
 
