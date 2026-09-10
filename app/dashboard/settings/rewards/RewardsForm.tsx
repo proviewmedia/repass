@@ -170,6 +170,32 @@ export default function RewardsForm({
             ))}
           </div>
         )}
+        {archived.length > 0 && (
+          <div className="border-t border-border">
+            <button
+              type="button"
+              onClick={() => setShowArchived((v) => !v)}
+              className="w-full px-4 py-3 text-left text-[13px] font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+            >
+              {showArchived ? "Hide" : "Show"} archived rewards ({archived.length})
+            </button>
+            {showArchived && (
+              <div className="border-t border-border opacity-70">
+                {archived.map((tier) => (
+                  <div
+                    key={tier.id}
+                    className="flex items-center justify-between border-b border-border px-4 py-3 last:border-b-0 text-[13px]"
+                  >
+                    <span>
+                      {tier.label} — {tier.points_cost} pts
+                    </span>
+                    <span className="text-muted-foreground">Archived</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </Card>
 
       <Card>
@@ -204,28 +230,6 @@ export default function RewardsForm({
           </form>
         </CardContent>
       </Card>
-
-      {archived.length > 0 && (
-        <div>
-          <Button type="button" variant="ghost" size="sm" onClick={() => setShowArchived((v) => !v)}>
-            {showArchived ? "Hide" : "Show"} archived rewards ({archived.length})
-          </Button>
-          {showArchived && (
-            <Card className="mt-3 overflow-hidden opacity-70">
-              <div>
-                {archived.map((tier) => (
-                  <div key={tier.id} className="flex items-center justify-between border-b border-border p-4 last:border-b-0 text-[13px]">
-                    <span>
-                      {tier.label} — {tier.points_cost} pts
-                    </span>
-                    <span className="text-muted-foreground">Archived</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
-        </div>
-      )}
     </div>
   );
 }
