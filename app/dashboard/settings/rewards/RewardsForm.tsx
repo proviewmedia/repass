@@ -158,10 +158,11 @@ export default function RewardsForm({
   return (
     <div className="flex flex-col gap-4 sm:gap-5">
       <Card className="overflow-hidden">
-        <CardHeader>
+        <CardHeader className="flex-row items-center justify-between gap-2">
           <CardTitle>Active rewards</CardTitle>
-          <CardDescription>{active.length === 0 ? "No rewards yet — add one below." : null}</CardDescription>
+          <Badge>{active.length}</Badge>
         </CardHeader>
+        {active.length === 0 && <p className="dash-empty border-t border-border">No rewards yet — add one below.</p>}
         {active.length > 0 && (
           <div className="border-t border-border">
             {active.map((tier) => (

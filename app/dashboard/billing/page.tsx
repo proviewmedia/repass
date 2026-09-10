@@ -103,8 +103,9 @@ export default async function BillingPage() {
 
         {invoices.length > 0 && (
           <Card className="overflow-hidden">
-            <CardHeader>
+            <CardHeader className="flex-row items-center justify-between gap-2">
               <CardTitle>Payment history</CardTitle>
+              <Badge>{invoices.length}</Badge>
             </CardHeader>
             <div className="overflow-x-auto border-t border-border">
               <Table>

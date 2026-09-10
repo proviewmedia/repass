@@ -130,9 +130,9 @@ export default async function ConnectionsPage({
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-dashed opacity-60">
             <CardHeader>
-              <CardTitle>Toast</CardTitle>
+              <CardTitle className="text-muted-foreground">Toast</CardTitle>
               <CardDescription>Coming soon — pending Toast partner approval.</CardDescription>
             </CardHeader>
           </Card>
