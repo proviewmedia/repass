@@ -20,23 +20,6 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
   );
 }
 
-// The one number a business owner actually opens this page to check — a
-// tinted, patterned tile instead of a bordered box, so it stands out from
-// the supporting stats beside it instead of all three competing equally.
-function HeroStatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
-  return (
-    <div className="tile-accent flex h-full flex-col justify-center gap-2 rounded-2xl p-5 sm:p-6">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/70 text-indigo-600">
-        {icon}
-      </div>
-      <div>
-        <div className="text-[44px] font-bold leading-none tracking-tight tabular-nums">{value.toLocaleString()}</div>
-        <div className="mt-1.5 text-[13px] font-semibold uppercase tracking-wide text-indigo-600">{label}</div>
-      </div>
-    </div>
-  );
-}
-
 function QRCard({
   icon,
   iconClass,
@@ -147,12 +130,10 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
           </Alert>
         )}
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1.7fr_1fr] sm:gap-4">
-          <HeroStatCard icon={<Users className="h-5 w-5" />} label="Customers" value={totalCustomers ?? 0} />
-          <div className="flex flex-col gap-3 sm:gap-4">
-            <StatCard icon={<Sparkles className="h-5 w-5" />} label="Points given out" value={totalPoints} />
-            <StatCard icon={<Gift className="h-5 w-5" />} label="Rewards earned" value={totalRewards ?? 0} />
-          </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+          <StatCard icon={<Users className="h-5 w-5" />} label="Customers" value={totalCustomers ?? 0} />
+          <StatCard icon={<Sparkles className="h-5 w-5" />} label="Points given out" value={totalPoints} />
+          <StatCard icon={<Gift className="h-5 w-5" />} label="Rewards earned" value={totalRewards ?? 0} />
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
