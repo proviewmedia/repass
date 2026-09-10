@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Archive, Link2, Plus } from "lucide-react";
+import { Archive, Link2, Pencil, Plus } from "lucide-react";
 import { createRewardTier, updateRewardTier, archiveRewardTier, linkTierToDiscount } from "./actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import {
   Dialog,
   DialogTrigger,
@@ -106,51 +107,73 @@ function DiscountPicker({ squareDiscounts }: { squareDiscounts: SquareDiscount[]
   );
 }
 
-function TierRow({ tier, squareConnected, squareDiscounts }: { tier: Tier; squareConnected: boolean; squareDiscounts: SquareDiscount[] }) {
-  const linkedName = discountName(tier.square_discount_id, squareDiscounts);
-
+function EditRewardDialog({
+  tier,
+  linkedName,
+  squareConnected,
+  squareDiscounts,
+}: {
+  tier: Tier;
+  linkedName: string | null;
+  squareConnected: boolean;
+  squareDiscounts: SquareDiscount[];
+}) {
   return (
-    <div className="flex flex-col gap-3 border-b border-border p-4 last:border-b-0">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <form action={updateRewardTier.bind(null, tier.id)} className="flex flex-wrap items-end gap-3">
-          <div className="flex flex-col gap-1">
-            <Label className="text-[12px] text-muted-foreground">Reward</Label>
-            <Input name="label" defaultValue={tier.label} className="w-48" required />
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="sm">
+          <Pencil className="h-3.5 w-3.5" /> Edit
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit reward</DialogTitle>
+          <DialogDescription>Update the name or points cost.</DialogDescription>
+        </DialogHeader>
+        <form action={updateRewardTier.bind(null, tier.id)} className="mt-4 flex flex-col gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor={`label-${tier.id}`}>Reward name</Label>
+              <Input id={`label-${tier.id}`} name="label" defaultValue={tier.label} required />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor={`pointsCost-${tier.id}`}>Points cost</Label>
+              <Input
+                id={`pointsCost-${tier.id}`}
+                name="pointsCost"
+                type="number"
+                min={1}
+                defaultValue={tier.points_cost}
+                required
+              />
+            </div>
           </div>
-          <div className="flex flex-col gap-1">
-            <Label className="text-[12px] text-muted-foreground">Points cost</Label>
-            <Input name="pointsCost" type="number" min={1} defaultValue={tier.points_cost} className="w-24" required />
-          </div>
-          <Button type="submit" variant="ghost" size="sm">
-            Save
+          <Button type="submit" className="self-start">
+            Save changes
           </Button>
         </form>
 
-        <div className="flex flex-wrap items-center gap-2 text-[13px]">
-          {linkedName ? (
-            <Badge variant="success">
-              <Link2 className="h-3.5 w-3.5" /> Linked to: {linkedName}
-            </Badge>
-          ) : (
-            <Badge variant="warning">Not linked to Square</Badge>
-          )}
-          <form action={archiveRewardTier.bind(null, tier.id)}>
-            <Button type="submit" variant="ghost" size="sm">
-              <Archive className="h-3.5 w-3.5" /> Archive
-            </Button>
-          </form>
-        </div>
-      </div>
-
-      {!linkedName && squareConnected && (
-        <form action={linkTierToDiscount.bind(null, tier.id)} className="flex flex-col gap-2">
-          <DiscountPicker squareDiscounts={squareDiscounts} />
-          <Button type="submit" size="sm" className="self-start">
-            Link discount
-          </Button>
-        </form>
-      )}
-    </div>
+        {squareConnected && (
+          <div className="mt-5 flex flex-col gap-2 border-t border-border pt-4">
+            {linkedName ? (
+              <Badge variant="success" className="w-fit">
+                <Link2 className="h-3.5 w-3.5" /> Linked to: {linkedName}
+              </Badge>
+            ) : (
+              <>
+                <p className="text-[13px] font-semibold">Link to a Square discount</p>
+                <form action={linkTierToDiscount.bind(null, tier.id)} className="flex flex-col gap-2">
+                  <DiscountPicker squareDiscounts={squareDiscounts} />
+                  <Button type="submit" size="sm" className="self-start">
+                    Link discount
+                  </Button>
+                </form>
+              </>
+            )}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -215,12 +238,54 @@ export default function RewardsForm({
           <CardTitle>Active rewards</CardTitle>
           <Badge>{active.length}</Badge>
         </CardHeader>
-        {active.length === 0 && <p className="dash-empty border-t border-border">No rewards yet — add one below.</p>}
+        {active.length === 0 && <p className="dash-empty border-t border-border">No rewards yet — add one above.</p>}
         {active.length > 0 && (
-          <div className="border-t border-border">
-            {active.map((tier) => (
-              <TierRow key={tier.id} tier={tier} squareConnected={squareConnected} squareDiscounts={squareDiscounts} />
-            ))}
+          <div className="overflow-x-auto border-t border-border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Reward</TableHead>
+                  <TableHead className="text-right">Points</TableHead>
+                  <TableHead>Square</TableHead>
+                  <TableHead />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {active.map((tier) => {
+                  const linkedName = discountName(tier.square_discount_id, squareDiscounts);
+                  return (
+                    <TableRow key={tier.id}>
+                      <TableCell className="font-semibold">{tier.label}</TableCell>
+                      <TableCell className="text-right text-[18px] font-bold tabular-nums">{tier.points_cost}</TableCell>
+                      <TableCell>
+                        {linkedName ? (
+                          <Badge variant="success">
+                            <Link2 className="h-3.5 w-3.5" /> {linkedName}
+                          </Badge>
+                        ) : (
+                          <Badge variant="warning">Not linked</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-2">
+                          <EditRewardDialog
+                            tier={tier}
+                            linkedName={linkedName}
+                            squareConnected={squareConnected}
+                            squareDiscounts={squareDiscounts}
+                          />
+                          <form action={archiveRewardTier.bind(null, tier.id)}>
+                            <Button type="submit" variant="ghost" size="sm">
+                              <Archive className="h-3.5 w-3.5" /> Archive
+                            </Button>
+                          </form>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
           </div>
         )}
         {archived.length > 0 && (
