@@ -57,7 +57,7 @@ export default function CustomersTable({ customers }: { customers: Customer[] })
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-2xl bg-card">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
         {filtered.length > 0 ? (
           <div className="overflow-x-auto">
             <Table>

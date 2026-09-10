@@ -320,12 +320,9 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 .slug-input input { border: none; border-radius: 0; flex: 1; min-width: 0; }
 .slug-input input:focus { outline: none; }
 
-/* ---------- Tinted grid tile (icon/status surfaces) ---------- */
+/* ---------- Tinted tile (icon/status surfaces) ---------- */
 .tile-accent {
   background-color: #eef0fe;
-  background-image:
-    repeating-linear-gradient(0deg, rgba(79, 70, 229, 0.08) 0 1px, transparent 1px 26px),
-    repeating-linear-gradient(90deg, rgba(79, 70, 229, 0.08) 0 1px, transparent 1px 26px);
 }
 
 /* ---------- Dashboard ---------- */
@@ -335,7 +332,7 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 /* Content wrapper for pages rendered inside the dashboard sidebar shell —
    same background/spacing as .dash but no forced viewport height or
    vertical centering, since the sidebar layout already handles the frame. */
-.dash-content { background: var(--alt); min-height: 100vh; padding: 24px 28px 48px; }
+.dash-content { background: var(--bg); min-height: 100vh; padding: 24px 28px 48px; }
 @media (max-width: 640px) { .dash-content { padding: 20px 16px 40px; } }
 .dash-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .dash-head h1 { font-size: 20px; letter-spacing: -0.02em; font-weight: 700; }
