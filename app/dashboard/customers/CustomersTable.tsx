@@ -60,7 +60,7 @@ export default function CustomersTable({ customers }: { customers: Customer[] })
           <Badge>{customers.length}</Badge>
           <Dialog>
             <DialogTrigger asChild>
-              <Button size="sm" className="rounded-full">
+              <Button variant="ghost" size="sm" className="rounded-full">
                 <Plus className="h-4 w-4" />
                 <span className="hidden sm:inline">Add customer</span>
               </Button>
@@ -132,7 +132,7 @@ export default function CustomersTable({ customers }: { customers: Customer[] })
                           <a href={`/dashboard/customers/${customer.id}`}>Edit</a>
                         </Button>
                         <form action={addPoint.bind(null, customer.id)}>
-                          <Button type="submit" size="sm">
+                          <Button type="submit" variant="ghost" size="sm">
                             Add a point
                           </Button>
                         </form>

@@ -60,46 +60,48 @@ function DiscountPicker({ squareDiscounts }: { squareDiscounts: SquareDiscount[]
         </label>
       </div>
 
-      {mode === "existing" ? (
-        <select name="existingDiscountId" className="h-9 rounded-lg border border-input bg-transparent px-2 text-[15px]">
-          {squareDiscounts.map((d) => (
-            <option key={d.id} value={d.id}>
-              {d.name}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <div className="flex flex-col gap-2">
-          <Input name="newDiscountName" placeholder="Discount name" required={mode === "new"} />
-          <div className="flex gap-4 text-[13px]">
-            <label className="flex items-center gap-1.5">
-              <input
-                type="radio"
-                name="newDiscountKind"
-                value="fixed_amount"
-                checked={kind === "fixed_amount"}
-                onChange={() => setKind("fixed_amount")}
-              />
-              Fixed amount off (e.g. free coffee — set to the item&apos;s price)
-            </label>
-            <label className="flex items-center gap-1.5">
-              <input
-                type="radio"
-                name="newDiscountKind"
-                value="fixed_percentage"
-                checked={kind === "fixed_percentage"}
-                onChange={() => setKind("fixed_percentage")}
-              />
-              Percentage off
-            </label>
+      <div className="min-h-[168px]">
+        {mode === "existing" ? (
+          <select name="existingDiscountId" className="h-9 rounded-lg border border-input bg-transparent px-2 text-[15px]">
+            {squareDiscounts.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <Input name="newDiscountName" placeholder="Discount name" required={mode === "new"} />
+            <div className="flex flex-col gap-1.5 text-[13px]">
+              <label className="flex items-center gap-1.5">
+                <input
+                  type="radio"
+                  name="newDiscountKind"
+                  value="fixed_amount"
+                  checked={kind === "fixed_amount"}
+                  onChange={() => setKind("fixed_amount")}
+                />
+                Fixed amount off (e.g. free coffee — set to the item&apos;s price)
+              </label>
+              <label className="flex items-center gap-1.5">
+                <input
+                  type="radio"
+                  name="newDiscountKind"
+                  value="fixed_percentage"
+                  checked={kind === "fixed_percentage"}
+                  onChange={() => setKind("fixed_percentage")}
+                />
+                Percentage off
+              </label>
+            </div>
+            {kind === "fixed_amount" ? (
+              <Input name="newDiscountAmount" type="number" step="0.01" min={0} placeholder="Amount ($)" />
+            ) : (
+              <Input name="newDiscountPercentage" type="number" min={1} max={100} placeholder="Percentage (e.g. 100 for free)" />
+            )}
           </div>
-          {kind === "fixed_amount" ? (
-            <Input name="newDiscountAmount" type="number" step="0.01" min={0} placeholder="Amount ($)" />
-          ) : (
-            <Input name="newDiscountPercentage" type="number" min={1} max={100} placeholder="Percentage (e.g. 100 for free)" />
-          )}
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
@@ -168,7 +170,7 @@ export default function RewardsForm({
       <div className="flex items-center justify-end">
         <Dialog>
           <DialogTrigger asChild>
-            <Button size="sm" className="rounded-full">
+            <Button variant="ghost" size="sm" className="rounded-full">
               <Plus className="h-4 w-4" />
               Add reward
             </Button>
