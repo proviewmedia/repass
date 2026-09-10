@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isCurrentUserAdmin } from "@/lib/admin";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 
 export default async function AdminPage() {
@@ -44,7 +44,7 @@ export default async function AdminPage() {
           </div>
         </div>
 
-        <Card className="overflow-hidden">
+        <div className="overflow-hidden rounded-2xl border border-border bg-card">
           <CardHeader className="flex-row items-center justify-between gap-2">
             <CardTitle>Businesses</CardTitle>
             <Badge>{businesses?.length ?? 0}</Badge>
@@ -87,7 +87,7 @@ export default async function AdminPage() {
           ) : (
             <p className="dash-empty border-t border-border">No businesses have signed up yet.</p>
           )}
-        </Card>
+        </div>
       </div>
     </main>
   );

@@ -1,3 +1,4 @@
+import { CreditCard } from "lucide-react";
 import { getCurrentBusiness } from "@/lib/current-business";
 import { getStripe } from "@/lib/stripe";
 import { Alert } from "@/components/ui/alert";
@@ -80,29 +81,31 @@ export default async function BillingPage() {
             </CardContent>
           </Card>
         ) : (
-          <Card>
-            <CardHeader className="flex-row items-center justify-between gap-2">
-              <div>
-                <CardTitle>Current plan</CardTitle>
-                <CardDescription>
-                  {planAmount ? `${planAmount} / ${planInterval}` : "Repass Subscription"}
-                  {nextBillingDate ? ` · next charge ${nextBillingDate}` : ""}
-                </CardDescription>
-              </div>
-              <Badge variant={business.subscription_status === "active" ? "success" : "warning"}>
+          <div className="flex flex-col gap-3">
+            <div className="tile-accent relative flex h-[100px] items-center justify-center rounded-2xl">
+              <Badge
+                variant={business.subscription_status === "active" ? "success" : "warning"}
+                className="absolute right-3 top-3"
+              >
                 {business.subscription_status}
               </Badge>
-            </CardHeader>
-            <CardContent>
-              <Button asChild variant="ghost" size="sm">
-                <a href="/api/stripe/portal">Manage payment method or cancel</a>
-              </Button>
-            </CardContent>
-          </Card>
+              <CreditCard className="h-10 w-10 text-indigo-600" strokeWidth={1.5} />
+            </div>
+            <div>
+              <h3 className="text-[15.5px] font-bold">Current plan</h3>
+              <p className="mt-0.5 text-[13px] text-muted-foreground">
+                {planAmount ? `${planAmount} / ${planInterval}` : "Repass Subscription"}
+                {nextBillingDate ? ` · next charge ${nextBillingDate}` : ""}
+              </p>
+            </div>
+            <Button asChild variant="ghost" size="sm" className="w-fit rounded-full">
+              <a href="/api/stripe/portal">Manage payment method or cancel</a>
+            </Button>
+          </div>
         )}
 
         {invoices.length > 0 && (
-          <Card className="overflow-hidden">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card">
             <CardHeader className="flex-row items-center justify-between gap-2">
               <CardTitle>Payment history</CardTitle>
               <Badge>{invoices.length}</Badge>
@@ -140,7 +143,7 @@ export default async function BillingPage() {
                 </TableBody>
               </Table>
             </div>
-          </Card>
+          </div>
         )}
       </div>
     </main>

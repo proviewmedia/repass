@@ -157,7 +157,7 @@ export default function RewardsForm({
 
   return (
     <div className="flex flex-col gap-4 sm:gap-5">
-      <Card className="overflow-hidden">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
         <CardHeader className="flex-row items-center justify-between gap-2">
           <CardTitle>Active rewards</CardTitle>
           <Badge>{active.length}</Badge>
@@ -196,7 +196,7 @@ export default function RewardsForm({
             )}
           </div>
         )}
-      </Card>
+      </div>
 
       <Card>
         <CardHeader>
