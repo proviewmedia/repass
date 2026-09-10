@@ -6,7 +6,6 @@ import { addPoint } from "../actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 
 interface Customer {
@@ -37,31 +36,30 @@ export default function CustomersTable({ customers }: { customers: Customer[] })
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-nowrap items-center justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-[var(--border-strong)] bg-card px-4 py-1 sm:max-w-xs">
           <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search customers by name or email"
+            placeholder="Search customers"
             className="h-9 border-none bg-transparent px-0 text-[14px] font-normal shadow-none focus-visible:ring-0"
           />
         </div>
-        <Button asChild size="sm" className="rounded-full">
-          <a href="/dashboard/customers/new">
-            <Plus className="h-4 w-4" />
-            Add customer
-          </a>
-        </Button>
+        <div className="flex shrink-0 items-center gap-3">
+          <Badge>{customers.length}</Badge>
+          <Button asChild size="sm" className="rounded-full">
+            <a href="/dashboard/customers/new">
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">Add customer</span>
+            </a>
+          </Button>
+        </div>
       </div>
 
-      <Card className="overflow-hidden">
-        <CardHeader className="flex-row items-center justify-between gap-2">
-          <CardTitle>Customers</CardTitle>
-          <Badge>{customers.length}</Badge>
-        </CardHeader>
+      <div className="overflow-hidden rounded-2xl bg-card">
         {filtered.length > 0 ? (
-          <div className="overflow-x-auto border-t border-border">
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -105,13 +103,13 @@ export default function CustomersTable({ customers }: { customers: Customer[] })
             </Table>
           </div>
         ) : (
-          <p className="dash-empty border-t border-border">
+          <p className="dash-empty">
             {customers.length === 0
               ? "No customers yet — share your join link from the Dashboard to get your first one."
               : "No customers match your search."}
           </p>
         )}
-      </Card>
+      </div>
     </div>
   );
 }

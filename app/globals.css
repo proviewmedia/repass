@@ -320,6 +320,14 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 .slug-input input { border: none; border-radius: 0; flex: 1; min-width: 0; }
 .slug-input input:focus { outline: none; }
 
+/* ---------- Tinted grid tile (icon/status surfaces) ---------- */
+.tile-accent {
+  background-color: #eef0fe;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(79, 70, 229, 0.08) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(90deg, rgba(79, 70, 229, 0.08) 0 1px, transparent 1px 26px);
+}
+
 /* ---------- Dashboard ---------- */
 .dash { min-height: 100vh; background: var(--alt); padding: 48px 0 80px; }
 @media (max-width: 640px) { .dash { padding: 24px 0 56px; } }

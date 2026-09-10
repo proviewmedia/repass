@@ -1,8 +1,7 @@
-import { CheckCircle2, PlugZap, Users } from "lucide-react";
+import { CheckCircle2, CreditCard, Import, UtensilsCrossed, PlugZap, Users } from "lucide-react";
 import { getCurrentBusiness } from "@/lib/current-business";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { disconnectSquare, disconnectStripe, importStripeCustomers } from "./actions";
 
@@ -40,102 +39,107 @@ export default async function ConnectionsPage({
           </div>
         </div>
 
-          {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
-          {searchParams.connected === "square" && <Alert>Square connected — new sales will start earning points.</Alert>}
-          {searchParams.disconnected === "square" && <Alert>Square disconnected.</Alert>}
-          {searchParams.connected === "stripe" && <Alert>Stripe connected — import your customers below.</Alert>}
-          {searchParams.disconnected === "stripe" && <Alert>Stripe disconnected.</Alert>}
-          {searchParams.imported !== undefined && (
-            <Alert>
-              Imported {searchParams.imported} new customer{searchParams.imported === "1" ? "" : "s"}
-              {Number(searchParams.skipped) > 0 ? ` — ${searchParams.skipped} already existed or had no email.` : "."}
-            </Alert>
-          )}
+        {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
+        {searchParams.connected === "square" && <Alert>Square connected — new sales will start earning points.</Alert>}
+        {searchParams.disconnected === "square" && <Alert>Square disconnected.</Alert>}
+        {searchParams.connected === "stripe" && <Alert>Stripe connected — import your customers below.</Alert>}
+        {searchParams.disconnected === "stripe" && <Alert>Stripe disconnected.</Alert>}
+        {searchParams.imported !== undefined && (
+          <Alert>
+            Imported {searchParams.imported} new customer{searchParams.imported === "1" ? "" : "s"}
+            {Number(searchParams.skipped) > 0 ? ` — ${searchParams.skipped} already existed or had no email.` : "."}
+          </Alert>
+        )}
 
-          <Card>
-            <CardHeader className="flex-row items-center justify-between gap-2">
-              <div>
-                <CardTitle>Square</CardTitle>
-                <CardDescription>
-                  Match a customer by the phone or email attached to their sale and award them a point.
-                </CardDescription>
-              </div>
-              {connection ? (
-                <Badge variant="success">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <div className="flex flex-col gap-3">
+            <div className="tile-accent relative flex h-[120px] items-center justify-center rounded-2xl">
+              {connection && (
+                <Badge variant="success" className="absolute right-3 top-3">
                   <CheckCircle2 className="h-3.5 w-3.5" /> Connected
                 </Badge>
-              ) : null}
-            </CardHeader>
-            <CardContent>
-              {connection ? (
-                <div className="flex flex-wrap items-center gap-3">
-                  <Button asChild variant="ghost" size="sm">
-                    <a href="/api/square/connect">
-                      <PlugZap className="h-4 w-4" />
-                      Reconnect (needed for reward redemption)
-                    </a>
-                  </Button>
-                  <form action={disconnectSquare}>
-                    <Button type="submit" variant="ghost" size="sm">
-                      Disconnect
-                    </Button>
-                  </form>
-                </div>
-              ) : (
-                <Button asChild size="sm">
+              )}
+              <CreditCard className="h-11 w-11 text-indigo-600" strokeWidth={1.5} />
+            </div>
+            <div>
+              <h3 className="text-[15.5px] font-bold">Square</h3>
+              <p className="mt-0.5 text-[13px] text-muted-foreground">
+                Match a customer by the phone or email attached to their sale and award them a point.
+              </p>
+            </div>
+            {connection ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <Button asChild variant="ghost" size="sm" className="rounded-full">
                   <a href="/api/square/connect">
                     <PlugZap className="h-4 w-4" />
-                    Connect Square
+                    Reconnect
                   </a>
                 </Button>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex-row items-center justify-between gap-2">
-              <div>
-                <CardTitle>Stripe</CardTitle>
-                <CardDescription>Import the customers you already have in your own Stripe account.</CardDescription>
+                <form action={disconnectSquare}>
+                  <Button type="submit" variant="ghost" size="sm" className="rounded-full">
+                    Disconnect
+                  </Button>
+                </form>
               </div>
-              {stripeConnection ? (
-                <Badge variant="success">
+            ) : (
+              <Button asChild size="sm" className="w-fit rounded-full">
+                <a href="/api/square/connect">
+                  <PlugZap className="h-4 w-4" />
+                  Connect Square
+                </a>
+              </Button>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <div className="tile-accent relative flex h-[120px] items-center justify-center rounded-2xl">
+              {stripeConnection && (
+                <Badge variant="success" className="absolute right-3 top-3">
                   <CheckCircle2 className="h-3.5 w-3.5" /> Connected
                 </Badge>
-              ) : null}
-            </CardHeader>
-            <CardContent>
-              {stripeConnection ? (
-                <div className="flex flex-wrap items-center gap-3">
-                  <form action={importStripeCustomers}>
-                    <Button type="submit" size="sm">
-                      <Users className="h-4 w-4" />
-                      Import customers
-                    </Button>
-                  </form>
-                  <form action={disconnectStripe}>
-                    <Button type="submit" variant="ghost" size="sm">
-                      Disconnect
-                    </Button>
-                  </form>
-                </div>
-              ) : (
-                <Button asChild size="sm">
-                  <a href="/api/stripe-connect/connect">
-                    <PlugZap className="h-4 w-4" />
-                    Connect Stripe
-                  </a>
-                </Button>
               )}
-            </CardContent>
-          </Card>
+              <Import className="h-11 w-11 text-indigo-600" strokeWidth={1.5} />
+            </div>
+            <div>
+              <h3 className="text-[15.5px] font-bold">Stripe</h3>
+              <p className="mt-0.5 text-[13px] text-muted-foreground">
+                Import the customers you already have in your own Stripe account.
+              </p>
+            </div>
+            {stripeConnection ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <form action={importStripeCustomers}>
+                  <Button type="submit" size="sm" className="rounded-full">
+                    <Users className="h-4 w-4" />
+                    Import customers
+                  </Button>
+                </form>
+                <form action={disconnectStripe}>
+                  <Button type="submit" variant="ghost" size="sm" className="rounded-full">
+                    Disconnect
+                  </Button>
+                </form>
+              </div>
+            ) : (
+              <Button asChild size="sm" className="w-fit rounded-full">
+                <a href="/api/stripe-connect/connect">
+                  <PlugZap className="h-4 w-4" />
+                  Connect Stripe
+                </a>
+              </Button>
+            )}
+          </div>
 
-          <Card className="border-dashed opacity-60">
-            <CardHeader>
-              <CardTitle className="text-muted-foreground">Toast</CardTitle>
-              <CardDescription>Coming soon — pending Toast partner approval.</CardDescription>
-            </CardHeader>
-          </Card>
+          <div className="flex flex-col gap-3 opacity-50">
+            <div className="flex h-[120px] items-center justify-center rounded-2xl border border-dashed border-[var(--border-strong)] bg-secondary">
+              <UtensilsCrossed className="h-11 w-11 text-muted-foreground" strokeWidth={1.5} />
+            </div>
+            <div>
+              <h3 className="text-[15.5px] font-bold text-muted-foreground">Toast</h3>
+              <p className="mt-0.5 text-[13px] text-muted-foreground">Coming soon — pending Toast partner approval.</p>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   );

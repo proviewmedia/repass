@@ -10,38 +10,30 @@ import { Card, CardContent } from "@/components/ui/card";
 
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
   return (
-    <Card>
-      <CardContent className="flex flex-row items-center gap-3 p-4 sm:p-5">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary text-foreground">
-          {icon}
-        </div>
-        <div>
-          <div className="text-xl font-bold leading-none tracking-tight tabular-nums">{value.toLocaleString()}</div>
-          <div className="mt-1 text-[13px] text-muted-foreground">{label}</div>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="flex items-center gap-3 rounded-2xl bg-secondary p-4">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-card text-foreground">{icon}</div>
+      <div>
+        <div className="text-xl font-bold leading-none tracking-tight tabular-nums">{value.toLocaleString()}</div>
+        <div className="mt-1 text-[13px] text-muted-foreground">{label}</div>
+      </div>
+    </div>
   );
 }
 
-// The one number a business owner actually opens this page to check —
-// sized and colored to stand out from the supporting stats beside it,
-// instead of all three competing at equal weight.
+// The one number a business owner actually opens this page to check — a
+// tinted, patterned tile instead of a bordered box, so it stands out from
+// the supporting stats beside it instead of all three competing equally.
 function HeroStatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
   return (
-    <Card className="h-full border-[var(--border-strong)]">
-      <CardContent className="flex h-full flex-col justify-center gap-2 p-5 sm:p-6">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
-          {icon}
-        </div>
-        <div>
-          <div className="text-[44px] font-bold leading-none tracking-tight tabular-nums">
-            {value.toLocaleString()}
-          </div>
-          <div className="mt-1.5 text-[13px] font-semibold uppercase tracking-wide text-muted-foreground">{label}</div>
-        </div>
-      </CardContent>
-    </Card>
+    <div className="tile-accent flex h-full flex-col justify-center gap-2 rounded-2xl p-5 sm:p-6">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/70 text-indigo-600">
+        {icon}
+      </div>
+      <div>
+        <div className="text-[44px] font-bold leading-none tracking-tight tabular-nums">{value.toLocaleString()}</div>
+        <div className="mt-1.5 text-[13px] font-semibold uppercase tracking-wide text-indigo-600">{label}</div>
+      </div>
+    </div>
   );
 }
 
