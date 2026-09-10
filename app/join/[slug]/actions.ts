@@ -1,10 +1,10 @@
 "use server";
 
-import { randomUUID } from "crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { BUSINESS_BRANDING_COLUMNS, createPass, toPassBusinessInput } from "@/lib/wallet";
+import { BUSINESS_BRANDING_COLUMNS } from "@/lib/wallet";
+import { provisionCustomerPass } from "@/lib/customer-provisioning";
 import { sendWalletLinkEmail } from "@/lib/resend";
 import { checkinCookieName } from "@/lib/checkin";
 
@@ -35,59 +35,16 @@ export async function joinProgram(slug: string, formData: FormData) {
     redirect(`/join/${slug}?error=${encodeURIComponent("This program isn't accepting new members right now.")}`);
   }
 
-  const NOT_STARTED = " ";
-
-  // A Stripe-imported (or otherwise pre-seeded) customer has a row with no
-  // wallet pass yet. If this email matches one, claim that row instead of
-  // creating a duplicate — carrying over any points it already has.
-  const { data: existing } = await supabase
-    .from("customers")
-    .select("id, points_balance")
-    .eq("business_id", business!.id)
-    .eq("email", email)
-    .is("removed_at", null)
-    .is("walletwallet_serial", null)
-    .maybeSingle();
-
-  const customerId = existing?.id ?? randomUUID();
-  const startingBalance = existing?.points_balance ?? 0;
-
-  let pass;
+  let provisioned;
   try {
-    pass = await createPass(toPassBusinessInput(business!), {
-      id: customerId,
-      pointsBalance: startingBalance,
-      notification: NOT_STARTED,
-    });
+    provisioned = await provisionCustomerPass({ supabase, business: business!, firstName, lastName, email, phone });
   } catch {
     redirect(`/join/${slug}?error=${encodeURIComponent("Couldn't create your card right now — please try again.")}`);
   }
 
-  const customerFields = {
-    first_name: firstName,
-    last_name: lastName,
-    email,
-    phone,
-    walletwallet_serial: pass.serialNumber,
-    share_url: pass.shareUrl,
-    google_save_url: pass.googleSaveUrl,
-    last_notification: NOT_STARTED,
-  };
+  const { customerId, shareUrl } = provisioned!;
 
-  const { error: writeError } = existing
-    ? await supabase.from("customers").update(customerFields).eq("id", existing.id)
-    : await supabase.from("customers").insert({
-        id: customerId,
-        business_id: business!.id,
-        points_balance: startingBalance,
-        ...customerFields,
-      });
-
-  if (writeError) {
-    redirect(`/join/${slug}?error=${encodeURIComponent("Something went wrong saving your details — please try again.")}`);
-  }
-
-  await sendWalletLinkEmail(email, business!.name, pass.shareUrl).catch((err) =>
+  await sendWalletLinkEmail(email, business!.name, shareUrl).catch((err) =>
     console.error("Failed to send wallet link email", err),
   );
 
@@ -100,5 +57,5 @@ export async function joinProgram(slug: string, formData: FormData) {
     maxAge: 60 * 60 * 24 * 365,
   });
 
-  redirect(`/join/${slug}/success?shareUrl=${encodeURIComponent(pass.shareUrl)}&name=${encodeURIComponent(firstName)}`);
+  redirect(`/join/${slug}/success?shareUrl=${encodeURIComponent(shareUrl)}&name=${encodeURIComponent(firstName)}`);
 }

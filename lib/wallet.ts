@@ -1,6 +1,12 @@
 // Client for the WalletWallet API (https://api.walletwallet.dev) — issues and
 // updates Apple/Google Wallet passes. See docs/walletwallet.md for the full
 // captured API reference this is built against.
+//
+// Client-safe: SettingsForm.tsx (a "use client" component) imports
+// renderNextRewardMessage from here, so this file must never import Node
+// builtins (crypto, etc.) or a Supabase client — that pulls a large
+// browser polyfill into the client bundle. Server-only helpers that need
+// those (e.g. provisionCustomerPass) live in lib/customer-provisioning.ts.
 
 const BASE_URL = "https://api.walletwallet.dev";
 

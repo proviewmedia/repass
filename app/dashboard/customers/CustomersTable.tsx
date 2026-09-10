@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { addPoint } from "../actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,14 +37,22 @@ export default function CustomersTable({ customers }: { customers: Customer[] })
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2 rounded-full border border-[var(--border-strong)] bg-card px-4 py-1">
-        <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search customers by name or email"
-          className="h-9 border-none bg-transparent px-0 text-[14px] font-normal shadow-none focus-visible:ring-0"
-        />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-[var(--border-strong)] bg-card px-4 py-1 sm:max-w-xs">
+          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search customers by name or email"
+            className="h-9 border-none bg-transparent px-0 text-[14px] font-normal shadow-none focus-visible:ring-0"
+          />
+        </div>
+        <Button asChild size="sm" className="rounded-full">
+          <a href="/dashboard/customers/new">
+            <Plus className="h-4 w-4" />
+            Add customer
+          </a>
+        </Button>
       </div>
 
       <Card className="overflow-hidden">
