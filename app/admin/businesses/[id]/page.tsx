@@ -3,7 +3,9 @@ import { ArrowLeft } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isCurrentUserAdmin } from "@/lib/admin";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 
 export default async function AdminBusinessPage({ params }: { params: { id: string } }) {
   const supabase = await createClient();
@@ -69,32 +71,38 @@ export default async function AdminBusinessPage({ params }: { params: { id: stri
         <Card className="overflow-hidden">
           <CardHeader className="flex-row items-center justify-between gap-2">
             <CardTitle>Customers</CardTitle>
-            <span className="text-sm font-medium text-muted-foreground">{customers?.length ?? 0}</span>
+            <Badge>{customers?.length ?? 0}</Badge>
           </CardHeader>
-          <div className="border-t border-border">
-            <div className="dash-row dash-row--head">
-              <span>Customer</span>
-              <span>Points</span>
-              <span />
+          {customers && customers.length > 0 ? (
+            <div className="overflow-x-auto border-t border-border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Points</TableHead>
+                    <TableHead />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {customers.map((customer) => (
+                    <TableRow key={customer.id}>
+                      <TableCell>
+                        <div className="font-semibold">
+                          {customer.first_name} {customer.last_name}
+                        </div>
+                        {customer.email && <div className="mt-0.5 text-[13px] text-muted-foreground">{customer.email}</div>}
+                        {customer.phone && <div className="mt-0.5 text-[13px] text-muted-foreground">{customer.phone}</div>}
+                      </TableCell>
+                      <TableCell className="text-[18px] font-bold">{customer.points_balance}</TableCell>
+                      <TableCell />
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
-            {customers && customers.length > 0 ? (
-              customers.map((customer) => (
-                <div className="dash-row" key={customer.id}>
-                  <span>
-                    <div className="dash-name">
-                      {customer.first_name} {customer.last_name}
-                    </div>
-                    {customer.email && <div className="dash-email">{customer.email}</div>}
-                    {customer.phone && <div className="dash-email">{customer.phone}</div>}
-                  </span>
-                  <span className="dash-points">{customer.points_balance}</span>
-                  <span />
-                </div>
-              ))
-            ) : (
-              <p className="dash-empty">This business has no customers yet.</p>
-            )}
-          </div>
+          ) : (
+            <p className="dash-empty border-t border-border">This business has no customers yet.</p>
+          )}
         </Card>
       </div>
     </main>

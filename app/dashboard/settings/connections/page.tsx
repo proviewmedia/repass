@@ -1,6 +1,7 @@
 import { CheckCircle2, PlugZap } from "lucide-react";
 import { getCurrentBusiness } from "@/lib/current-business";
 import { Alert } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { disconnectSquare } from "./actions";
@@ -45,9 +46,9 @@ export default async function ConnectionsPage({
                 </CardDescription>
               </div>
               {connection ? (
-                <span className="flex items-center gap-1.5 text-[13.5px] font-medium text-emerald-600">
-                  <CheckCircle2 className="h-4 w-4" /> Connected
-                </span>
+                <Badge variant="success">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> Connected
+                </Badge>
               ) : null}
             </CardHeader>
             <CardContent>

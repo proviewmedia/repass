@@ -331,25 +331,7 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 @media (max-width: 640px) { .dash-content { padding: 24px 16px 48px; } }
 .dash-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .dash-head h1 { font-size: 20px; letter-spacing: -0.02em; font-weight: 680; }
-.dash-row { display: grid; grid-template-columns: 1fr 100px auto; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
-.dash-row-actions { display: flex; gap: 8px; }
-.dash-row:last-child { border-bottom: none; }
-.dash-row--head { color: var(--faint); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; font-weight: 650; background: var(--alt); }
-.dash-name { font-weight: 600; font-size: 15px; }
-.dash-email { color: var(--muted); font-size: 13px; margin-top: 2px; }
-.dash-points { font-size: 18px; font-weight: 680; }
 .dash-empty { padding: 40px 20px; text-align: center; color: var(--muted); font-size: 14.5px; }
-@media (max-width: 640px) {
-  .dash-row--head { display: none; }
-  .dash-row {
-    grid-template-columns: 1fr auto;
-    grid-template-areas: "name name" "points actions";
-    row-gap: 10px;
-  }
-  .dash-row > span:first-child { grid-area: name; }
-  .dash-row > .dash-points { grid-area: points; align-self: center; }
-  .dash-row > .dash-row-actions { grid-area: actions; justify-self: end; }
-}
 
 /* ---------- Settings: form + live card preview ---------- */
 .settings-layout { display: grid; grid-template-columns: 1fr 260px; gap: 32px; align-items: start; }

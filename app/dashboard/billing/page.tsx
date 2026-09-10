@@ -1,17 +1,13 @@
 import { getCurrentBusiness } from "@/lib/current-business";
 import { getStripe } from "@/lib/stripe";
 import { Alert } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 
 function formatMoney(cents: number, currency: string): string {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: currency.toUpperCase() }).format(cents / 100);
-}
-
-function statusBadgeClass(status: string): string {
-  return status === "active"
-    ? "rounded-full bg-emerald-100 px-2.5 py-1 text-[12.5px] font-medium text-emerald-700"
-    : "rounded-full bg-amber-100 px-2.5 py-1 text-[12.5px] font-medium text-amber-700";
 }
 
 export default async function BillingPage() {
@@ -93,7 +89,9 @@ export default async function BillingPage() {
                   {nextBillingDate ? ` · next charge ${nextBillingDate}` : ""}
                 </CardDescription>
               </div>
-              <span className={statusBadgeClass(business.subscription_status)}>{business.subscription_status}</span>
+              <Badge variant={business.subscription_status === "active" ? "success" : "warning"}>
+                {business.subscription_status}
+              </Badge>
             </CardHeader>
             <CardContent>
               <Button asChild variant="ghost" size="sm">
@@ -108,23 +106,38 @@ export default async function BillingPage() {
             <CardHeader>
               <CardTitle>Payment history</CardTitle>
             </CardHeader>
-            <div className="border-t border-border">
-              {invoices.map((inv) => (
-                <div key={inv.id} className="dash-row" style={{ gridTemplateColumns: "1fr 120px auto" }}>
-                  <span>
-                    <div className="dash-name">{inv.date}</div>
-                    <div className="dash-email">{inv.status}</div>
-                  </span>
-                  <span className="dash-points">{inv.amount}</span>
-                  <span className="dash-row-actions">
-                    {inv.url && (
-                      <a href={inv.url} target="_blank" rel="noreferrer" className="btn ghost sm">
-                        Receipt
-                      </a>
-                    )}
-                  </span>
-                </div>
-              ))}
+            <div className="overflow-x-auto border-t border-border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {invoices.map((inv) => (
+                    <TableRow key={inv.id}>
+                      <TableCell>
+                        <div className="font-semibold">{inv.date}</div>
+                        <div className="mt-0.5 text-[13px] text-muted-foreground">{inv.status}</div>
+                      </TableCell>
+                      <TableCell className="text-[18px] font-bold">{inv.amount}</TableCell>
+                      <TableCell>
+                        {inv.url && (
+                          <div className="flex justify-end">
+                            <Button asChild variant="ghost" size="sm">
+                              <a href={inv.url} target="_blank" rel="noreferrer">
+                                Receipt
+                              </a>
+                            </Button>
+                          </div>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </Card>
         )}

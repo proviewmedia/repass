@@ -434,9 +434,15 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
           )}
         </div>
 
-        <button type="button" className="btn ghost sm card-preview-flip" onClick={() => setShowBack(!showBack)}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="card-preview-flip"
+          onClick={() => setShowBack(!showBack)}
+        >
           {showBack ? "Show front" : "Show back of card"}
-        </button>
+        </Button>
       </div>
     </div>
   );

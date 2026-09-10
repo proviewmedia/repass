@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Archive, Link2 } from "lucide-react";
 import { createRewardTier, updateRewardTier, archiveRewardTier, linkTierToDiscount } from "./actions";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -116,11 +117,11 @@ function TierRow({ tier, squareConnected, squareDiscounts }: { tier: Tier; squar
 
       <div className="flex flex-wrap items-center gap-2 text-[13px]">
         {linkedName ? (
-          <span className="flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-1 font-medium text-emerald-700">
+          <Badge variant="success">
             <Link2 className="h-3.5 w-3.5" /> Linked to: {linkedName}
-          </span>
+          </Badge>
         ) : (
-          <span className="rounded-full bg-amber-100 px-2.5 py-1 font-medium text-amber-700">Not linked to Square</span>
+          <Badge variant="warning">Not linked to Square</Badge>
         )}
         <form action={archiveRewardTier.bind(null, tier.id)}>
           <Button type="submit" variant="ghost" size="sm">
@@ -205,13 +206,9 @@ export default function RewardsForm({
 
       {archived.length > 0 && (
         <div>
-          <button
-            type="button"
-            className="btn ghost sm"
-            onClick={() => setShowArchived((v) => !v)}
-          >
+          <Button type="button" variant="ghost" size="sm" onClick={() => setShowArchived((v) => !v)}>
             {showArchived ? "Hide" : "Show"} archived rewards ({archived.length})
-          </button>
+          </Button>
           {showArchived && (
             <Card className="mt-3 overflow-hidden opacity-70">
               <div>
