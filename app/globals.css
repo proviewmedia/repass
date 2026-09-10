@@ -327,11 +327,10 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 /* Content wrapper for pages rendered inside the dashboard sidebar shell —
    same background/spacing as .dash but no forced viewport height or
    vertical centering, since the sidebar layout already handles the frame. */
-.dash-content { background: var(--alt); min-height: 100vh; padding: 40px 32px 64px; }
+.dash-content { background: var(--alt); min-height: 100vh; padding: 32px 32px 64px; }
 @media (max-width: 640px) { .dash-content { padding: 24px 16px 48px; } }
-@media (max-width: 640px) { .dash-head h1 { font-size: 22px; } }
 .dash-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
-.dash-head h1 { font-size: 28px; letter-spacing: -0.03em; font-weight: 680; }
+.dash-head h1 { font-size: 20px; letter-spacing: -0.02em; font-weight: 680; }
 .dash-row { display: grid; grid-template-columns: 1fr 100px auto; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
 .dash-row-actions { display: flex; gap: 8px; }
 .dash-row:last-child { border-bottom: none; }
