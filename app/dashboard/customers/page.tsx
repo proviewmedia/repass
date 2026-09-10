@@ -5,7 +5,7 @@ import CustomersTable from "./CustomersTable";
 export default async function CustomersPage({
   searchParams,
 }: {
-  searchParams: { updated?: string; removed?: string; added?: string };
+  searchParams: { updated?: string; removed?: string; added?: string; error?: string };
 }) {
   const { supabase, business } = await getCurrentBusiness();
 
@@ -26,6 +26,7 @@ export default async function CustomersPage({
           </div>
         </div>
 
+        {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
         {searchParams.added === "1" && <Alert>Customer added — their wallet card is on the way.</Alert>}
         {searchParams.updated === "1" && <Alert>Customer updated.</Alert>}
         {searchParams.removed === "1" && <Alert>Customer removed.</Alert>}

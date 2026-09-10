@@ -1,13 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { Archive, Link2 } from "lucide-react";
+import { Archive, Link2, Plus } from "lucide-react";
 import { createRewardTier, updateRewardTier, archiveRewardTier, linkTierToDiscount } from "./actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface Tier {
   id: string;
@@ -157,6 +165,47 @@ export default function RewardsForm({
 
   return (
     <div className="flex flex-col gap-4 sm:gap-5">
+      <div className="flex items-center justify-end">
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button size="sm" className="rounded-full">
+              <Plus className="h-4 w-4" />
+              Add reward
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add a reward</DialogTitle>
+              <DialogDescription>Give it a name and a points cost.</DialogDescription>
+            </DialogHeader>
+            <form action={createRewardTier} className="mt-4 flex flex-col gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="label">Reward name</Label>
+                  <Input id="label" name="label" placeholder="A free coffee" required />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="pointsCost">Points cost</Label>
+                  <Input id="pointsCost" name="pointsCost" type="number" min={1} defaultValue={10} required />
+                </div>
+              </div>
+
+              {squareConnected ? (
+                <DiscountPicker squareDiscounts={squareDiscounts} />
+              ) : (
+                <p className="text-[13px] text-muted-foreground">
+                  Connect Square to link this reward to an auto-redeem discount — you can add it now and link it later.
+                </p>
+              )}
+
+              <Button type="submit" className="self-start">
+                Add reward
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
         <CardHeader className="flex-row items-center justify-between gap-2">
           <CardTitle>Active rewards</CardTitle>
@@ -197,39 +246,6 @@ export default function RewardsForm({
           </div>
         )}
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Add a reward</CardTitle>
-          <CardDescription>Give it a name and a points cost.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form action={createRewardTier} className="flex flex-col gap-3">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="label">Reward name</Label>
-                <Input id="label" name="label" placeholder="A free coffee" required />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="pointsCost">Points cost</Label>
-                <Input id="pointsCost" name="pointsCost" type="number" min={1} defaultValue={10} required />
-              </div>
-            </div>
-
-            {squareConnected ? (
-              <DiscountPicker squareDiscounts={squareDiscounts} />
-            ) : (
-              <p className="text-[13px] text-muted-foreground">
-                Connect Square to link this reward to an auto-redeem discount — you can add it now and link it later.
-              </p>
-            )}
-
-            <Button type="submit" className="self-start">
-              Add reward
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
     </div>
   );
 }

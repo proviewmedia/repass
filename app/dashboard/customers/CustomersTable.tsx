@@ -3,10 +3,20 @@
 import { useMemo, useState } from "react";
 import { Plus, Search } from "lucide-react";
 import { addPoint } from "../actions";
+import { addCustomer } from "./actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface Customer {
   id: string;
@@ -48,12 +58,43 @@ export default function CustomersTable({ customers }: { customers: Customer[] })
         </div>
         <div className="flex shrink-0 items-center gap-3">
           <Badge>{customers.length}</Badge>
-          <Button asChild size="sm" className="rounded-full">
-            <a href="/dashboard/customers/new">
-              <Plus className="h-4 w-4" />
-              <span className="hidden sm:inline">Add customer</span>
-            </a>
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm" className="rounded-full">
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Add customer</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add customer</DialogTitle>
+                <DialogDescription>They&apos;ll get a real wallet card and an email with the link right away.</DialogDescription>
+              </DialogHeader>
+              <form action={addCustomer} className="mt-4 flex flex-col gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="firstName">First name</Label>
+                    <Input id="firstName" type="text" name="firstName" required />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="lastName">Last name</Label>
+                    <Input id="lastName" type="text" name="lastName" required />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" name="email" required />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input id="phone" type="tel" name="phone" required />
+                </div>
+                <Button type="submit" className="self-start">
+                  Add customer
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 

@@ -13,13 +13,13 @@ export async function addCustomer(formData: FormData) {
   const phone = String(formData.get("phone") || "").trim();
 
   if (!firstName || !lastName) {
-    redirect(`/dashboard/customers/new?error=${encodeURIComponent("First and last name are required.")}`);
+    redirect(`/dashboard/customers?error=${encodeURIComponent("First and last name are required.")}`);
   }
   if (!email || !email.includes("@")) {
-    redirect(`/dashboard/customers/new?error=${encodeURIComponent("A valid email is required.")}`);
+    redirect(`/dashboard/customers?error=${encodeURIComponent("A valid email is required.")}`);
   }
   if (!phone) {
-    redirect(`/dashboard/customers/new?error=${encodeURIComponent("Phone number is required.")}`);
+    redirect(`/dashboard/customers?error=${encodeURIComponent("Phone number is required.")}`);
   }
 
   const supabase = await createClient();
@@ -28,7 +28,7 @@ export async function addCustomer(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login?redirectTo=/dashboard/customers/new");
+    redirect("/login?redirectTo=/dashboard/customers");
   }
 
   const { data: business } = await supabase
@@ -45,7 +45,7 @@ export async function addCustomer(formData: FormData) {
   try {
     provisioned = await provisionCustomerPass({ supabase, business: business!, firstName, lastName, email, phone });
   } catch {
-    redirect(`/dashboard/customers/new?error=${encodeURIComponent("Couldn't create their card right now — please try again.")}`);
+    redirect(`/dashboard/customers?error=${encodeURIComponent("Couldn't create their card right now — please try again.")}`);
   }
 
   await sendWalletLinkEmail(email, business!.name, provisioned!.shareUrl).catch((err) =>
