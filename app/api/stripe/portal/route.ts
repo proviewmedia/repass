@@ -14,17 +14,19 @@ export async function GET(request: NextRequest) {
 
   const { data: business } = await supabase
     .from("businesses")
-    .select("stripe_customer_id")
+    .select("id, stripe_customer_id")
     .eq("owner_user_id", user.id)
     .single();
 
-  if (!business?.stripe_customer_id) {
-    const url = new URL("/dashboard", request.url);
-    url.searchParams.set(
-      "error",
-      "No billing account on file yet — subscribe first, then Billing will open your Stripe portal.",
-    );
-    return NextResponse.redirect(url);
+  if (!business) {
+    return NextResponse.redirect(new URL("/onboarding", request.url));
+  }
+
+  // No Stripe customer yet — this business hasn't subscribed. Send them to
+  // checkout to pay instead of a billing portal, which only manages an
+  // existing subscription.
+  if (!business.stripe_customer_id) {
+    return NextResponse.redirect(new URL(`/api/stripe/checkout?businessId=${business.id}`, request.url));
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;

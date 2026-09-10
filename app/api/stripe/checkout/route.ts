@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     customer: customerId,
     line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
     success_url: `${appUrl}/dashboard?checkout=success`,
-    cancel_url: `${appUrl}/onboarding?checkout=cancelled`,
+    cancel_url: `${appUrl}/dashboard?checkout=cancelled`,
     metadata: { businessId: business.id },
   });
 

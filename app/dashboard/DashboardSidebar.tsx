@@ -35,7 +35,14 @@ function NavList({ isAdmin, onNavigate }: { isAdmin: boolean; onNavigate?: () =>
       <a href="/api/stripe/portal" className={ITEM_CLASS}>
         Billing
       </a>
-      {isAdmin && <NavLink href="/admin" label="Admin" active={pathname === "/admin"} onClick={onNavigate} />}
+      {isAdmin && (
+        <NavLink
+          href="/admin"
+          label="Admin"
+          active={pathname === "/admin" || pathname.startsWith("/admin/")}
+          onClick={onNavigate}
+        />
+      )}
     </nav>
   );
 }
