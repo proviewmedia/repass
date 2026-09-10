@@ -35,31 +35,55 @@ export async function joinProgram(slug: string, formData: FormData) {
     redirect(`/join/${slug}?error=${encodeURIComponent("This program isn't accepting new members right now.")}`);
   }
 
-  const customerId = randomUUID();
   const NOT_STARTED = " ";
+
+  // A Stripe-imported (or otherwise pre-seeded) customer has a row with no
+  // wallet pass yet. If this email matches one, claim that row instead of
+  // creating a duplicate — carrying over any points it already has.
+  const { data: existing } = await supabase
+    .from("customers")
+    .select("id, points_balance")
+    .eq("business_id", business!.id)
+    .eq("email", email)
+    .is("removed_at", null)
+    .is("walletwallet_serial", null)
+    .maybeSingle();
+
+  const customerId = existing?.id ?? randomUUID();
+  const startingBalance = existing?.points_balance ?? 0;
 
   let pass;
   try {
-    pass = await createPass(toPassBusinessInput(business!), { id: customerId, pointsBalance: 0, notification: NOT_STARTED });
+    pass = await createPass(toPassBusinessInput(business!), {
+      id: customerId,
+      pointsBalance: startingBalance,
+      notification: NOT_STARTED,
+    });
   } catch {
     redirect(`/join/${slug}?error=${encodeURIComponent("Couldn't create your card right now — please try again.")}`);
   }
 
-  const { error: insertError } = await supabase.from("customers").insert({
-    id: customerId,
-    business_id: business!.id,
+  const customerFields = {
     first_name: firstName,
     last_name: lastName,
     email,
     phone,
-    points_balance: 0,
     walletwallet_serial: pass.serialNumber,
     share_url: pass.shareUrl,
     google_save_url: pass.googleSaveUrl,
     last_notification: NOT_STARTED,
-  });
+  };
 
-  if (insertError) {
+  const { error: writeError } = existing
+    ? await supabase.from("customers").update(customerFields).eq("id", existing.id)
+    : await supabase.from("customers").insert({
+        id: customerId,
+        business_id: business!.id,
+        points_balance: startingBalance,
+        ...customerFields,
+      });
+
+  if (writeError) {
     redirect(`/join/${slug}?error=${encodeURIComponent("Something went wrong saving your details — please try again.")}`);
   }
 
