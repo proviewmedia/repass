@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { disconnectStripeAccount, listStripeCustomers, type StripeConnectionRow } from "@/lib/stripe-connect";
+import { listCustomers, type PosConnectionRow } from "@/lib/square";
 
 export async function disconnectSquare() {
   const supabase = await createClient();
@@ -55,53 +55,20 @@ async function getOwnedBusinessId(supabase: Awaited<ReturnType<typeof createClie
   return business!.id as string;
 }
 
-export async function disconnectStripe() {
+export async function importSquareCustomers() {
   const supabase = await createClient();
   const businessId = await getOwnedBusinessId(supabase);
 
   const { data: connection } = await supabase
-    .from("stripe_connections")
-    .select("stripe_account_id")
+    .from("pos_connections")
+    .select("id, business_id, external_merchant_id, access_token, refresh_token, token_expires_at")
     .eq("business_id", businessId)
+    .eq("provider", "square")
     .is("disconnected_at", null)
-    .maybeSingle();
-
-  if (connection) {
-    await disconnectStripeAccount(connection.stripe_account_id).catch((err) =>
-      console.error("Failed to deauthorize Stripe connection", err),
-    );
-  }
-
-  await supabase
-    .from("stripe_connections")
-    .update({ disconnected_at: new Date().toISOString() })
-    .eq("business_id", businessId);
-
-  redirect("/dashboard/settings/connections?disconnected=stripe");
-}
-
-function splitName(name: string | null, email: string): { firstName: string; lastName: string | null } {
-  const trimmed = (name || "").trim();
-  if (!trimmed) {
-    return { firstName: email.split("@")[0], lastName: null };
-  }
-  const [firstName, ...rest] = trimmed.split(/\s+/);
-  return { firstName, lastName: rest.length > 0 ? rest.join(" ") : null };
-}
-
-export async function importStripeCustomers() {
-  const supabase = await createClient();
-  const businessId = await getOwnedBusinessId(supabase);
-
-  const { data: connection } = await supabase
-    .from("stripe_connections")
-    .select("id, business_id, stripe_account_id, access_token")
-    .eq("business_id", businessId)
-    .is("disconnected_at", null)
-    .maybeSingle<StripeConnectionRow>();
+    .maybeSingle<PosConnectionRow>();
 
   if (!connection) {
-    redirect("/dashboard/settings/connections?error=Connect Stripe first.");
+    redirect("/dashboard/settings/connections?error=Connect Square first.");
   }
 
   const { data: existingCustomers } = await supabase
@@ -112,18 +79,18 @@ export async function importStripeCustomers() {
 
   const existingEmails = new Set((existingCustomers || []).map((c) => (c.email || "").toLowerCase()).filter(Boolean));
 
-  let stripeCustomers;
+  let squareCustomers;
   try {
-    stripeCustomers = await listStripeCustomers(connection!);
+    squareCustomers = await listCustomers(connection!);
   } catch (err) {
-    console.error("Failed to list Stripe customers", err);
-    redirect("/dashboard/settings/connections?error=Couldn't read customers from Stripe. Please try again.");
+    console.error("Failed to list Square customers", err);
+    redirect("/dashboard/settings/connections?error=Couldn't read customers from Square. Please try again.");
   }
 
   let imported = 0;
   let skipped = 0;
 
-  for (const sc of stripeCustomers!) {
+  for (const sc of squareCustomers!) {
     const email = sc.email?.trim().toLowerCase();
     if (!email) {
       skipped++;
@@ -134,11 +101,10 @@ export async function importStripeCustomers() {
       continue;
     }
 
-    const { firstName, lastName } = splitName(sc.name, email);
     const { error } = await supabase.from("customers").insert({
       business_id: businessId,
-      first_name: firstName,
-      last_name: lastName,
+      first_name: sc.firstName || email.split("@")[0],
+      last_name: sc.lastName,
       email,
       phone: sc.phone,
       points_balance: 0,
@@ -146,7 +112,7 @@ export async function importStripeCustomers() {
     });
 
     if (error) {
-      console.error("Failed to import Stripe customer", error);
+      console.error("Failed to import Square customer", error);
       skipped++;
       continue;
     }

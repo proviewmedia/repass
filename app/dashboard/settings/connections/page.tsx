@@ -1,9 +1,9 @@
-import { CheckCircle2, CreditCard, Import, UtensilsCrossed, PlugZap, Users } from "lucide-react";
+import { CheckCircle2, CreditCard, UtensilsCrossed, PlugZap, Users } from "lucide-react";
 import { getCurrentBusiness } from "@/lib/current-business";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { disconnectSquare, disconnectStripe, importStripeCustomers } from "./actions";
+import { disconnectSquare, importSquareCustomers } from "./actions";
 
 export default async function ConnectionsPage({
   searchParams,
@@ -17,13 +17,6 @@ export default async function ConnectionsPage({
     .select("provider, connected_at")
     .eq("business_id", business!.id)
     .eq("provider", "square")
-    .is("disconnected_at", null)
-    .maybeSingle();
-
-  const { data: stripeConnection } = await supabase
-    .from("stripe_connections")
-    .select("connected_at")
-    .eq("business_id", business!.id)
     .is("disconnected_at", null)
     .maybeSingle();
 
@@ -42,8 +35,6 @@ export default async function ConnectionsPage({
         {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
         {searchParams.connected === "square" && <Alert>Square connected — new sales will start earning points.</Alert>}
         {searchParams.disconnected === "square" && <Alert>Square disconnected.</Alert>}
-        {searchParams.connected === "stripe" && <Alert>Stripe connected — import your customers below.</Alert>}
-        {searchParams.disconnected === "stripe" && <Alert>Stripe disconnected.</Alert>}
         {searchParams.imported !== undefined && (
           <Alert>
             Imported {searchParams.imported} new customer{searchParams.imported === "1" ? "" : "s"}
@@ -69,6 +60,12 @@ export default async function ConnectionsPage({
             </div>
             {connection ? (
               <div className="flex flex-wrap items-center gap-2">
+                <form action={importSquareCustomers}>
+                  <Button type="submit" size="sm" className="rounded-full">
+                    <Users className="h-4 w-4" />
+                    Import customers
+                  </Button>
+                </form>
                 <Button asChild variant="ghost" size="sm" className="rounded-full">
                   <a href="/api/square/connect">
                     <PlugZap className="h-4 w-4" />
@@ -86,45 +83,6 @@ export default async function ConnectionsPage({
                 <a href="/api/square/connect">
                   <PlugZap className="h-4 w-4" />
                   Connect Square
-                </a>
-              </Button>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <div className="tile-accent relative flex h-[120px] items-center justify-center rounded-2xl">
-              {stripeConnection && (
-                <Badge variant="success" className="absolute right-3 top-3">
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Connected
-                </Badge>
-              )}
-              <Import className="h-11 w-11 text-indigo-600" strokeWidth={1.5} />
-            </div>
-            <div>
-              <h3 className="text-[15.5px] font-bold">Stripe</h3>
-              <p className="mt-0.5 text-[13px] text-muted-foreground">
-                Import the customers you already have in your own Stripe account.
-              </p>
-            </div>
-            {stripeConnection ? (
-              <div className="flex flex-wrap items-center gap-2">
-                <form action={importStripeCustomers}>
-                  <Button type="submit" size="sm" className="rounded-full">
-                    <Users className="h-4 w-4" />
-                    Import customers
-                  </Button>
-                </form>
-                <form action={disconnectStripe}>
-                  <Button type="submit" variant="ghost" size="sm" className="rounded-full">
-                    Disconnect
-                  </Button>
-                </form>
-              </div>
-            ) : (
-              <Button asChild size="sm" className="w-fit rounded-full">
-                <a href="/api/stripe-connect/connect">
-                  <PlugZap className="h-4 w-4" />
-                  Connect Stripe
                 </a>
               </Button>
             )}

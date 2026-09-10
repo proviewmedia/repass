@@ -158,6 +158,30 @@ export async function listDiscounts(connection: PosConnectionRow): Promise<Squar
   return out;
 }
 
+export interface SquareCustomer {
+  firstName: string | null;
+  lastName: string | null;
+  email: string | null;
+  phone: string | null;
+}
+
+// Lists every customer in the merchant's Square Customer Directory, for
+// importing them into a business's loyalty program in one action.
+export async function listCustomers(connection: PosConnectionRow): Promise<SquareCustomer[]> {
+  const accessToken = await getValidAccessToken(connection);
+  const pager = await client(accessToken).customers.list();
+  const out: SquareCustomer[] = [];
+  for await (const c of pager) {
+    out.push({
+      firstName: c.givenName ?? null,
+      lastName: c.familyName ?? null,
+      email: c.emailAddress ?? null,
+      phone: c.phoneNumber ?? null,
+    });
+  }
+  return out;
+}
+
 export interface CreateDiscountParams {
   name: string;
   kind: "fixed_amount" | "fixed_percentage";
