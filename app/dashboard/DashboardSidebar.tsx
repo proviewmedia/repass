@@ -6,31 +6,17 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { signOut } from "./actions";
 
-const NAV_GROUPS = [
-  {
-    label: "Overview",
-    items: [
-      { href: "/dashboard", label: "Dashboard" },
-      { href: "/dashboard/customers", label: "Customers" },
-    ],
-  },
-  {
-    label: "Program",
-    items: [
-      { href: "/dashboard/settings/rewards", label: "Rewards" },
-      { href: "/dashboard/settings/connections", label: "Connections" },
-      { href: "/dashboard/settings", label: "Card Design" },
-    ],
-  },
-  {
-    label: "Account",
-    items: [{ href: "/dashboard/billing", label: "Billing" }],
-  },
+const NAV_ITEMS = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/dashboard/customers", label: "Customers" },
+  { href: "/dashboard/settings/rewards", label: "Rewards" },
+  { href: "/dashboard/settings/connections", label: "Connections" },
+  { href: "/dashboard/settings", label: "Card Design" },
+  { href: "/dashboard/billing", label: "Billing" },
 ];
 
 const ITEM_CLASS = "rounded-lg px-3 py-2.5 text-[15px] text-muted-foreground hover:bg-secondary hover:text-foreground";
 const ACTIVE_ITEM_CLASS = "rounded-lg bg-indigo-50 px-3 py-2.5 text-[15px] font-semibold text-indigo-600";
-const GROUP_LABEL_CLASS = "px-3 pb-2 text-[11.5px] font-bold uppercase tracking-wide text-muted-foreground";
 
 function NavLink({ href, label, active, onClick }: { href: string; label: string; active: boolean; onClick?: () => void }) {
   return (
@@ -43,23 +29,18 @@ function NavLink({ href, label, active, onClick }: { href: string; label: string
 function NavList({ isAdmin, onNavigate }: { isAdmin: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
-    <div role="navigation" className="flex flex-col gap-4">
-      {NAV_GROUPS.map((group) => (
-        <div key={group.label} className="flex flex-col gap-1">
-          <div className={GROUP_LABEL_CLASS}>{group.label}</div>
-          {group.items.map((item) => (
-            <NavLink key={item.href} href={item.href} label={item.label} active={pathname === item.href} onClick={onNavigate} />
-          ))}
-          {group.label === "Account" && isAdmin && (
-            <NavLink
-              href="/admin"
-              label="Admin"
-              active={pathname === "/admin" || pathname.startsWith("/admin/")}
-              onClick={onNavigate}
-            />
-          )}
-        </div>
+    <div role="navigation" className="flex flex-col gap-1">
+      {NAV_ITEMS.map((item) => (
+        <NavLink key={item.href} href={item.href} label={item.label} active={pathname === item.href} onClick={onNavigate} />
       ))}
+      {isAdmin && (
+        <NavLink
+          href="/admin"
+          label="Admin"
+          active={pathname === "/admin" || pathname.startsWith("/admin/")}
+          onClick={onNavigate}
+        />
+      )}
     </div>
   );
 }
