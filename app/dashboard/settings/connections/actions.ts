@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { listCustomers, type PosConnectionRow } from "@/lib/square";
+import { listCustomers as listCloverCustomers, type PosConnectionRow as CloverConnectionRow } from "@/lib/clover";
 
 export async function disconnectSquare() {
   const supabase = await createClient();
@@ -113,6 +114,88 @@ export async function importSquareCustomers() {
 
     if (error) {
       console.error("Failed to import Square customer", error);
+      skipped++;
+      continue;
+    }
+
+    existingEmails.add(email);
+    imported++;
+  }
+
+  redirect(`/dashboard/settings/connections?imported=${imported}&skipped=${skipped}`);
+}
+
+export async function disconnectClover() {
+  const supabase = await createClient();
+  const businessId = await getOwnedBusinessId(supabase);
+
+  await supabase
+    .from("pos_connections")
+    .update({ disconnected_at: new Date().toISOString() })
+    .eq("business_id", businessId)
+    .eq("provider", "clover");
+
+  redirect("/dashboard/settings/connections?disconnected=clover");
+}
+
+export async function importCloverCustomers() {
+  const supabase = await createClient();
+  const businessId = await getOwnedBusinessId(supabase);
+
+  const { data: connection } = await supabase
+    .from("pos_connections")
+    .select("id, business_id, external_merchant_id, access_token, refresh_token, token_expires_at")
+    .eq("business_id", businessId)
+    .eq("provider", "clover")
+    .is("disconnected_at", null)
+    .maybeSingle<CloverConnectionRow>();
+
+  if (!connection) {
+    redirect("/dashboard/settings/connections?error=Connect Clover first.");
+  }
+
+  const { data: existingCustomers } = await supabase
+    .from("customers")
+    .select("email")
+    .eq("business_id", businessId)
+    .is("removed_at", null);
+
+  const existingEmails = new Set((existingCustomers || []).map((c) => (c.email || "").toLowerCase()).filter(Boolean));
+
+  let cloverCustomers;
+  try {
+    cloverCustomers = await listCloverCustomers(connection!);
+  } catch (err) {
+    console.error("Failed to list Clover customers", err);
+    redirect("/dashboard/settings/connections?error=Couldn't read customers from Clover. Please try again.");
+  }
+
+  let imported = 0;
+  let skipped = 0;
+
+  for (const cc of cloverCustomers!) {
+    const email = cc.email?.trim().toLowerCase();
+    if (!email) {
+      skipped++;
+      continue;
+    }
+    if (existingEmails.has(email)) {
+      skipped++;
+      continue;
+    }
+
+    const { error } = await supabase.from("customers").insert({
+      business_id: businessId,
+      first_name: cc.firstName || email.split("@")[0],
+      last_name: cc.lastName,
+      email,
+      phone: cc.phone,
+      points_balance: 0,
+      last_notification: " ",
+    });
+
+    if (error) {
+      console.error("Failed to import Clover customer", error);
       skipped++;
       continue;
     }
