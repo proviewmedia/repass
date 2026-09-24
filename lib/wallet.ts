@@ -46,9 +46,9 @@ export function isCustomHexColor(value: string | null | undefined): value is str
 }
 
 // The cheapest active tier the customer hasn't reached yet — shared by the
-// "next reward" message and the stamp-dot display so both always agree on
-// which reward a customer is progressing toward.
-function cheapestUnreachedTier(pointsBalance: number, tiers: RewardTier[] | null | undefined): RewardTier | null {
+// "next reward" message, the stamp-dot display, and the header count so all
+// three always agree on which reward a customer is progressing toward.
+export function cheapestUnreachedTier(pointsBalance: number, tiers: RewardTier[] | null | undefined): RewardTier | null {
   const unreached = (tiers || [])
     .filter((t) => t.pointsCost > pointsBalance)
     .sort((a, b) => a.pointsCost - b.pointsCost);
@@ -89,6 +89,22 @@ export function renderPointsValue(
 
   const filled = Math.min(pointsBalance, next.pointsCost);
   return "●".repeat(filled) + "○".repeat(next.pointsCost - filled);
+}
+
+// Compact "3/10" form for the header field (the only space still visible when
+// a pass is folded in the wallet stack — see docs/walletwallet.md). Plain
+// balance for "number" style, or once there's no reward to size it against.
+export function renderPointsHeaderValue(
+  pointsBalance: number,
+  tiers: RewardTier[] | null | undefined,
+  style: PointsDisplayStyle | null | undefined,
+): string {
+  if (style !== "stamps") return String(pointsBalance);
+
+  const next = cheapestUnreachedTier(pointsBalance, tiers);
+  if (!next || next.pointsCost > MAX_STAMP_DOTS) return String(pointsBalance);
+
+  return `${Math.min(pointsBalance, next.pointsCost)}/${next.pointsCost}`;
 }
 
 // Column list for `.select()` calls against `businesses` wherever a pass needs to be
@@ -143,6 +159,7 @@ export interface PassCustomerInput {
 // have been issued — see docs/walletwallet.md.
 export function buildPassBody(business: PassBusinessInput, customer: PassCustomerInput) {
   const pointsValue = renderPointsValue(customer.pointsBalance, business.rewardTiers, business.pointsDisplayStyle);
+  const headerValue = renderPointsHeaderValue(customer.pointsBalance, business.rewardTiers, business.pointsDisplayStyle);
 
   const body: Record<string, unknown> = {
     barcodeValue: customer.id,
@@ -151,12 +168,13 @@ export function buildPassBody(business: PassBusinessInput, customer: PassCustome
     organizationName: business.name,
     primaryFields: [{ value: business.programName || business.name }],
     // Visible even when the pass is folded/stacked in Wallet — the only real
-    // estate that is. Always the plain number here regardless of display
-    // style: this space is tiny, and a 20-dot stamp row wouldn't fit legibly.
+    // estate that is. A compact "3/10" in Stamps mode still fits this tiny
+    // space; a full 20-dot row would not, which is why renderPointsValue's
+    // (not this) dot string is reserved for the front-facing field below.
     headerFields: [
       {
         label: "POINTS",
-        value: String(customer.pointsBalance),
+        value: headerValue,
         changeMessage: "You now have %@ points",
       },
     ],

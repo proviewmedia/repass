@@ -5,7 +5,14 @@ import QRCode from "qrcode";
 import { Check } from "lucide-react";
 import { updateSettings, previewCard } from "./actions";
 import SubmitButton from "./SubmitButton";
-import { renderNextRewardMessage, renderPointsValue, type RewardTier, type PointsDisplayStyle } from "@/lib/wallet";
+import {
+  renderNextRewardMessage,
+  renderPointsValue,
+  renderPointsHeaderValue,
+  cheapestUnreachedTier,
+  type RewardTier,
+  type PointsDisplayStyle,
+} from "@/lib/wallet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,16 +74,25 @@ function useImageField(initialUrl: string | null) {
   return { preview, removed, inputRef, onChange, onRemove };
 }
 
-// Preview-only formatting: WalletWallet's field values are single-line
-// (per docs/walletwallet.md, no documented multi-line wrapping), so the real
-// pass gets renderPointsValue's plain string unchanged — this just chunks it
-// into rows of 10 for a cleaner-looking mockup.
-function chunkStamps(value: string, size = 10): string[] {
-  const rows: string[] = [];
-  for (let i = 0; i < value.length; i += size) {
-    rows.push(value.slice(i, i + size));
-  }
-  return rows;
+// Preview-only formatting: WalletWallet's field values are single-line (per
+// docs/walletwallet.md, no documented multi-line wrapping), so the real pass
+// gets renderPointsValue's plain string unchanged — this just splits it into
+// rows for a cleaner-looking mockup. Up to 7 stays one row; 8+ splits into
+// exactly 2 evenly-balanced rows (the 20-dot cap always lands as 10+10).
+function stampRows(value: string): string[] {
+  if (value.length <= 7) return [value];
+  const firstLen = Math.ceil(value.length / 2);
+  return [value.slice(0, firstLen), value.slice(firstLen)];
+}
+
+// Circle size/spacing scales down as a row gets wider, so a single row of 3
+// and a packed row of 10 both look intentional instead of one being tiny and
+// the other overflowing.
+function stampCircleSize(maxRowLength: number): { fontSize: number; letterSpacing: number } {
+  if (maxRowLength <= 5) return { fontSize: 22, letterSpacing: 7 };
+  if (maxRowLength <= 7) return { fontSize: 19, letterSpacing: 5 };
+  if (maxRowLength <= 8) return { fontSize: 16, letterSpacing: 4 };
+  return { fontSize: 14, letterSpacing: 3 };
 }
 
 function ImageField({
@@ -177,7 +193,11 @@ export default function SettingsForm({ initial, rewardTiers, error, saved, previ
 
   const PREVIEW_BALANCE = 3;
   const previewPointsValue = renderPointsValue(PREVIEW_BALANCE, rewardTiers, pointsDisplayStyle);
+  const previewHeaderValue = renderPointsHeaderValue(PREVIEW_BALANCE, rewardTiers, pointsDisplayStyle);
   const previewNextReward = renderNextRewardMessage(PREVIEW_BALANCE, rewardTiers);
+  const previewNextTier = cheapestUnreachedTier(PREVIEW_BALANCE, rewardTiers);
+  const previewStampRows = stampRows(previewPointsValue);
+  const previewStampSize = stampCircleSize(Math.max(...previewStampRows.map((r) => r.length)));
 
   return (
     <div className="settings-layout">
@@ -432,35 +452,49 @@ export default function SettingsForm({ initial, rewardTiers, error, saved, previ
                 </div>
                 <div className="card-preview-header-field">
                   <span className="card-preview-label">POINTS</span>
-                  <span>{PREVIEW_BALANCE}</span>
+                  <span>{previewHeaderValue}</span>
                 </div>
               </div>
 
               <div className="card-preview-title">{programName || name || "Your Program"}</div>
 
-              <div className="card-preview-fields-row">
-                <div className="card-preview-field">
-                  <span className="card-preview-label">POINTS</span>
-                  {pointsDisplayStyle === "stamps" ? (
-                    <div className="card-preview-stamps">
-                      {chunkStamps(previewPointsValue).map((row, i) => (
-                        <div key={i} className="card-preview-stamps-row">
-                          {row}
-                        </div>
-                      ))}
+              {pointsDisplayStyle === "stamps" ? (
+                <>
+                  <div className="card-preview-stamps">
+                    {previewStampRows.map((row, i) => (
+                      <div
+                        key={i}
+                        className="card-preview-stamps-row"
+                        style={{ fontSize: previewStampSize.fontSize, letterSpacing: previewStampSize.letterSpacing }}
+                      >
+                        {row}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="card-preview-reward-block">
+                    <div className="card-preview-reward-title">{previewNextTier ? previewNextTier.label : previewNextReward}</div>
+                    {previewNextTier && (
+                      <div className="card-preview-reward-sub">Collect {previewNextTier.pointsCost} stamps to redeem</div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="card-preview-fields-row">
+                    <div className="card-preview-field">
+                      <span className="card-preview-label">POINTS</span>
+                      <span>{previewPointsValue}</span>
                     </div>
-                  ) : (
-                    <span>{previewPointsValue}</span>
-                  )}
-                </div>
-              </div>
+                  </div>
 
-              <div className="card-preview-fields-row">
-                <div className="card-preview-field card-preview-field--text">
-                  <span className="card-preview-label">NEXT REWARD</span>
-                  <span>{previewNextReward}</span>
-                </div>
-              </div>
+                  <div className="card-preview-fields-row">
+                    <div className="card-preview-field card-preview-field--text">
+                      <span className="card-preview-label">NEXT REWARD</span>
+                      <span>{previewNextReward}</span>
+                    </div>
+                  </div>
+                </>
+              )}
 
               <div className="card-preview-qr-wrap">
                 {mockQr && (
