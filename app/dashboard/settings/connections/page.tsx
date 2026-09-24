@@ -3,6 +3,7 @@ import { getCurrentBusiness } from "@/lib/current-business";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { disconnectSquare, importSquareCustomers } from "./actions";
 
 export default async function ConnectionsPage({
@@ -42,61 +43,85 @@ export default async function ConnectionsPage({
           </Alert>
         )}
 
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <div className="flex flex-col gap-3">
-            <div className="tile-accent relative flex h-[120px] items-center justify-center rounded-2xl">
-              {connection && (
-                <Badge variant="success" className="absolute right-3 top-3">
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Connected
-                </Badge>
-              )}
-              <CreditCard className="h-11 w-11 text-indigo-600" strokeWidth={1.5} />
-            </div>
-            <div>
-              <h3 className="text-[15.5px] font-bold">Square</h3>
-              <p className="mt-0.5 text-[13px] text-muted-foreground">
-                Match a customer by the phone or email attached to their sale and award them a point.
-              </p>
-            </div>
-            {connection ? (
-              <div className="flex flex-wrap items-center gap-2">
-                <form action={importSquareCustomers}>
-                  <Button type="submit" size="sm" className="rounded-full">
-                    <Users className="h-4 w-4" />
-                    Import customers
+        <div className="flex flex-col gap-4 sm:gap-5">
+          <Card>
+            <CardHeader className="flex-row items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div className="tile-accent flex h-11 w-11 shrink-0 items-center justify-center rounded-xl">
+                  <CreditCard className="h-5 w-5 text-indigo-600" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <CardTitle>Square</CardTitle>
+                  <CardDescription className="mt-0.5">
+                    Match a customer by the phone or email attached to their sale and award them a point.
+                  </CardDescription>
+                </div>
+              </div>
+              <Badge variant={connection ? "success" : "warning"} className="shrink-0">
+                {connection ? (
+                  <>
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Connected
+                  </>
+                ) : (
+                  "Not connected"
+                )}
+              </Badge>
+            </CardHeader>
+            <CardContent>
+              {connection ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  <form action={importSquareCustomers}>
+                    <Button type="submit" size="sm" className="rounded-full">
+                      <Users className="h-4 w-4" />
+                      Import customers
+                    </Button>
+                  </form>
+                  <Button asChild variant="ghost" size="sm" className="rounded-full">
+                    <a href="/api/square/connect">
+                      <PlugZap className="h-4 w-4" />
+                      Reconnect
+                    </a>
                   </Button>
-                </form>
-                <Button asChild variant="ghost" size="sm" className="rounded-full">
+                  <form action={disconnectSquare}>
+                    <Button type="submit" variant="ghost" size="sm" className="rounded-full">
+                      Disconnect
+                    </Button>
+                  </form>
+                </div>
+              ) : (
+                <Button asChild size="sm" className="w-fit rounded-full">
                   <a href="/api/square/connect">
                     <PlugZap className="h-4 w-4" />
-                    Reconnect
+                    Connect Square
                   </a>
                 </Button>
-                <form action={disconnectSquare}>
-                  <Button type="submit" variant="ghost" size="sm" className="rounded-full">
-                    Disconnect
-                  </Button>
-                </form>
-              </div>
-            ) : (
-              <Button asChild size="sm" className="w-fit rounded-full">
-                <a href="/api/square/connect">
-                  <PlugZap className="h-4 w-4" />
-                  Connect Square
-                </a>
-              </Button>
-            )}
-          </div>
+              )}
+            </CardContent>
+          </Card>
 
-          <div className="flex flex-col gap-3 opacity-50">
-            <div className="flex h-[120px] items-center justify-center rounded-2xl border border-dashed border-[var(--border-strong)] bg-secondary">
-              <UtensilsCrossed className="h-11 w-11 text-muted-foreground" strokeWidth={1.5} />
-            </div>
-            <div>
-              <h3 className="text-[15.5px] font-bold text-muted-foreground">Toast</h3>
-              <p className="mt-0.5 text-[13px] text-muted-foreground">Coming soon — pending Toast partner approval.</p>
-            </div>
-          </div>
+          <Card className="opacity-60">
+            <CardHeader className="flex-row items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary">
+                  <UtensilsCrossed className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <CardTitle className="text-muted-foreground">Toast</CardTitle>
+                  <CardDescription className="mt-0.5">
+                    Sync sales from Toast POS and award points automatically.
+                  </CardDescription>
+                </div>
+              </div>
+              <Badge variant="neutral" className="shrink-0">
+                Coming soon
+              </Badge>
+            </CardHeader>
+            <CardContent>
+              <p className="text-[13px] text-muted-foreground">
+                Pending Toast partner approval — we&apos;ll turn this on here as soon as it&apos;s available.
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </main>
