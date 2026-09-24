@@ -365,7 +365,8 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 .card-preview-field span:last-child { font-size: 20px; font-weight: 700; }
 .card-preview-field--right .card-preview-label:last-child { font-size: 11px; font-weight: 650; letter-spacing: 0.06em; }
 .card-preview-field--text span:last-child { font-size: 12.5px; font-weight: 600; line-height: 1.35; }
-.card-preview-field span:last-child.card-preview-stamps { font-size: 15px; font-weight: 400; letter-spacing: 2px; line-height: 1.4; word-break: break-all; }
+.card-preview-stamps { display: flex; flex-direction: column; gap: 5px; margin-top: 2px; }
+.card-preview-stamps-row { font-size: 19px; font-weight: 400; letter-spacing: 5px; line-height: 1; }
 .card-preview-circles-row { position: relative; z-index: 1; display: flex; justify-content: flex-end; margin-top: -6px; }
 .card-preview-label { font-size: 11px; font-weight: 650; letter-spacing: 0.06em; opacity: 0.85; }
 .card-preview-circles { font-size: 12px; letter-spacing: 1px; white-space: nowrap; }

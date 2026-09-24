@@ -67,6 +67,18 @@ function useImageField(initialUrl: string | null) {
   return { preview, removed, inputRef, onChange, onRemove };
 }
 
+// Preview-only formatting: WalletWallet's field values are single-line
+// (per docs/walletwallet.md, no documented multi-line wrapping), so the real
+// pass gets renderPointsValue's plain string unchanged — this just chunks it
+// into rows of 10 for a cleaner-looking mockup.
+function chunkStamps(value: string, size = 10): string[] {
+  const rows: string[] = [];
+  for (let i = 0; i < value.length; i += size) {
+    rows.push(value.slice(i, i + size));
+  }
+  return rows;
+}
+
 function ImageField({
   label,
   hint,
@@ -429,9 +441,17 @@ export default function SettingsForm({ initial, rewardTiers, error, saved, previ
               <div className="card-preview-fields-row">
                 <div className="card-preview-field">
                   <span className="card-preview-label">POINTS</span>
-                  <span className={pointsDisplayStyle === "stamps" ? "card-preview-stamps" : undefined}>
-                    {previewPointsValue}
-                  </span>
+                  {pointsDisplayStyle === "stamps" ? (
+                    <div className="card-preview-stamps">
+                      {chunkStamps(previewPointsValue).map((row, i) => (
+                        <div key={i} className="card-preview-stamps-row">
+                          {row}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <span>{previewPointsValue}</span>
+                  )}
                 </div>
               </div>
 
