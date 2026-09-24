@@ -11,6 +11,26 @@ function formatMoney(cents: number, currency: string): string {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: currency.toUpperCase() }).format(cents / 100);
 }
 
+function formatSubscriptionStatus(status: string): string {
+  switch (status) {
+    case "active":
+      return "Active";
+    case "trialing":
+      return "Trial";
+    case "past_due":
+      return "Payment past due";
+    case "canceled":
+      return "Canceled";
+    case "incomplete":
+    case "incomplete_expired":
+      return "Incomplete";
+    case "unpaid":
+      return "Unpaid";
+    default:
+      return status;
+  }
+}
+
 export default async function BillingPage() {
   const { supabase, business } = await getCurrentBusiness();
 
@@ -70,9 +90,14 @@ export default async function BillingPage() {
 
         {!stripeCustomerId ? (
           <Card>
-            <CardHeader>
-              <CardTitle>No subscription yet</CardTitle>
-              <CardDescription>Subscribe to activate your program and start issuing wallet cards.</CardDescription>
+            <CardHeader className="flex-row items-start gap-3">
+              <div className="tile-accent flex h-11 w-11 shrink-0 items-center justify-center rounded-xl">
+                <CreditCard className="h-5 w-5 text-indigo-600" strokeWidth={1.5} />
+              </div>
+              <div>
+                <CardTitle>No subscription yet</CardTitle>
+                <CardDescription className="mt-0.5">Subscribe to activate your program and start issuing wallet cards.</CardDescription>
+              </div>
             </CardHeader>
             <CardContent>
               <Button asChild size="sm">
@@ -81,33 +106,43 @@ export default async function BillingPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="flex flex-col gap-3">
-            <div className="tile-accent relative flex h-[100px] items-center justify-center rounded-2xl">
-              <Badge
-                variant={business.subscription_status === "active" ? "success" : "warning"}
-                className="absolute right-3 top-3"
-              >
-                {business.subscription_status}
+          <Card>
+            <CardHeader className="flex-row items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div className="tile-accent flex h-11 w-11 shrink-0 items-center justify-center rounded-xl">
+                  <CreditCard className="h-5 w-5 text-indigo-600" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <CardTitle>Current plan</CardTitle>
+                  <CardDescription className="mt-0.5">
+                    {planAmount ? `${planAmount} / ${planInterval}` : "Repass Subscription"}
+                    {nextBillingDate ? ` · next charge ${nextBillingDate}` : ""}
+                  </CardDescription>
+                </div>
+              </div>
+              <Badge variant={business.subscription_status === "active" ? "success" : "warning"} className="shrink-0">
+                {formatSubscriptionStatus(business.subscription_status)}
               </Badge>
-              <CreditCard className="h-10 w-10 text-indigo-600" strokeWidth={1.5} />
-            </div>
-            <div>
-              <h3 className="text-[15.5px] font-bold">Current plan</h3>
-              <p className="mt-0.5 text-[13px] text-muted-foreground">
-                {planAmount ? `${planAmount} / ${planInterval}` : "Repass Subscription"}
-                {nextBillingDate ? ` · next charge ${nextBillingDate}` : ""}
+            </CardHeader>
+            <CardContent>
+              <Button asChild variant="ghost" size="sm" className="w-fit rounded-full">
+                <a href="/api/stripe/portal">Manage payment method or cancel</a>
+              </Button>
+              <p className="text-[13px] text-muted-foreground">
+                Opens Stripe&apos;s secure billing portal in a new page — that&apos;s where you update your card on file, switch
+                plans, or cancel. Nothing changes here until you do.
               </p>
-            </div>
-            <Button asChild variant="ghost" size="sm" className="w-fit rounded-full">
-              <a href="/api/stripe/portal">Manage payment method or cancel</a>
-            </Button>
-          </div>
+            </CardContent>
+          </Card>
         )}
 
         {invoices.length > 0 && (
           <div className="overflow-hidden rounded-2xl border border-border bg-card">
             <CardHeader className="flex-row items-center justify-between gap-2">
-              <CardTitle>Payment history</CardTitle>
+              <div>
+                <CardTitle>Payment history</CardTitle>
+                <CardDescription className="mt-0.5">Receipts are hosted by Stripe and open in a new tab.</CardDescription>
+              </div>
               <Badge>{invoices.length}</Badge>
             </CardHeader>
             <div className="overflow-x-auto border-t border-border">
