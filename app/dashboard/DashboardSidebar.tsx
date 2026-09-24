@@ -3,33 +3,37 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LayoutDashboard, Users, Gift, PlugZap, Palette, CreditCard, Shield, type LucideIcon } from "lucide-react";
 import { signOut } from "./actions";
 
-const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/dashboard/customers", label: "Customers" },
-  { href: "/dashboard/settings/rewards", label: "Rewards" },
-  { href: "/dashboard/settings/connections", label: "Connections" },
-  { href: "/dashboard/settings", label: "Card Design" },
-  { href: "/dashboard/billing", label: "Billing" },
+const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/customers", label: "Customers", icon: Users },
+  { href: "/dashboard/settings/rewards", label: "Rewards", icon: Gift },
+  { href: "/dashboard/settings/connections", label: "Connections", icon: PlugZap },
+  { href: "/dashboard/settings", label: "Card Design", icon: Palette },
+  { href: "/dashboard/billing", label: "Billing", icon: CreditCard },
 ];
 
-const ITEM_CLASS = "rounded-lg px-3 py-2.5 text-[15px] text-muted-foreground hover:bg-secondary hover:text-foreground";
-const ACTIVE_ITEM_CLASS = "rounded-lg bg-indigo-50 px-3 py-2.5 text-[15px] font-semibold text-indigo-600";
-const DARK_ITEM_CLASS = "rounded-lg px-3 py-2.5 text-[15px] text-white/60 hover:bg-white/5 hover:text-white";
+const ITEM_CLASS =
+  "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[15px] text-muted-foreground hover:bg-secondary hover:text-foreground";
+const ACTIVE_ITEM_CLASS = "flex items-center gap-2.5 rounded-lg bg-indigo-50 px-3 py-2.5 text-[15px] font-semibold text-indigo-600";
+const DARK_ITEM_CLASS =
+  "flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[15px] text-white/60 hover:bg-white/5 hover:text-white";
 const DARK_ACTIVE_ITEM_CLASS =
-  "rounded-lg border-l-2 border-accent bg-white/10 py-2.5 pl-2.5 pr-3 text-[15px] font-semibold text-white";
+  "flex items-center gap-2.5 rounded-r-lg border-l-2 border-accent bg-white/10 py-2.5 pl-2.5 pr-3 text-[15px] font-semibold text-white";
 
 function NavLink({
   href,
   label,
+  icon: Icon,
   active,
   dark,
   onClick,
 }: {
   href: string;
   label: string;
+  icon: LucideIcon;
   active: boolean;
   dark?: boolean;
   onClick?: () => void;
@@ -37,6 +41,7 @@ function NavLink({
   const className = dark ? (active ? DARK_ACTIVE_ITEM_CLASS : DARK_ITEM_CLASS) : active ? ACTIVE_ITEM_CLASS : ITEM_CLASS;
   return (
     <Link href={href} onClick={onClick} className={className}>
+      <Icon className="h-4 w-4 shrink-0" />
       {label}
     </Link>
   );
@@ -51,6 +56,7 @@ function NavList({ isAdmin, dark, onNavigate }: { isAdmin: boolean; dark?: boole
           key={item.href}
           href={item.href}
           label={item.label}
+          icon={item.icon}
           active={pathname === item.href}
           dark={dark}
           onClick={onNavigate}
@@ -60,6 +66,7 @@ function NavList({ isAdmin, dark, onNavigate }: { isAdmin: boolean; dark?: boole
         <NavLink
           href="/admin"
           label="Admin"
+          icon={Shield}
           active={pathname === "/admin" || pathname.startsWith("/admin/")}
           dark={dark}
           onClick={onNavigate}
