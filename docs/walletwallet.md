@@ -7,7 +7,28 @@ Auth: `Authorization: Bearer ww_live_...` (or a test-mode key) on every request.
 
 Body fields we send: `barcodeValue`, `barcodeFormat` (`QR`), `logoText`, `organizationName`,
 `colorPreset` (`dark`/`blue`/`green`/`red`/`purple`/`orange`, or Pro-only `logoURL`/`color`),
-`primaryFields`/`secondaryFields`/`backFields` (each `{ label?, value, changeMessage? }`).
+`headerFields`/`primaryFields`/`secondaryFields`/`backFields` (each `{ label?, value, changeMessage? }`).
+
+## Field zones and layout (storeCard)
+
+Five zones exist: `headerFields`, `primaryFields`, `secondaryFields`, `auxiliaryFields`, `backFields`.
+
+- **`headerFields`** render top-right, and are **the only fields still visible when the pass is
+  folded/stacked in the Wallet app** — the single most valuable spot on the whole card. Repass didn't
+  use this at all until 2026-09-24; `buildPassBody` now puts the plain points balance here (always a
+  plain number, never the stamp-dot string — this space is too small for up to 20 characters).
+- **`primaryFields`** are large and central — Repass uses this for the program name.
+- **`secondaryFields`** + **`auxiliaryFields`** share a combined 4-field limit on a storeCard. Repass
+  uses 2 of the 4 (POINTS, NEXT REWARD) as of 2026-09-24.
+- **`backFields`** are the flip side (behind the "i" button) — Repass's "Notifications"/"Next reward".
+- There is **no native progress-bar, stamp, or circle/dot component** — any visual "fill in as you earn"
+  representation has to be built from what's actually available: plain text (Repass's approach —
+  `renderPointsValue` in `lib/wallet.ts` builds a `●`/`○` string capped at 20 dots), or a
+  dynamically-generated/re-uploaded image set as `stripURL`/`thumbnailURL` (the heavier approach a
+  dedicated stamp-card competitor uses — not what Repass does today).
+- There is **no API-based preview endpoint** — WalletWallet's own live preview ("Pass Editor") is a
+  web-UI-only tool. `previewCard` in `app/dashboard/settings/actions.ts` (creates/updates a real pass
+  and hands back a scannable QR) is Repass's actual ground-truth preview mechanism.
 
 Response: `{ serialNumber, googleSaveUrl, applePass (base64 .pkpass), shareUrl }`.
 `shareUrl` is a hosted, device-aware "Add to Wallet" page — hand that straight to customers,

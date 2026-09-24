@@ -4,10 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createPass, isCustomHexColor, updatePass, type RewardTier } from "@/lib/wallet";
+import { createPass, isCustomHexColor, updatePass, type RewardTier, type PointsDisplayStyle } from "@/lib/wallet";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 const COLOR_PRESETS = ["dark", "blue", "green", "red", "purple", "orange"];
+const POINTS_DISPLAY_STYLES = ["number", "stamps"];
 const IMAGE_MIME_EXT: Record<string, string> = {
   "image/png": "png",
   "image/jpeg": "jpg",
@@ -52,7 +53,11 @@ function parseBrandingFields(formData: FormData) {
   const rawColor = String(formData.get("colorPreset") || "");
   const colorPreset = COLOR_PRESETS.includes(rawColor) || isCustomHexColor(rawColor) ? rawColor : "dark";
   const sharingProhibited = formData.get("allowSharing") !== "1";
-  return { name, programName, colorPreset, sharingProhibited };
+  const rawPointsDisplayStyle = String(formData.get("pointsDisplayStyle") || "");
+  const pointsDisplayStyle: PointsDisplayStyle = POINTS_DISPLAY_STYLES.includes(rawPointsDisplayStyle)
+    ? (rawPointsDisplayStyle as PointsDisplayStyle)
+    : "number";
+  return { name, programName, colorPreset, sharingProhibited, pointsDisplayStyle };
 }
 
 async function fetchActiveTiers(supabase: SupabaseClient, businessId: string): Promise<RewardTier[]> {
@@ -85,7 +90,7 @@ export async function updateSettings(formData: FormData) {
     redirect("/onboarding");
   }
 
-  const { name, programName, colorPreset, sharingProhibited } = parseBrandingFields(formData);
+  const { name, programName, colorPreset, sharingProhibited, pointsDisplayStyle } = parseBrandingFields(formData);
   const pointsPerAction = Math.max(1, parseInt(String(formData.get("pointsPerAction") || "1"), 10) || 1);
 
   if (!name) {
@@ -126,6 +131,7 @@ export async function updateSettings(formData: FormData) {
       strip_url: stripUrl!,
       sharing_prohibited: sharingProhibited,
       points_per_action: pointsPerAction,
+      points_display_style: pointsDisplayStyle,
     })
     .eq("id", business!.id);
 
@@ -156,6 +162,7 @@ export async function updateSettings(formData: FormData) {
     stripUrl,
     sharingProhibited,
     rewardTiers,
+    pointsDisplayStyle,
   };
   for (const customer of customers || []) {
     await updatePass(customer.walletwallet_serial!, branding, {
@@ -193,7 +200,7 @@ export async function previewCard(formData: FormData) {
     redirect("/onboarding");
   }
 
-  const { name, programName, colorPreset, sharingProhibited } = parseBrandingFields(formData);
+  const { name, programName, colorPreset, sharingProhibited, pointsDisplayStyle } = parseBrandingFields(formData);
 
   let logoUrl: string | null,
     wideLogoUrl: string | null,
@@ -229,6 +236,7 @@ export async function previewCard(formData: FormData) {
     stripUrl,
     sharingProhibited,
     rewardTiers,
+    pointsDisplayStyle,
   };
   const previewCustomer = { id: `preview-${business!.id}`, pointsBalance: 3, notification: " " };
 

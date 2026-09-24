@@ -5,7 +5,7 @@ import QRCode from "qrcode";
 import { Check } from "lucide-react";
 import { updateSettings, previewCard } from "./actions";
 import SubmitButton from "./SubmitButton";
-import { renderNextRewardMessage } from "@/lib/wallet";
+import { renderNextRewardMessage, renderPointsValue, type RewardTier, type PointsDisplayStyle } from "@/lib/wallet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,7 +37,9 @@ interface Props {
     stripUrl: string | null;
     allowSharing: boolean;
     pointsPerAction: number;
+    pointsDisplayStyle: PointsDisplayStyle;
   };
+  rewardTiers: RewardTier[];
   error?: string;
   saved?: boolean;
   previewUrl?: string;
@@ -113,9 +115,10 @@ function ImageField({
   );
 }
 
-export default function SettingsForm({ initial, error, saved, previewUrl }: Props) {
+export default function SettingsForm({ initial, rewardTiers, error, saved, previewUrl }: Props) {
   const [name, setName] = useState(initial.name);
   const [programName, setProgramName] = useState(initial.programName);
+  const [pointsDisplayStyle, setPointsDisplayStyle] = useState<PointsDisplayStyle>(initial.pointsDisplayStyle);
   const isInitialPreset = COLOR_PRESETS.some((c) => c.value === initial.colorPreset);
   const [colorMode, setColorMode] = useState<"preset" | "custom">(
     !isInitialPreset && HEX_COLOR_RE.test(initial.colorPreset) ? "custom" : "preset",
@@ -159,6 +162,10 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
 
   const showWideOnGoogle = walletView === "google" && wideLogo.preview && !wideLogo.removed;
   const headerLogoSrc = walletView === "apple" ? logo.preview || wideLogo.preview : logo.preview;
+
+  const PREVIEW_BALANCE = 3;
+  const previewPointsValue = renderPointsValue(PREVIEW_BALANCE, rewardTiers, pointsDisplayStyle);
+  const previewNextReward = renderNextRewardMessage(PREVIEW_BALANCE, rewardTiers);
 
   return (
     <div className="settings-layout">
@@ -319,6 +326,25 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
                 required
               />
             </div>
+
+            <div className="flex flex-col gap-2">
+              <Label>Points display</Label>
+              <RadioGroup value={pointsDisplayStyle} onValueChange={(v) => setPointsDisplayStyle(v as PointsDisplayStyle)}>
+                <div className="flex items-center gap-1.5">
+                  <RadioGroupItem value="number" id="pointsDisplay-number" />
+                  <Label htmlFor="pointsDisplay-number" className="cursor-pointer font-normal">
+                    Number (e.g. &ldquo;7&rdquo;)
+                  </Label>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <RadioGroupItem value="stamps" id="pointsDisplay-stamps" />
+                  <Label htmlFor="pointsDisplay-stamps" className="cursor-pointer font-normal">
+                    Stamps that fill in (e.g. &ldquo;●●●○○○○○○○&rdquo;), sized to the next reward
+                  </Label>
+                </div>
+              </RadioGroup>
+              <input type="hidden" name="pointsDisplayStyle" value={pointsDisplayStyle} />
+            </div>
           </CardContent>
         </Card>
 
@@ -374,22 +400,28 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
           {!showBack ? (
             <>
               <div className="card-preview-head">
-                {showWideOnGoogle ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={wideLogo.preview!} alt="Wide logo" className="card-preview-wide-logo" />
-                ) : (
-                  <>
-                    {headerLogoSrc ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={headerLogoSrc} alt="Logo" className="card-preview-logo" />
-                    ) : (
-                      <div className="card-preview-logo card-preview-logo--placeholder">
-                        {(name || "?").charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <span>{name || "Your Business"}</span>
-                  </>
-                )}
+                <div className="card-preview-head-left">
+                  {showWideOnGoogle ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={wideLogo.preview!} alt="Wide logo" className="card-preview-wide-logo" />
+                  ) : (
+                    <>
+                      {headerLogoSrc ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={headerLogoSrc} alt="Logo" className="card-preview-logo" />
+                      ) : (
+                        <div className="card-preview-logo card-preview-logo--placeholder">
+                          {(name || "?").charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <span>{name || "Your Business"}</span>
+                    </>
+                  )}
+                </div>
+                <div className="card-preview-header-field">
+                  <span className="card-preview-label">POINTS</span>
+                  <span>{PREVIEW_BALANCE}</span>
+                </div>
               </div>
 
               <div className="card-preview-title">{programName || name || "Your Program"}</div>
@@ -397,7 +429,16 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
               <div className="card-preview-fields-row">
                 <div className="card-preview-field">
                   <span className="card-preview-label">POINTS</span>
-                  <span>3</span>
+                  <span className={pointsDisplayStyle === "stamps" ? "card-preview-stamps" : undefined}>
+                    {previewPointsValue}
+                  </span>
+                </div>
+              </div>
+
+              <div className="card-preview-fields-row">
+                <div className="card-preview-field card-preview-field--text">
+                  <span className="card-preview-label">NEXT REWARD</span>
+                  <span>{previewNextReward}</span>
                 </div>
               </div>
 
@@ -429,7 +470,7 @@ export default function SettingsForm({ initial, error, saved, previewUrl }: Prop
               </div>
               <div className="card-preview-back-field">
                 <span className="card-preview-label">Next reward</span>
-                <span>{renderNextRewardMessage(3, [{ pointsCost: 10, label: "a reward" }])}</span>
+                <span>{previewNextReward}</span>
               </div>
             </div>
           )}

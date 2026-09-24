@@ -22,6 +22,8 @@ export interface RewardTier {
   label: string;
 }
 
+export type PointsDisplayStyle = "number" | "stamps";
+
 export interface PassBusinessInput {
   name: string;
   programName?: string | null;
@@ -35,22 +37,31 @@ export interface PassBusinessInput {
   sharingProhibited?: boolean | null;
   /** Active (non-archived) reward tiers, cheapest first. */
   rewardTiers?: RewardTier[];
+  /** "number" (plain points balance) or "stamps" (a filled/empty dot row sized to the next reward). */
+  pointsDisplayStyle?: PointsDisplayStyle | null;
 }
 
 export function isCustomHexColor(value: string | null | undefined): value is string {
   return typeof value === "string" && /^#[0-9a-fA-F]{6}$/.test(value);
 }
 
+// The cheapest active tier the customer hasn't reached yet — shared by the
+// "next reward" message and the stamp-dot display so both always agree on
+// which reward a customer is progressing toward.
+function cheapestUnreachedTier(pointsBalance: number, tiers: RewardTier[] | null | undefined): RewardTier | null {
+  const unreached = (tiers || [])
+    .filter((t) => t.pointsCost > pointsBalance)
+    .sort((a, b) => a.pointsCost - b.pointsCost);
+  return unreached[0] || null;
+}
+
 // "3 more points to a free coffee!" for the cheapest tier not yet reached, or a
 // generic nudge once every active tier is already redeemable, or a blank line if
 // the business has no active tiers at all.
 export function renderNextRewardMessage(pointsBalance: number, tiers: RewardTier[] | null | undefined): string {
-  const unreached = (tiers || [])
-    .filter((t) => t.pointsCost > pointsBalance)
-    .sort((a, b) => a.pointsCost - b.pointsCost);
+  const next = cheapestUnreachedTier(pointsBalance, tiers);
 
-  if (unreached.length > 0) {
-    const next = unreached[0];
+  if (next) {
     const remaining = next.pointsCost - pointsBalance;
     return `${remaining} more point${remaining === 1 ? "" : "s"} to ${next.label}!`;
   }
@@ -60,11 +71,31 @@ export function renderNextRewardMessage(pointsBalance: number, tiers: RewardTier
   return " ";
 }
 
+const MAX_STAMP_DOTS = 20;
+
+// Plain balance ("7") for "number" style. For "stamps", a filled/empty dot row
+// sized to the next reward's points cost (e.g. "●●●○○○○○○○" for 3 of 10) — falls
+// back to the plain number once there's no reward to size the row against, or
+// the reward costs more points than MAX_STAMP_DOTS can render legibly.
+export function renderPointsValue(
+  pointsBalance: number,
+  tiers: RewardTier[] | null | undefined,
+  style: PointsDisplayStyle | null | undefined,
+): string {
+  if (style !== "stamps") return String(pointsBalance);
+
+  const next = cheapestUnreachedTier(pointsBalance, tiers);
+  if (!next || next.pointsCost > MAX_STAMP_DOTS) return String(pointsBalance);
+
+  const filled = Math.min(pointsBalance, next.pointsCost);
+  return "●".repeat(filled) + "○".repeat(next.pointsCost - filled);
+}
+
 // Column list for `.select()` calls against `businesses` wherever a pass needs to be
 // built — pair with toPassBusinessInput() so a new branding field only has to be
 // threaded through in one place instead of every call site.
 export const BUSINESS_BRANDING_COLUMNS =
-  "name, program_name, color_preset, logo_url, wide_logo_url, icon_url, thumbnail_url, strip_url, sharing_prohibited";
+  "name, program_name, color_preset, logo_url, wide_logo_url, icon_url, thumbnail_url, strip_url, sharing_prohibited, points_display_style";
 
 export interface BusinessBrandingRow {
   name: string;
@@ -76,6 +107,7 @@ export interface BusinessBrandingRow {
   thumbnail_url?: string | null;
   strip_url?: string | null;
   sharing_prohibited?: boolean | null;
+  points_display_style?: string | null;
 }
 
 export function toPassBusinessInput(row: BusinessBrandingRow, rewardTiers: RewardTier[] = []): PassBusinessInput {
@@ -90,6 +122,7 @@ export function toPassBusinessInput(row: BusinessBrandingRow, rewardTiers: Rewar
     stripUrl: row.strip_url,
     sharingProhibited: row.sharing_prohibited,
     rewardTiers,
+    pointsDisplayStyle: row.points_display_style === "stamps" ? "stamps" : "number",
   };
 }
 
@@ -109,17 +142,33 @@ export interface PassCustomerInput {
 // backFields by array position, so this order must never change once passes
 // have been issued — see docs/walletwallet.md.
 export function buildPassBody(business: PassBusinessInput, customer: PassCustomerInput) {
+  const pointsValue = renderPointsValue(customer.pointsBalance, business.rewardTiers, business.pointsDisplayStyle);
+
   const body: Record<string, unknown> = {
     barcodeValue: customer.id,
     barcodeFormat: "QR",
     logoText: business.name,
     organizationName: business.name,
     primaryFields: [{ value: business.programName || business.name }],
-    secondaryFields: [
+    // Visible even when the pass is folded/stacked in Wallet — the only real
+    // estate that is. Always the plain number here regardless of display
+    // style: this space is tiny, and a 20-dot stamp row wouldn't fit legibly.
+    headerFields: [
       {
         label: "POINTS",
         value: String(customer.pointsBalance),
         changeMessage: "You now have %@ points",
+      },
+    ],
+    secondaryFields: [
+      {
+        label: "POINTS",
+        value: pointsValue,
+        changeMessage: "You now have %@ points",
+      },
+      {
+        label: "NEXT REWARD",
+        value: renderNextRewardMessage(customer.pointsBalance, business.rewardTiers),
       },
     ],
     // Index 0 ("Notifications") is the seed-then-bump anchor for the reward-unlock

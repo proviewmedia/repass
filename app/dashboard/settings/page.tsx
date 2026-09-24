@@ -11,10 +11,19 @@ export default async function SettingsPage({
   const { data: business } = await supabase
     .from("businesses")
     .select(
-      "name, program_name, color_preset, logo_url, wide_logo_url, icon_url, thumbnail_url, strip_url, sharing_prohibited, points_per_action",
+      "name, program_name, color_preset, logo_url, wide_logo_url, icon_url, thumbnail_url, strip_url, sharing_prohibited, points_per_action, points_display_style",
     )
     .eq("id", currentBusiness.id)
     .single();
+
+  const { data: tiers } = await supabase
+    .from("reward_tiers")
+    .select("points_cost, label")
+    .eq("business_id", currentBusiness.id)
+    .is("archived_at", null)
+    .order("points_cost", { ascending: true });
+
+  const rewardTiers = (tiers || []).map((t) => ({ pointsCost: t.points_cost, label: t.label }));
 
   return (
     <main className="dash-content">
@@ -38,7 +47,9 @@ export default async function SettingsPage({
             stripUrl: business!.strip_url,
             allowSharing: !business!.sharing_prohibited,
             pointsPerAction: business!.points_per_action,
+            pointsDisplayStyle: business!.points_display_style === "stamps" ? "stamps" : "number",
           }}
+          rewardTiers={rewardTiers}
           error={searchParams.error}
           saved={searchParams.saved === "1"}
           previewUrl={searchParams.previewUrl}
