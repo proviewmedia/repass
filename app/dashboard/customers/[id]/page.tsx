@@ -52,6 +52,7 @@ export default async function EditCustomerPage({
         <div className="dash-head">
           <div>
             <h1>Edit customer</h1>
+            <p className="auth-sub">Update their info or points balance — changes don&apos;t push a wallet notification.</p>
           </div>
         </div>
 
@@ -59,7 +60,6 @@ export default async function EditCustomerPage({
           <Card>
             <CardHeader>
               <CardTitle>Customer info</CardTitle>
-              <CardDescription>Changes here don&apos;t push a wallet notification.</CardDescription>
             </CardHeader>
             <CardContent>
               <form action={updateCustomer.bind(null, customer!.id)} className="flex flex-col gap-4">
