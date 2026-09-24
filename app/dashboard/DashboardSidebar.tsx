@@ -87,7 +87,7 @@ export default function DashboardSidebar({ businessName, isAdmin }: { businessNa
   return (
     <>
       {/* Desktop sidebar — its own floating dark panel, never scrolls with page content */}
-      <aside className="hidden w-60 shrink-0 flex-col rounded-3xl bg-slate-800 px-4 pb-4 pt-6 shadow-xl shadow-black/30 ring-1 ring-white/10 sm:flex sm:h-full sm:overflow-y-auto">
+      <aside className="hidden w-60 shrink-0 flex-col rounded-3xl bg-zinc-900 px-4 pb-4 pt-6 shadow-xl shadow-black/30 ring-1 ring-white/10 sm:flex sm:h-full sm:overflow-y-auto">
         <div className="px-3 pb-5 text-[19px] font-bold tracking-[-0.02em] text-white">{businessName}</div>
         <NavList isAdmin={isAdmin} dark />
         <form action={signOut} className="mt-auto pt-6">
