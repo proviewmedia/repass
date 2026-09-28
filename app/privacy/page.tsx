@@ -20,7 +20,7 @@ export default function PrivacyPage() {
         <div className="flex flex-col gap-2 pb-6">
           <h1 className="text-[28px] font-bold tracking-tight">Privacy Notice</h1>
           <p className="text-[13.5px] text-muted-foreground">
-            Effective and last updated: September 28, 2026. This notice explains what Proview Media Co., operator of
+            Effective and last updated: September 28, 2026. This notice explains what CV Management Solutions, LLC, operator of
             Repass (&ldquo;we,&rdquo; &ldquo;us&rdquo;), collects, how it&apos;s used, and how it&apos;s protected.
           </p>
         </div>
@@ -138,8 +138,8 @@ export default function PrivacyPage() {
             <Section title="12. Contact">
               <p>
                 Questions about this notice, or a data access/deletion request, can be sent to{" "}
-                <a href="mailto:hello@proviewmedia.co" className="underline">
-                  hello@proviewmedia.co
+                <a href="mailto:cuadventuresllc@gmail.com" className="underline">
+                  cuadventuresllc@gmail.com
                 </a>
                 .
               </p>

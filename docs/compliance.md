@@ -1,6 +1,6 @@
 # Repass compliance reference
 
-Prepared: September 28, 2026. Operator: Proview Media Co. (`hello@proviewmedia.co`).
+Prepared: September 28, 2026. Operator: CV Management Solutions, LLC (`cuadventuresllc@gmail.com`).
 
 This document is the working reference behind the public-facing `/terms` and
 `/privacy` pages. It covers what the public pages summarize, at the level of
@@ -22,7 +22,7 @@ Every third-party processor Repass's code actually calls, as of this date:
 | **Anthropic (Claude / Claude Code)** | AI coding assistant used to build and maintain the Repass codebase — no standing access to production customer data | Anthropic Commercial Terms + DPA (published at anthropic.com/legal) |
 
 **Action item, not yet done:** formally countersigning/attaching each
-provider's DPA under Proview Media Co.'s account (most are self-serve/
+provider's DPA under CV Management Solutions, LLC's account (most are self-serve/
 click-through and already in effect by virtue of using the service; Stripe,
 Supabase, and Vercel's are active by default on a paid plan). No provider
 here requires a custom-negotiated agreement to be compliant at Repass's

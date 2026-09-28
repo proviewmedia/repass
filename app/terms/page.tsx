@@ -21,7 +21,7 @@ export default function TermsPage() {
           <h1 className="text-[28px] font-bold tracking-tight">Terms of Service</h1>
           <p className="text-[13.5px] text-muted-foreground">
             Effective and last updated: September 28, 2026. This agreement is between you (a business owner
-            operating a loyalty program) and Proview Media Co. (&ldquo;Proview Media,&rdquo; &ldquo;Repass,&rdquo;
+            operating a loyalty program) and CV Management Solutions, LLC (&ldquo;CV Management Solutions,&rdquo; &ldquo;Repass,&rdquo;
             &ldquo;we,&rdquo; &ldquo;us&rdquo;), the operator of Repass.
           </p>
         </div>
@@ -131,7 +131,7 @@ export default function TermsPage() {
 
           <Section title="10. Limitation of liability">
             <p>
-              To the maximum extent permitted by law, Proview Media Co. will not be liable for indirect, incidental,
+              To the maximum extent permitted by law, CV Management Solutions, LLC will not be liable for indirect, incidental,
               special, consequential, or punitive damages, or for lost profits or revenue, arising from your use of
               Repass. Our total liability for any claim relating to Repass is limited to the amount you paid us in
               the three months before the claim arose.
@@ -140,7 +140,7 @@ export default function TermsPage() {
 
           <Section title="11. Indemnification">
             <p>
-              You agree to indemnify and hold Proview Media Co. harmless from claims arising out of your use of
+              You agree to indemnify and hold CV Management Solutions, LLC harmless from claims arising out of your use of
               Repass, your loyalty program&apos;s terms or rewards, content you upload, or your violation of these
               Terms or applicable law.
             </p>
@@ -165,7 +165,7 @@ export default function TermsPage() {
 
           <Section title="14. Governing law">
             <p>
-              These Terms are governed by the laws of the United States and the state in which Proview Media Co. is
+              These Terms are governed by the laws of the United States and the state in which CV Management Solutions, LLC is
               organized, without regard to conflict-of-law principles.
             </p>
           </Section>
@@ -173,8 +173,8 @@ export default function TermsPage() {
           <Section title="15. Contact">
             <p>
               Questions about these Terms can be sent to{" "}
-              <a href="mailto:hello@proviewmedia.co" className="underline">
-                hello@proviewmedia.co
+              <a href="mailto:cuadventuresllc@gmail.com" className="underline">
+                cuadventuresllc@gmail.com
               </a>
               .
             </p>
