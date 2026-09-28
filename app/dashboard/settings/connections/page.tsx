@@ -30,18 +30,12 @@ export default async function ConnectionsPage({
     .maybeSingle();
 
   return (
-    <main className="dash-content">
-      <div className="flex flex-col gap-4 sm:gap-5">
-        <div className="dash-head">
-          <div>
-            <h1>Connections</h1>
-            <p className="auth-sub">
-              Connect your point-of-sale system so a completed sale awards a point automatically — no QR scan needed.
-            </p>
-          </div>
-        </div>
+    <div className="flex flex-col gap-4 sm:gap-5">
+      <p className="text-[14.5px] text-muted-foreground">
+        Connect your point-of-sale system so a completed sale awards a point automatically — no QR scan needed.
+      </p>
 
-        {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
+      {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
         {searchParams.connected === "square" && <Alert>Square connected — new sales will start earning points.</Alert>}
         {searchParams.disconnected === "square" && <Alert>Square disconnected.</Alert>}
         {searchParams.connected === "clover" && <Alert>Clover connected — new sales will start earning points.</Alert>}
@@ -187,8 +181,7 @@ export default async function ConnectionsPage({
               </p>
             </CardContent>
           </Card>
-        </div>
       </div>
-    </main>
+    </div>
   );
 }

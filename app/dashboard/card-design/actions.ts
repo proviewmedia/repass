@@ -77,7 +77,7 @@ export async function updateSettings(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login?redirectTo=/dashboard/settings");
+    redirect("/login?redirectTo=/dashboard/card-design");
   }
 
   const { data: business } = await supabase
@@ -94,7 +94,7 @@ export async function updateSettings(formData: FormData) {
   const pointsPerAction = Math.max(1, parseInt(String(formData.get("pointsPerAction") || "1"), 10) || 1);
 
   if (!name) {
-    redirect(`/dashboard/settings?error=${encodeURIComponent("Business name is required.")}`);
+    redirect(`/dashboard/card-design?error=${encodeURIComponent("Business name is required.")}`);
   }
 
   let logoUrl: string | null,
@@ -115,7 +115,7 @@ export async function updateSettings(formData: FormData) {
     );
     stripUrl = await resolveImageField(formData, "strip", "removeStrip", business!.strip_url, business!.id);
   } catch (err) {
-    redirect(`/dashboard/settings?error=${encodeURIComponent((err as Error).message)}`);
+    redirect(`/dashboard/card-design?error=${encodeURIComponent((err as Error).message)}`);
   }
 
   const { error } = await supabase
@@ -136,7 +136,7 @@ export async function updateSettings(formData: FormData) {
     .eq("id", business!.id);
 
   if (error) {
-    redirect(`/dashboard/settings?error=${encodeURIComponent(error.message)}`);
+    redirect(`/dashboard/card-design?error=${encodeURIComponent(error.message)}`);
   }
 
   // Card design lives on every issued pass — push the refreshed branding to
@@ -172,9 +172,9 @@ export async function updateSettings(formData: FormData) {
     }).catch((err) => console.error(`Failed to refresh pass for customer ${customer.id}`, err));
   }
 
-  revalidatePath("/dashboard/settings");
+  revalidatePath("/dashboard/card-design");
   revalidatePath("/dashboard");
-  redirect("/dashboard/settings?saved=1");
+  redirect("/dashboard/card-design?saved=1");
 }
 
 // Generates/refreshes a real, non-customer preview pass against the current
@@ -187,7 +187,7 @@ export async function previewCard(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login?redirectTo=/dashboard/settings");
+    redirect("/login?redirectTo=/dashboard/card-design");
   }
 
   const { data: business } = await supabase
@@ -220,7 +220,7 @@ export async function previewCard(formData: FormData) {
     );
     stripUrl = await resolveImageField(formData, "strip", "removeStrip", business!.strip_url, business!.id);
   } catch (err) {
-    redirect(`/dashboard/settings?error=${encodeURIComponent((err as Error).message)}`);
+    redirect(`/dashboard/card-design?error=${encodeURIComponent((err as Error).message)}`);
   }
 
   const rewardTiers = await fetchActiveTiers(supabase, business!.id);
@@ -250,8 +250,8 @@ export async function previewCard(formData: FormData) {
       await supabase.from("businesses").update({ preview_serial: serial }).eq("id", business!.id);
     }
   } catch (err) {
-    redirect(`/dashboard/settings?error=${encodeURIComponent("Preview failed: " + (err as Error).message)}`);
+    redirect(`/dashboard/card-design?error=${encodeURIComponent("Preview failed: " + (err as Error).message)}`);
   }
 
-  redirect(`/dashboard/settings?previewUrl=${encodeURIComponent(`https://api.walletwallet.dev/p/${serial}`)}`);
+  redirect(`/dashboard/card-design?previewUrl=${encodeURIComponent(`https://api.walletwallet.dev/p/${serial}`)}`);
 }

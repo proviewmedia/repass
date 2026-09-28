@@ -322,7 +322,7 @@ export default function SettingsForm({ initial, rewardTiers, error, saved, previ
             <CardTitle>Points rule</CardTitle>
             <CardDescription>
               What earns a point. Manage rewards and their point costs on the{" "}
-              <a href="/dashboard/settings/rewards" className="underline">
+              <a href="/dashboard/rewards" className="underline">
                 Rewards page
               </a>
               .

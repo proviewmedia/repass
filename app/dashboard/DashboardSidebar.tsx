@@ -3,16 +3,15 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Menu, X, LayoutDashboard, Users, Gift, PlugZap, Palette, CreditCard, Shield, type LucideIcon } from "lucide-react";
+import { Menu, X, LayoutDashboard, Users, Gift, Palette, Settings, type LucideIcon } from "lucide-react";
 import { signOut } from "./actions";
 
 const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/customers", label: "Customers", icon: Users },
-  { href: "/dashboard/settings/rewards", label: "Rewards", icon: Gift },
-  { href: "/dashboard/settings/connections", label: "Connections", icon: PlugZap },
-  { href: "/dashboard/settings", label: "Card Design", icon: Palette },
-  { href: "/dashboard/billing", label: "Billing", icon: CreditCard },
+  { href: "/dashboard/rewards", label: "Rewards", icon: Gift },
+  { href: "/dashboard/card-design", label: "Card Design", icon: Palette },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
 const ITEM_CLASS =
@@ -47,7 +46,7 @@ function NavLink({
   );
 }
 
-function NavList({ isAdmin, dark, onNavigate }: { isAdmin: boolean; dark?: boolean; onNavigate?: () => void }) {
+function NavList({ dark, onNavigate }: { dark?: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
   return (
     <div role="navigation" className="flex flex-col gap-1">
@@ -57,26 +56,16 @@ function NavList({ isAdmin, dark, onNavigate }: { isAdmin: boolean; dark?: boole
           href={item.href}
           label={item.label}
           icon={item.icon}
-          active={pathname === item.href}
+          active={item.href === "/dashboard/settings" ? pathname.startsWith(item.href) : pathname === item.href}
           dark={dark}
           onClick={onNavigate}
         />
       ))}
-      {isAdmin && (
-        <NavLink
-          href="/admin"
-          label="Admin"
-          icon={Shield}
-          active={pathname === "/admin" || pathname.startsWith("/admin/")}
-          dark={dark}
-          onClick={onNavigate}
-        />
-      )}
     </div>
   );
 }
 
-export default function DashboardSidebar({ businessName, isAdmin }: { businessName: string; isAdmin: boolean }) {
+export default function DashboardSidebar({ businessName }: { businessName: string }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -89,21 +78,12 @@ export default function DashboardSidebar({ businessName, isAdmin }: { businessNa
       {/* Desktop sidebar — its own floating dark panel, never scrolls with page content */}
       <aside className="hidden w-60 shrink-0 flex-col rounded-3xl bg-zinc-900 px-4 pb-4 pt-6 shadow-xl shadow-black/30 ring-1 ring-white/10 sm:flex sm:h-full sm:overflow-y-auto">
         <div className="px-3 pb-5 text-[19px] font-bold tracking-[-0.02em] text-white">{businessName}</div>
-        <NavList isAdmin={isAdmin} dark />
+        <NavList dark />
         <form action={signOut} className="mt-auto pt-6">
           <button type="submit" className={DARK_ITEM_CLASS}>
             Log out
           </button>
         </form>
-        <div className="flex items-center gap-2 px-3 pt-3 text-[11.5px] text-white/40">
-          <Link href="/terms" className="hover:text-white/70">
-            Terms
-          </Link>
-          <span aria-hidden>·</span>
-          <Link href="/privacy" className="hover:text-white/70">
-            Privacy
-          </Link>
-        </div>
       </aside>
 
       {/* Mobile top bar */}
@@ -116,21 +96,12 @@ export default function DashboardSidebar({ businessName, isAdmin }: { businessNa
         </div>
         {open && (
           <div className="absolute inset-x-0 top-full z-50 flex flex-col gap-1 border-b border-border bg-card px-4 py-3">
-            <NavList isAdmin={isAdmin} onNavigate={() => setOpen(false)} />
+            <NavList onNavigate={() => setOpen(false)} />
             <form action={signOut} className="pt-2">
               <button type="submit" className={ITEM_CLASS}>
                 Log out
               </button>
             </form>
-            <div className="flex items-center gap-2 px-3 pt-2 text-[11.5px] text-muted-foreground">
-              <Link href="/terms" onClick={() => setOpen(false)}>
-                Terms
-              </Link>
-              <span aria-hidden>·</span>
-              <Link href="/privacy" onClick={() => setOpen(false)}>
-                Privacy
-              </Link>
-            </div>
           </div>
         )}
       </div>

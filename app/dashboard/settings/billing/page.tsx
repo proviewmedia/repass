@@ -77,16 +77,12 @@ export default async function BillingPage() {
   }
 
   return (
-    <main className="dash-content">
-      <div className="flex flex-col gap-4 sm:gap-5">
-        <div className="dash-head">
-          <div>
-            <h1>Billing</h1>
-            <p className="auth-sub">What you&apos;re paying, when you&apos;re charged, and your payment history.</p>
-          </div>
-        </div>
+    <div className="flex flex-col gap-4 sm:gap-5">
+      <p className="text-[14.5px] text-muted-foreground">
+        What you&apos;re paying, when you&apos;re charged, and your payment history.
+      </p>
 
-        {stripeError && <Alert variant="destructive">{stripeError}</Alert>}
+      {stripeError && <Alert variant="destructive">{stripeError}</Alert>}
 
         {!stripeCustomerId ? (
           <Card>
@@ -180,7 +176,6 @@ export default async function BillingPage() {
             </div>
           </div>
         )}
-      </div>
-    </main>
+    </div>
   );
 }

@@ -12,7 +12,7 @@ async function requireBusiness() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login?redirectTo=/dashboard/settings/rewards");
+    redirect("/login?redirectTo=/dashboard/rewards");
   }
 
   const { data: business } = await supabase.from("businesses").select("id").eq("owner_user_id", user!.id).single();
@@ -68,17 +68,17 @@ export async function createRewardTier(formData: FormData) {
   const pointsCost = Math.max(1, parseInt(String(formData.get("pointsCost") || "0"), 10) || 0);
 
   if (!label) {
-    redirect(`/dashboard/settings/rewards?error=${encodeURIComponent("A reward name is required.")}`);
+    redirect(`/dashboard/rewards?error=${encodeURIComponent("A reward name is required.")}`);
   }
   if (!pointsCost) {
-    redirect(`/dashboard/settings/rewards?error=${encodeURIComponent("Points cost must be at least 1.")}`);
+    redirect(`/dashboard/rewards?error=${encodeURIComponent("Points cost must be at least 1.")}`);
   }
 
   let squareDiscountId: string | null;
   try {
     squareDiscountId = await resolveSquareDiscountId(supabase, business.id, formData);
   } catch (err) {
-    redirect(`/dashboard/settings/rewards?error=${encodeURIComponent((err as Error).message)}`);
+    redirect(`/dashboard/rewards?error=${encodeURIComponent((err as Error).message)}`);
   }
 
   const { error } = await supabase.from("reward_tiers").insert({
@@ -89,11 +89,11 @@ export async function createRewardTier(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/dashboard/settings/rewards?error=${encodeURIComponent(error.message)}`);
+    redirect(`/dashboard/rewards?error=${encodeURIComponent(error.message)}`);
   }
 
-  revalidatePath("/dashboard/settings/rewards");
-  redirect("/dashboard/settings/rewards?saved=1");
+  revalidatePath("/dashboard/rewards");
+  redirect("/dashboard/rewards?saved=1");
 }
 
 export async function updateRewardTier(tierId: string, formData: FormData) {
@@ -103,7 +103,7 @@ export async function updateRewardTier(tierId: string, formData: FormData) {
   const pointsCost = Math.max(1, parseInt(String(formData.get("pointsCost") || "0"), 10) || 0);
 
   if (!label || !pointsCost) {
-    redirect(`/dashboard/settings/rewards?error=${encodeURIComponent("A reward needs a name and a points cost.")}`);
+    redirect(`/dashboard/rewards?error=${encodeURIComponent("A reward needs a name and a points cost.")}`);
   }
 
   const { error } = await supabase
@@ -113,11 +113,11 @@ export async function updateRewardTier(tierId: string, formData: FormData) {
     .eq("business_id", business.id);
 
   if (error) {
-    redirect(`/dashboard/settings/rewards?error=${encodeURIComponent(error.message)}`);
+    redirect(`/dashboard/rewards?error=${encodeURIComponent(error.message)}`);
   }
 
-  revalidatePath("/dashboard/settings/rewards");
-  redirect("/dashboard/settings/rewards?saved=1");
+  revalidatePath("/dashboard/rewards");
+  redirect("/dashboard/rewards?saved=1");
 }
 
 export async function archiveRewardTier(tierId: string) {
@@ -129,8 +129,8 @@ export async function archiveRewardTier(tierId: string) {
     .eq("id", tierId)
     .eq("business_id", business.id);
 
-  revalidatePath("/dashboard/settings/rewards");
-  redirect("/dashboard/settings/rewards?saved=1");
+  revalidatePath("/dashboard/rewards");
+  redirect("/dashboard/rewards?saved=1");
 }
 
 export async function linkTierToDiscount(tierId: string, formData: FormData) {
@@ -140,11 +140,11 @@ export async function linkTierToDiscount(tierId: string, formData: FormData) {
   try {
     squareDiscountId = await resolveSquareDiscountId(supabase, business.id, formData);
   } catch (err) {
-    redirect(`/dashboard/settings/rewards?error=${encodeURIComponent((err as Error).message)}`);
+    redirect(`/dashboard/rewards?error=${encodeURIComponent((err as Error).message)}`);
   }
 
   if (!squareDiscountId) {
-    redirect(`/dashboard/settings/rewards?error=${encodeURIComponent("Pick or create a discount to link.")}`);
+    redirect(`/dashboard/rewards?error=${encodeURIComponent("Pick or create a discount to link.")}`);
   }
 
   const { error } = await supabase
@@ -155,9 +155,9 @@ export async function linkTierToDiscount(tierId: string, formData: FormData) {
 
   if (error) {
     const message = error.code === "23505" ? "That discount is already linked to another reward." : error.message;
-    redirect(`/dashboard/settings/rewards?error=${encodeURIComponent(message)}`);
+    redirect(`/dashboard/rewards?error=${encodeURIComponent(message)}`);
   }
 
-  revalidatePath("/dashboard/settings/rewards");
-  redirect("/dashboard/settings/rewards?saved=1");
+  revalidatePath("/dashboard/rewards");
+  redirect("/dashboard/rewards?saved=1");
 }

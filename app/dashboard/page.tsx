@@ -143,10 +143,10 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
   const pointsThisWeek = (recentPositiveEvents ?? []).reduce((sum, e) => sum + e.delta, 0);
 
   const setupItems = [
-    { label: "Card designed", done: !!branding?.logo_url, href: "/dashboard/settings" },
-    { label: "Reward added", done: (activeTierCount ?? 0) > 0, href: "/dashboard/settings/rewards" },
+    { label: "Card designed", done: !!branding?.logo_url, href: "/dashboard/card-design" },
+    { label: "Reward added", done: (activeTierCount ?? 0) > 0, href: "/dashboard/rewards" },
     { label: "POS connected", done: !!posConnection, href: "/dashboard/settings/connections" },
-    { label: "Subscription active", done: active, href: "/dashboard/billing" },
+    { label: "Subscription active", done: active, href: "/dashboard/settings/billing" },
   ];
 
   return (
