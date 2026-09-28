@@ -95,6 +95,15 @@ export default function DashboardSidebar({ businessName, isAdmin }: { businessNa
             Log out
           </button>
         </form>
+        <div className="flex items-center gap-2 px-3 pt-3 text-[11.5px] text-white/40">
+          <Link href="/terms" className="hover:text-white/70">
+            Terms
+          </Link>
+          <span aria-hidden>·</span>
+          <Link href="/privacy" className="hover:text-white/70">
+            Privacy
+          </Link>
+        </div>
       </aside>
 
       {/* Mobile top bar */}
@@ -113,6 +122,15 @@ export default function DashboardSidebar({ businessName, isAdmin }: { businessNa
                 Log out
               </button>
             </form>
+            <div className="flex items-center gap-2 px-3 pt-2 text-[11.5px] text-muted-foreground">
+              <Link href="/terms" onClick={() => setOpen(false)}>
+                Terms
+              </Link>
+              <span aria-hidden>·</span>
+              <Link href="/privacy" onClick={() => setOpen(false)}>
+                Privacy
+              </Link>
+            </div>
           </div>
         )}
       </div>

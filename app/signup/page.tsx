@@ -43,6 +43,17 @@ export default function SignupPage({
                   <Input id="password" type="password" name="password" required minLength={8} autoComplete="new-password" />
                 </div>
                 <Button type="submit">Create account</Button>
+                <p className="text-[12.5px] text-muted-foreground">
+                  By creating an account, you agree to Repass&apos;s{" "}
+                  <Link href="/terms" className="underline">
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link href="/privacy" className="underline">
+                    Privacy Notice
+                  </Link>
+                  .
+                </p>
               </form>
             )}
 

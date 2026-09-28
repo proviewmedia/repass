@@ -643,6 +643,11 @@ export default async function Home() {
                 <Link href="/login">Log in</Link>
                 <a href="mailto:hello@proviewmedia.co">Contact</a>
               </div>
+              <div className="foot-col">
+                <h4>Legal</h4>
+                <Link href="/terms">Terms of Service</Link>
+                <Link href="/privacy">Privacy Notice</Link>
+              </div>
             </div>
           </div>
           <div className="foot-bottom">
