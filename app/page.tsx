@@ -1,26 +1,102 @@
 import Link from "next/link";
 import QRCode from "qrcode";
 
-const checkIcon = (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+const tickIcon = (
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 6 9 17l-5-5" />
   </svg>
 );
 
-const newCheckIcon = (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 6 9 17l-5-5" />
+const arrowIcon = (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 12h14M13 6l6 6-6 6" />
   </svg>
 );
 
-const oldXIcon = (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-    <path d="M18 6 6 18M6 6l12 12" />
-  </svg>
-);
+interface PassProps {
+  bg: string;
+  fg: string;
+  label: string;
+  chipBg?: string;
+  chipFg?: string;
+  initials: string;
+  business: string;
+  program: string;
+  headerValue: string;
+  fieldLabel: string;
+  fieldValue: string;
+  dots?: boolean;
+  nextReward: string;
+  qr: string;
+}
+
+// One wallet card, laid out the way a real Apple Wallet store card is:
+// brand row with a header field top right, the reserved strip band holding the
+// program title, two secondary fields side by side, then the barcode.
+function Pass({
+  bg,
+  fg,
+  label,
+  chipBg,
+  chipFg,
+  initials,
+  business,
+  program,
+  headerValue,
+  fieldLabel,
+  fieldValue,
+  dots,
+  nextReward,
+  qr,
+}: PassProps) {
+  return (
+    <div className="pass" style={{ "--pass-bg": bg, "--pass-fg": fg, "--pass-label": label } as React.CSSProperties}>
+      <div className="pass-head">
+        <div className="pass-brand">
+          <span className="pl" style={chipBg ? { background: chipBg, color: chipFg } : undefined}>
+            {initials}
+          </span>
+          {business}
+        </div>
+        <div className="pass-hfield">
+          <div className="field-label">Points</div>
+          <div className="field-val">{headerValue}</div>
+        </div>
+      </div>
+
+      <div className="pass-strip">
+        <div className="pass-title">{program}</div>
+      </div>
+
+      <div className="pass-fields">
+        <div className="field">
+          <div className="field-label">{fieldLabel}</div>
+          <div className={dots ? "field-val pass-dots" : "field-val"}>{fieldValue}</div>
+        </div>
+        <div className="field right">
+          <div className="field-label">Next reward</div>
+          <div className="field-val" style={{ fontSize: 12, fontWeight: 600 }}>
+            {nextReward}
+          </div>
+        </div>
+      </div>
+
+      <div className="pass-barcode">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={qr} alt="" width={68} height={68} />
+      </div>
+
+      <div className="pass-foot">
+        <span className="dot" />
+        {business}
+      </div>
+    </div>
+  );
+}
 
 export default async function Home() {
-  const mockQr = await QRCode.toDataURL("https://proviewstudio.com", { margin: 0, width: 136 });
+  const mockQr = await QRCode.toDataURL("https://repass-virid.vercel.app", { margin: 0, width: 136 });
+
   return (
     <>
       <nav>
@@ -38,6 +114,7 @@ export default async function Home() {
             <a href="#gallery">Examples</a>
             <a href="#features">Features</a>
             <a href="#how">How it works</a>
+            <a href="#pricing">Pricing</a>
             <Link href="/login" className="btn ghost sm">
               Log in
             </Link>
@@ -53,28 +130,26 @@ export default async function Home() {
         <div className="wrap hero-grid">
           <div>
             <span className="eyebrow">
-              <span className="g" /> No app to download · iPhone &amp; Android
+              <span className="g" /> No app to download. iPhone and Android.
             </span>
             <h1>
               Loyalty cards that live in your customers&apos; <em>phones.</em>
             </h1>
             <p className="lead">
-              Repass designs and runs Apple &amp; Google Wallet loyalty programs for local businesses — points cards
-              that update themselves. You run your shop. We handle the tech.
+              Repass runs Apple and Google Wallet loyalty programs for local businesses. Your customers add a card
+              once, and it keeps itself up to date. Nothing to install, nothing to carry.
             </p>
             <div className="hero-cta">
               <Link href="/signup" className="btn">
                 Start your program
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
+                {arrowIcon}
               </Link>
               <a href="#gallery" className="btn ghost">
                 See examples
               </a>
             </div>
             <div className="hero-badges">
-              <div className="cap">One tap to add — works with</div>
+              <div className="cap">One tap to add, works with</div>
               <div className="wallet-badges">
                 <span className="wbadge">
                   <svg width="20" height="24" viewBox="0 0 24 24" fill="#fff">
@@ -101,7 +176,6 @@ export default async function Home() {
             </div>
           </div>
 
-          {/* Apple Wallet, in context */}
           <div className="phone-stage">
             <div className="phone">
               <div className="phone-screen">
@@ -131,55 +205,46 @@ export default async function Home() {
                 </div>
                 <div className="stack">
                   <div className="pass" style={{ "--pass-bg": "#1e3a5f", "--pass-fg": "#eaf2ff", "--pass-label": "#eaf2ffa6" } as React.CSSProperties}>
-                    <div className="pass-row">
+                    <div className="pass-head">
                       <div className="pass-brand">
                         <span className="pl" style={{ background: "#7fb2ff", color: "#0f2340" }}>
                           IY
-                        </span>{" "}
+                        </span>
                         Iron Yard
                       </div>
-                      <div className="field right">
+                      <div className="pass-hfield">
                         <div className="field-label">Points</div>
                         <div className="field-val">40</div>
                       </div>
                     </div>
                   </div>
                   <div className="pass" style={{ "--pass-bg": "#7c2d4a", "--pass-fg": "#ffffff", "--pass-label": "#ffffffb3" } as React.CSSProperties}>
-                    <div className="pass-row">
+                    <div className="pass-head">
                       <div className="pass-brand">
                         <span className="pl">BV</span> Bloom &amp; Vine
                       </div>
-                      <div className="field right">
+                      <div className="pass-hfield">
                         <div className="field-label">Points</div>
-                        <div className="field-val">320</div>
+                        <div className="field-val">6</div>
                       </div>
                     </div>
                   </div>
-                  <div className="pass" style={{ "--pass-bg": "#3b2a20", "--pass-fg": "#f5ede2", "--pass-label": "#f5ede2aa" } as React.CSSProperties}>
-                    <div className="pass-row">
-                      <div className="pass-brand">
-                        <span className="pl" style={{ background: "#c98a4b", color: "#2a1c12" }}>
-                          CL
-                        </span>{" "}
-                        Café Lumen
-                      </div>
-                    </div>
-                    <div className="pass-title">Café Lumen Rewards</div>
-                    <div className="pass-sub">
-                      <div className="field">
-                        <div className="field-label">Points</div>
-                        <div className="field-val">7</div>
-                      </div>
-                      <div className="field right">
-                        <div className="field-label">Progress</div>
-                        <div className="field-val pass-circles">●●●●●●●○○○</div>
-                      </div>
-                    </div>
-                    <div className="barcode-box">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={mockQr} alt="QR code" className="barcode qr" />
-                    </div>
-                  </div>
+                  <Pass
+                    bg="#3b2a20"
+                    fg="#f5ede2"
+                    label="#f5ede2aa"
+                    chipBg="#c98a4b"
+                    chipFg="#2a1c12"
+                    initials="CL"
+                    business="Café Lumen"
+                    program="Café Lumen Rewards"
+                    headerValue="7/10"
+                    fieldLabel="Points"
+                    fieldValue="●●●●●●●○○○"
+                    dots
+                    nextReward="3 away from a free drink"
+                    qr={mockQr}
+                  />
                 </div>
               </div>
             </div>
@@ -229,39 +294,34 @@ export default async function Home() {
         <div className="wrap">
           <div className="sec-head">
             <span className="sec-eyebrow">Examples</span>
-            <h2>What your card could look like.</h2>
-            <p>Every pass is designed in your brand and lives in Apple or Google Wallet — no plastic, no app. A few of the styles we build.</p>
+            <h2>What your card looks like.</h2>
+            <p>
+              Your colours, your logo, your reward. Laid out exactly the way Apple Wallet renders a store card, because
+              that is what your customers get.
+            </p>
           </div>
           <div className="gallery">
             <div className="gcell">
               <div className="passwrap">
-                <div className="pass" style={{ "--pass-bg": "#3b2a20", "--pass-fg": "#f5ede2", "--pass-label": "#f5ede2aa" } as React.CSSProperties}>
-                  <div className="pass-row">
-                    <div className="pass-brand">
-                      <span className="pl" style={{ background: "#c98a4b", color: "#2a1c12" }}>
-                        CL
-                      </span>{" "}
-                      Café Lumen
-                    </div>
-                  </div>
-                  <div className="pass-title">Café Lumen Rewards</div>
-                  <div className="pass-sub">
-                    <div className="field">
-                      <div className="field-label">Points</div>
-                      <div className="field-val">7</div>
-                    </div>
-                    <div className="field right">
-                      <div className="field-label">Progress</div>
-                      <div className="field-val pass-circles">●●●●●●●○○○</div>
-                    </div>
-                  </div>
-                  <div className="barcode-box">
-                    <div className="barcode qr" />
-                  </div>
-                </div>
+                <Pass
+                  bg="#3b2a20"
+                  fg="#f5ede2"
+                  label="#f5ede2aa"
+                  chipBg="#c98a4b"
+                  chipFg="#2a1c12"
+                  initials="CL"
+                  business="Café Lumen"
+                  program="Café Lumen Rewards"
+                  headerValue="7/10"
+                  fieldLabel="Points"
+                  fieldValue="●●●●●●●○○○"
+                  dots
+                  nextReward="3 away from a free drink"
+                  qr={mockQr}
+                />
               </div>
               <div className="gcap">
-                <div className="type">Loyalty program</div>
+                <div className="type">Stamp card</div>
                 <div className="name">Café Lumen</div>
                 <div className="desc">Free drink every 10 visits</div>
               </div>
@@ -269,171 +329,128 @@ export default async function Home() {
 
             <div className="gcell">
               <div className="passwrap">
-                <div className="pass" style={{ "--pass-bg": "#7c2d4a", "--pass-fg": "#ffffff", "--pass-label": "#ffffffb3" } as React.CSSProperties}>
-                  <div className="pass-row">
-                    <div className="pass-brand">
-                      <span className="pl" style={{ background: "#f7c9d9", color: "#7c2d4a" }}>
-                        BV
-                      </span>{" "}
-                      Bloom &amp; Vine
-                    </div>
-                  </div>
-                  <div className="pass-title">Bloom &amp; Vine Rewards</div>
-                  <div className="pass-sub">
-                    <div className="field">
-                      <div className="field-label">Points</div>
-                      <div className="field-val">4</div>
-                    </div>
-                    <div className="field right">
-                      <div className="field-label">Progress</div>
-                      <div className="field-val pass-circles">●●●●○○○○</div>
-                    </div>
-                  </div>
-                  <div className="barcode-box">
-                    <div className="barcode qr" />
-                  </div>
-                </div>
+                <Pass
+                  bg="#14312a"
+                  fg="#e8f7f0"
+                  label="#e8f7f0a6"
+                  chipBg="#5ddfae"
+                  chipFg="#0a2b22"
+                  initials="NB"
+                  business="North Barber"
+                  program="North Barber Club"
+                  headerValue="4/6"
+                  fieldLabel="Points"
+                  fieldValue="●●●●○○"
+                  dots
+                  nextReward="2 away from a free cut"
+                  qr={mockQr}
+                />
               </div>
               <div className="gcap">
-                <div className="type">Loyalty program</div>
+                <div className="type">Stamp card</div>
+                <div className="name">North Barber</div>
+                <div className="desc">Sixth cut on the house</div>
+              </div>
+            </div>
+
+            <div className="gcell">
+              <div className="passwrap">
+                <Pass
+                  bg="#7c2d4a"
+                  fg="#ffffff"
+                  label="#ffffffb3"
+                  chipBg="#f7c9d9"
+                  chipFg="#7c2d4a"
+                  initials="BV"
+                  business="Bloom & Vine"
+                  program="Bloom Rewards"
+                  headerValue="320"
+                  fieldLabel="Points"
+                  fieldValue="320"
+                  nextReward="180 to a free bouquet"
+                  qr={mockQr}
+                />
+              </div>
+              <div className="gcap">
+                <div className="type">Points program</div>
                 <div className="name">Bloom &amp; Vine</div>
-                <div className="desc">Free bouquet every 8 visits</div>
+                <div className="desc">Spend based, 500 point reward</div>
               </div>
             </div>
 
             <div className="gcell">
               <div className="passwrap">
-                <div className="pass" style={{ "--pass-bg": "#b3271e", "--pass-fg": "#fff4e6", "--pass-label": "#fff4e6b3" } as React.CSSProperties}>
-                  <div className="pass-row">
-                    <div className="pass-brand">
-                      <span className="pl" style={{ background: "#f5b841", color: "#7a2410" }}>
-                        TV
-                      </span>{" "}
-                      Taco Verde
-                    </div>
-                  </div>
-                  <div className="pass-title">Taco Verde Rewards</div>
-                  <div className="pass-sub">
-                    <div className="field">
-                      <div className="field-label">Points</div>
-                      <div className="field-val">3</div>
-                    </div>
-                    <div className="field right">
-                      <div className="field-label">Progress</div>
-                      <div className="field-val pass-circles">●●●○○○</div>
-                    </div>
-                  </div>
-                  <div className="barcode-box">
-                    <div className="barcode qr" />
-                  </div>
-                </div>
+                <Pass
+                  bg="#1e3a5f"
+                  fg="#eaf2ff"
+                  label="#eaf2ffa6"
+                  chipBg="#7fb2ff"
+                  chipFg="#0f2340"
+                  initials="IY"
+                  business="Iron Yard"
+                  program="Iron Yard Members"
+                  headerValue="40"
+                  fieldLabel="Visits"
+                  fieldValue="40"
+                  nextReward="Free month at 50"
+                  qr={mockQr}
+                />
               </div>
               <div className="gcap">
-                <div className="type">Loyalty program</div>
-                <div className="name">Taco Verde</div>
-                <div className="desc">Free entrée every 6 visits</div>
-              </div>
-            </div>
-
-            <div className="gcell">
-              <div className="passwrap">
-                <div className="pass" style={{ "--pass-bg": "#141416", "--pass-fg": "#ffffff", "--pass-label": "#ffffff99" } as React.CSSProperties}>
-                  <div className="pass-row">
-                    <div className="pass-brand">
-                      <span className="pl" style={{ background: "#d4af37", color: "#141416" }}>
-                        FR
-                      </span>{" "}
-                      Fade Room
-                    </div>
-                  </div>
-                  <div className="pass-title">Fade Room Rewards</div>
-                  <div className="pass-sub">
-                    <div className="field">
-                      <div className="field-label">Points</div>
-                      <div className="field-val">9</div>
-                    </div>
-                    <div className="field right">
-                      <div className="field-label">Progress</div>
-                      <div className="field-val pass-circles">●●●●●●●●●○</div>
-                    </div>
-                  </div>
-                  <div className="barcode-box">
-                    <div className="barcode qr" />
-                  </div>
-                </div>
-              </div>
-              <div className="gcap">
-                <div className="type">Loyalty program</div>
-                <div className="name">Fade Room</div>
-                <div className="desc">Free cut every 10 visits</div>
-              </div>
-            </div>
-
-            <div className="gcell">
-              <div className="passwrap">
-                <div className="pass" style={{ "--pass-bg": "#0f5132", "--pass-fg": "#eafff4", "--pass-label": "#eafff4a6" } as React.CSSProperties}>
-                  <div className="pass-row">
-                    <div className="pass-brand">
-                      <span className="pl" style={{ background: "#42d392", color: "#063b23" }}>
-                        IY
-                      </span>{" "}
-                      Iron Yard
-                    </div>
-                  </div>
-                  <div className="pass-title">Iron Yard Rewards</div>
-                  <div className="pass-sub">
-                    <div className="field">
-                      <div className="field-label">Points</div>
-                      <div className="field-val">2</div>
-                    </div>
-                    <div className="field right">
-                      <div className="field-label">Progress</div>
-                      <div className="field-val pass-circles">●●○○○</div>
-                    </div>
-                  </div>
-                  <div className="barcode-box">
-                    <div className="barcode qr" />
-                  </div>
-                </div>
-              </div>
-              <div className="gcap">
-                <div className="type">Loyalty program</div>
+                <div className="type">Membership</div>
                 <div className="name">Iron Yard</div>
-                <div className="desc">Free class every 5 visits</div>
+                <div className="desc">Visit streak, monthly perk</div>
               </div>
             </div>
 
             <div className="gcell">
               <div className="passwrap">
-                <div className="pass" style={{ "--pass-bg": "#1e3a5f", "--pass-fg": "#eaf2ff", "--pass-label": "#eaf2ffa6" } as React.CSSProperties}>
-                  <div className="pass-row">
-                    <div className="pass-brand">
-                      <span className="pl" style={{ background: "#7fb2ff", color: "#0f2340" }}>
-                        CM
-                      </span>{" "}
-                      Corner Market
-                    </div>
-                  </div>
-                  <div className="pass-title">Corner Market Rewards</div>
-                  <div className="pass-sub">
-                    <div className="field">
-                      <div className="field-label">Points</div>
-                      <div className="field-val">5</div>
-                    </div>
-                    <div className="field right">
-                      <div className="field-label">Progress</div>
-                      <div className="field-val pass-circles">●●●●●○○○○○</div>
-                    </div>
-                  </div>
-                  <div className="barcode-box">
-                    <div className="barcode qr" />
-                  </div>
-                </div>
+                <Pass
+                  bg="#4a2d6b"
+                  fg="#f3ecff"
+                  label="#f3ecffa6"
+                  chipBg="#c9a7f7"
+                  chipFg="#33194f"
+                  initials="PP"
+                  business="Paper Press"
+                  program="Paper Press Readers"
+                  headerValue="5/8"
+                  fieldLabel="Points"
+                  fieldValue="●●●●●○○○"
+                  dots
+                  nextReward="3 away from 20% off"
+                  qr={mockQr}
+                />
               </div>
               <div className="gcap">
-                <div className="type">Loyalty program</div>
-                <div className="name">Corner Market</div>
-                <div className="desc">$10 off every 10 visits</div>
+                <div className="type">Stamp card</div>
+                <div className="name">Paper Press</div>
+                <div className="desc">Bookshop, eighth visit reward</div>
+              </div>
+            </div>
+
+            <div className="gcell">
+              <div className="passwrap">
+                <Pass
+                  bg="#6b2f15"
+                  fg="#fdeee3"
+                  label="#fdeee3a6"
+                  chipBg="#f5a86a"
+                  chipFg="#4a1f0c"
+                  initials="SF"
+                  business="Sunday Flour"
+                  program="Sunday Flour Rewards"
+                  headerValue="12"
+                  fieldLabel="Points"
+                  fieldValue="12"
+                  nextReward="3 to a free loaf"
+                  qr={mockQr}
+                />
+              </div>
+              <div className="gcap">
+                <div className="type">Points program</div>
+                <div className="name">Sunday Flour</div>
+                <div className="desc">Bakery, one point per visit</div>
               </div>
             </div>
           </div>
@@ -445,91 +462,240 @@ export default async function Home() {
         <div className="wrap">
           <div className="sec-head">
             <span className="sec-eyebrow">Features</span>
-            <h2>Everything you need to run a points program.</h2>
-            <p>One loyalty card, fully branded, with no software for you to learn.</p>
+            <h2>Everything a points program needs. Nothing it doesn&apos;t.</h2>
+            <p>One card, one plan, no software for you or your customers to learn.</p>
           </div>
           <div className="grid-3">
             <div className="card">
-              <div className="ic">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="5" width="20" height="14" rx="2.5" />
-                  <path d="M2 10h20" />
-                  <circle cx="7" cy="7.6" r="1.1" fill="currentColor" stroke="none" />
-                </svg>
-              </div>
-              <h3>Your card, your brand</h3>
-              <p>Set your colors, logo, and reward — the design pushes to every customer&apos;s phone instantly.</p>
-              <ul>
-                <li>{checkIcon} Custom colors and logo</li>
-                <li>{checkIcon} Your own points rule and reward</li>
-                <li>{checkIcon} Changes update every card at once</li>
-              </ul>
+              <div className="kicker">Your brand</div>
+              <h3>The card looks like you</h3>
+              <p>
+                Set your colours, logo, and program name. Save once and the design pushes to every card already in a
+                customer&apos;s phone.
+              </p>
             </div>
             <div className="card">
-              <div className="ic">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="7" height="7" rx="1" />
-                  <rect x="14" y="3" width="7" height="7" rx="1" />
-                  <rect x="3" y="14" width="7" height="7" rx="1" />
-                  <path d="M14 14h3v3h-3zM19 14h2v2h-2zM14 19h2v2h-2zM19 19h2v2h-2z" />
-                </svg>
-              </div>
-              <h3>Self-serve at the counter</h3>
-              <p>Two QR codes handle sign-up and check-in — no dashboard needed on a busy shift.</p>
-              <ul>
-                <li>{checkIcon} Customers scan to join and add their card</li>
-                <li>{checkIcon} A second QR lets them earn a point themselves</li>
-                <li>{checkIcon} Print once, reuse every day</li>
-              </ul>
+              <div className="kicker">Earning</div>
+              <h3>Points add themselves</h3>
+              <p>
+                Connect Square, Clover, or Stripe and a completed sale awards a point automatically, matched by the
+                phone or email on the sale.
+              </p>
             </div>
             <div className="card">
-              <div className="ic">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M13 2 3 14h7l-1 8 11-14h-7l1-6Z" />
-                </svg>
-              </div>
-              <h3>One tap from your dashboard</h3>
-              <p>Or add a point yourself and watch it land on the customer&apos;s phone in real time.</p>
-              <ul>
-                <li>{checkIcon} See every customer and their balance</li>
-                <li>{checkIcon} Add a point in one click</li>
-                <li>{checkIcon} The wallet pass updates instantly</li>
-              </ul>
+              <div className="kicker">No POS needed</div>
+              <h3>A QR on the counter</h3>
+              <p>
+                Not connected to a till? Customers scan a check in code and add their own point. No staff action, no
+                app, no scanner to buy.
+              </p>
+            </div>
+            <div className="card">
+              <div className="kicker">Redeeming</div>
+              <h3>Rewards that apply themselves</h3>
+              <p>
+                Link a reward to a Square discount and it comes off at checkout, with the points deducted at the same
+                time.
+              </p>
+            </div>
+            <div className="card">
+              <div className="kicker">Staying in touch</div>
+              <h3>A nudge on the lock screen</h3>
+              <p>
+                When someone earns a reward, their card updates and a notification lands on their lock screen. No
+                mailing list required.
+              </p>
+            </div>
+            <div className="card">
+              <div className="kicker">Signing up</div>
+              <h3>A link and a QR code</h3>
+              <p>
+                Share a join link or print the QR for your counter. They fill in a short form and the card is in their
+                wallet seconds later.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ================= COMPARISON ================= */}
-      <section id="why">
+      {/* ================= DEEP DIVES ================= */}
+      <section>
         <div className="wrap">
-          <div className="sec-head">
-            <span className="sec-eyebrow">The difference</span>
-            <h2>The punch card, reinvented.</h2>
-            <p>Everything a paper card can&apos;t do — because the wallet is already open on every phone.</p>
-          </div>
-          <div className="compare">
-            <div className="comp-col old">
-              <h3>
-                <span className="tag">Paper punch card</span>
-              </h3>
-              <ul>
-                <li>{oldXIcon} Left at home or lost in a drawer</li>
-                <li>{oldXIcon} Reprint and restock forever</li>
-                <li>{oldXIcon} No way to reach a customer again</li>
-                <li>{oldXIcon} Zero data on who&apos;s coming back</li>
+          <div className="split">
+            <div className="split-copy">
+              <span className="sec-eyebrow">Automatic earning</span>
+              <h2>Connect your till and stop thinking about it.</h2>
+              <p>
+                Repass watches for completed sales and matches them to the customer by the phone number or email on the
+                sale. The point is on their card before they leave the counter.
+              </p>
+              <ul className="ticks">
+                <li>
+                  {tickIcon}
+                  <span>
+                    <b>Square, Clover, and Stripe.</b> Connect in a couple of clicks, no hardware to change.
+                  </span>
+                </li>
+                <li>
+                  {tickIcon}
+                  <span>
+                    <b>Read only.</b> Repass sees whether a sale completed and the contact on it. Never card numbers.
+                  </span>
+                </li>
+                <li>
+                  {tickIcon}
+                  <span>
+                    <b>Import your existing customers</b> from the till in one click.
+                  </span>
+                </li>
               </ul>
             </div>
-            <div className="comp-col new">
-              <h3>
-                <span className="tag">Repass wallet pass</span>
-              </h3>
-              <ul>
-                <li>{newCheckIcon} Always in the phone, next to boarding passes</li>
-                <li>{newCheckIcon} Nothing to print or restock — ever</li>
-                <li>{newCheckIcon} Change the design once, every card updates</li>
-                <li>{newCheckIcon} Customers scan to join or earn a point themselves</li>
+            <div className="split-art">
+              <div className="app-shot">
+                <div className="app-side">
+                  <div className="biz">Café Lumen</div>
+                  <div className="row">
+                    <i /> Dashboard
+                  </div>
+                  <div className="row">
+                    <i /> Customers
+                  </div>
+                  <div className="row">
+                    <i /> Rewards
+                  </div>
+                  <div className="row">
+                    <i /> Card Design
+                  </div>
+                  <div className="row on">
+                    <i /> Settings
+                  </div>
+                </div>
+                <div className="app-main">
+                  <div className="h">Settings</div>
+                  <div className="sub">Connections</div>
+                  <div className="app-card">
+                    <div className="app-row">
+                      <span className="ico" />
+                      <span className="txt">
+                        <b>Square</b>
+                        <span>Awards a point on every sale</span>
+                      </span>
+                      <span className="app-chip">Connected</span>
+                    </div>
+                    <div className="app-row">
+                      <span className="ico" />
+                      <span className="txt">
+                        <b>Clover</b>
+                        <span>Awards a point on every sale</span>
+                      </span>
+                      <span className="app-chip warn">Connect</span>
+                    </div>
+                    <div className="app-row">
+                      <span className="ico" />
+                      <span className="txt">
+                        <b>Stripe</b>
+                        <span>Awards a point on every payment</span>
+                      </span>
+                      <span className="app-chip warn">Connect</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="split rev">
+            <div className="split-copy">
+              <span className="sec-eyebrow">Your dashboard</span>
+              <h2>See the program at a glance.</h2>
+              <p>
+                Who joined, how many points went out, how many rewards came back. Plus a setup checklist so you always
+                know what is left to turn on.
+              </p>
+              <ul className="ticks">
+                <li>
+                  {tickIcon}
+                  <span>
+                    <b>Customer list</b> you can search, edit, and add to by hand.
+                  </span>
+                </li>
+                <li>
+                  {tickIcon}
+                  <span>
+                    <b>Printable signage</b> for the counter, generated for your shop.
+                  </span>
+                </li>
+                <li>
+                  {tickIcon}
+                  <span>
+                    <b>Live card preview</b> while you design, plus a real card you can send to your own phone.
+                  </span>
+                </li>
               </ul>
+            </div>
+            <div className="split-art">
+              <div className="app-shot">
+                <div className="app-side">
+                  <div className="biz">Café Lumen</div>
+                  <div className="row on">
+                    <i /> Dashboard
+                  </div>
+                  <div className="row">
+                    <i /> Customers
+                  </div>
+                  <div className="row">
+                    <i /> Rewards
+                  </div>
+                  <div className="row">
+                    <i /> Card Design
+                  </div>
+                  <div className="row">
+                    <i /> Settings
+                  </div>
+                </div>
+                <div className="app-main">
+                  <div className="h">Dashboard</div>
+                  <div className="sub">Café Lumen, 1 pt/visit, 2 rewards available</div>
+                  <div className="app-stats">
+                    <div className="app-stat">
+                      <div className="n">
+                        214<span className="d">+12</span>
+                      </div>
+                      <div className="l">Customers</div>
+                    </div>
+                    <div className="app-stat">
+                      <div className="n">
+                        1,480<span className="d">+96</span>
+                      </div>
+                      <div className="l">Points out</div>
+                    </div>
+                    <div className="app-stat">
+                      <div className="n">
+                        63<span className="d">+5</span>
+                      </div>
+                      <div className="l">Rewards</div>
+                    </div>
+                  </div>
+                  <div className="app-chips">
+                    <span className="app-chip">Card designed</span>
+                    <span className="app-chip">Reward added</span>
+                    <span className="app-chip">POS connected</span>
+                  </div>
+                  <div className="app-card">
+                    <div className="t">Signage</div>
+                    <div className="s">Print these for your counter</div>
+                    <div className="app-row">
+                      <span className="ico" />
+                      <span className="txt">
+                        <b>New customer sign up</b>
+                        <span>repass.app/join/cafe-lumen</span>
+                      </span>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={mockQr} alt="" className="qr" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -540,57 +706,200 @@ export default async function Home() {
         <div className="wrap">
           <div className="sec-head">
             <span className="sec-eyebrow">How it works</span>
-            <h2>Live in minutes — you set it up yourself.</h2>
-            <p>Sign up, set your points rule, and start signing up customers. No developer account, no certificates, nothing to install.</p>
+            <h2>Live in about a minute.</h2>
+            <p>Three steps, then your card is real and ready to hand out.</p>
           </div>
-          <div className="steps">
+          <div className="steps" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
             <div className="step">
               <div className="num">1</div>
-              <h3>Set up your program</h3>
-              <p>Name your rewards, pick a color, and decide what earns a point and what it unlocks.</p>
+              <h3>Design your card</h3>
+              <p>Name your program, pick a colour, drop in your logo, and set what earns a point.</p>
             </div>
             <div className="step">
               <div className="num">2</div>
-              <h3>Share your join page</h3>
-              <p>Every business gets a public sign-up link and QR code customers scan at the counter.</p>
+              <h3>Connect or print</h3>
+              <p>Link Square, Clover, or Stripe so points add themselves, or print the counter QR and skip it.</p>
             </div>
             <div className="step">
               <div className="num">3</div>
-              <h3>Customers join</h3>
-              <p>They fill in their name and the pass drops straight into Apple or Google Wallet.</p>
-            </div>
-            <div className="step">
-              <div className="num">4</div>
-              <h3>You run it</h3>
-              <p>Tap Add a point in your dashboard and the customer&apos;s pass updates instantly, on their phone.</p>
+              <h3>Share the link</h3>
+              <p>Customers tap once to add the card. From then on it updates itself in their wallet.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ================= STATS ================= */}
-      <section>
+      {/* ================= PRICING ================= */}
+      <section id="pricing">
         <div className="wrap">
           <div className="sec-head">
-            <span className="sec-eyebrow">Why wallet passes</span>
-            <h2>Because the wallet is already open.</h2>
+            <span className="sec-eyebrow">Pricing</span>
+            <h2>One plan. No percentage of your sales.</h2>
+            <p>Everything is included. There is no card tier, no push notification tier, and no per customer fee.</p>
           </div>
-          <div className="why">
-            <div className="stat-cell">
-              <div className="stat">0</div>
-              <p>apps to download</p>
+          <div className="price-wrap">
+            <div className="price-card">
+              <div className="plan">Repass</div>
+              <div className="price-amt">
+                <span className="n">$49</span>
+                <span className="per">per month</span>
+              </div>
+              <ul className="ticks">
+                <li>
+                  {tickIcon}
+                  <span>Unlimited customers and unlimited cards</span>
+                </li>
+                <li>
+                  {tickIcon}
+                  <span>Apple Wallet and Google Wallet included</span>
+                </li>
+                <li>
+                  {tickIcon}
+                  <span>Lock screen notifications included</span>
+                </li>
+                <li>
+                  {tickIcon}
+                  <span>Square, Clover, and Stripe connections</span>
+                </li>
+                <li>
+                  {tickIcon}
+                  <span>No transaction fee, ever</span>
+                </li>
+                <li>
+                  {tickIcon}
+                  <span>Cancel any time from your dashboard</span>
+                </li>
+              </ul>
+              <Link href="/signup" className="btn">
+                Start your program
+                {arrowIcon}
+              </Link>
             </div>
-            <div className="stat-cell">
-              <div className="stat">1 tap</div>
-              <p>to join at the counter</p>
+            <p className="price-note">Billed monthly. Cancel whenever, it ends at the end of the period.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= COMPARISON ================= */}
+      <section className="alt">
+        <div className="wrap">
+          <div className="sec-head">
+            <span className="sec-eyebrow">How we compare</span>
+            <h2>The short version.</h2>
+            <p>Published pricing, checked October 2026. Every product here does different things, so weigh what you actually need.</p>
+          </div>
+          <div className="cmp-scroll">
+            <table className="cmp-table">
+              <thead>
+                <tr>
+                  <th />
+                  <th className="us">Repass</th>
+                  <th>Kangaroo Rewards</th>
+                  <th>Join It</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Card lives in Apple / Google Wallet</td>
+                  <td className="us">Yes</td>
+                  <td>No</td>
+                  <td>Yes</td>
+                </tr>
+                <tr>
+                  <td>Customer downloads an app</td>
+                  <td className="us">Never</td>
+                  <td>Required</td>
+                  <td>No</td>
+                </tr>
+                <tr>
+                  <td>Push to the card</td>
+                  <td className="us">Included</td>
+                  <td>App notifications</td>
+                  <td>On the $199 tier</td>
+                </tr>
+                <tr>
+                  <td>Cut of your transactions</td>
+                  <td className="us">None</td>
+                  <td>None</td>
+                  <td>1.5% to 3%</td>
+                </tr>
+                <tr>
+                  <td>Points added from a POS sale</td>
+                  <td className="us">Square, Clover, Stripe</td>
+                  <td>Via integrations</td>
+                  <td>Not a POS product</td>
+                </tr>
+                <tr>
+                  <td>Email and SMS campaigns</td>
+                  <td className="us">Not yet</td>
+                  <td>Yes</td>
+                  <td>Via integrations</td>
+                </tr>
+                <tr>
+                  <td>Starting price</td>
+                  <td className="us">$49/mo</td>
+                  <td>$79/mo</td>
+                  <td>$29/mo, wallet cards from $99</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="cmp-note">
+            Kangaroo is a bigger suite built around its own customer app. Join It is membership software for clubs and
+            nonprofits. Repass does one thing: a wallet loyalty card for a local business.
+          </p>
+        </div>
+      </section>
+
+      {/* ================= FAQ ================= */}
+      <section id="faq">
+        <div className="wrap">
+          <div className="sec-head">
+            <span className="sec-eyebrow">Questions</span>
+            <h2>The things people ask first.</h2>
+          </div>
+          <div className="faq">
+            <div className="faq-item">
+              <h3>Do my customers have to download anything?</h3>
+              <p>
+                No. Apple Wallet and Google Wallet are already on their phone. They tap a link, the card is added, and
+                that is the whole setup.
+              </p>
             </div>
-            <div className="stat-cell">
-              <div className="stat">iOS + Android</div>
-              <p>covered from day one</p>
+            <div className="faq-item">
+              <h3>What if a customer doesn&apos;t have a smartphone?</h3>
+              <p>
+                You can still add them from your dashboard and add points by hand. They just won&apos;t carry a card,
+                so you look them up by name or email.
+              </p>
             </div>
-            <div className="stat-cell">
-              <div className="stat">Instant</div>
-              <p>pass updates the moment you add a point</p>
+            <div className="faq-item">
+              <h3>What can Repass see from my point of sale?</h3>
+              <p>
+                Only whether a sale completed and the phone or email attached to it, which is what we use to find the
+                right customer. Repass never requests or stores card numbers, CVV codes, or what was bought.
+              </p>
+            </div>
+            <div className="faq-item">
+              <h3>How do points actually get added?</h3>
+              <p>
+                Three ways, and you can use any mix: automatically from a connected till, by the customer scanning a
+                check in QR at the counter, or by you tapping a button in the dashboard.
+              </p>
+            </div>
+            <div className="faq-item">
+              <h3>Does the card update itself?</h3>
+              <p>
+                Yes. A balance change pushes straight to the card in their wallet, and crossing a reward sends a
+                notification to their lock screen. You never ask anyone to re download anything.
+              </p>
+            </div>
+            <div className="faq-item">
+              <h3>What happens if I cancel?</h3>
+              <p>
+                Cancel from the billing page any time. The program runs to the end of the period you have paid for, and
+                there is no cancellation fee.
+              </p>
             </div>
           </div>
         </div>
@@ -601,15 +910,15 @@ export default async function Home() {
         <div className="wrap">
           <div className="cta">
             <span className="sec-eyebrow">Get started</span>
-            <h2>Start your loyalty program today.</h2>
-            <p>Set up your points rule and start signing up customers in the next few minutes — no app for you or them to install.</p>
+            <h2>Your loyalty card could be live today.</h2>
+            <p>
+              Set it up in about a minute, print the QR for your counter, and start handing out cards this afternoon.
+            </p>
             <Link href="/signup" className="btn">
               Start your program
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
+              {arrowIcon}
             </Link>
-            <div className="cta-note">$49/month · Cancel anytime</div>
+            <div className="cta-note">$49 per month. Cancel any time.</div>
           </div>
         </div>
       </section>
@@ -628,7 +937,7 @@ export default async function Home() {
                 </span>
                 Repass
               </div>
-              <p>Done-for-you Apple &amp; Google Wallet programs for local businesses.</p>
+              <p>Apple and Google Wallet loyalty programs for local businesses.</p>
             </div>
             <div className="foot-cols">
               <div className="foot-col">
@@ -636,6 +945,7 @@ export default async function Home() {
                 <a href="#gallery">Examples</a>
                 <a href="#features">Features</a>
                 <a href="#how">How it works</a>
+                <a href="#pricing">Pricing</a>
               </div>
               <div className="foot-col">
                 <h4>Account</h4>

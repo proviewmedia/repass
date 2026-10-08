@@ -149,45 +149,60 @@ h1 em { font-style: normal; color: var(--muted); }
 .stack .pass:nth-child(3) { top: 70px; z-index: 3; }
 
 /* ---------- The Wallet Pass component ---------- */
+/* Mirrors the real Apple Wallet storeCard layout, verified against a live
+   device screenshot and Apple's Wallet Developer Guide: logo + business name
+   with a header field top-right, a reserved strip band the program title sits
+   in (present whether or not a banner image is set — this is what gives a real
+   pass its top-heavy spacing), two secondary fields side by side, then the
+   barcode. Proportions are tuned for display at this size rather than copied
+   1:1, which would leave a lot of dead space at 300px wide. */
 .pass {
-  --pass-bg: #1c1c28; --pass-fg: #ffffff; --pass-label: #ffffffb0;
-  position: relative; width: 300px; border-radius: 16px; padding: 15px 16px 14px;
+  --pass-bg: #1c1c28; --pass-fg: #ffffff; --pass-label: #ffffffa6;
+  position: relative; width: 300px; border-radius: 18px; padding: 16px 16px 15px;
   background: var(--pass-bg); color: var(--pass-fg);
-  box-shadow: 0 14px 34px -14px #0a0a1f45, 0 2px 6px -3px #0a0a1f30;
+  box-shadow: 0 22px 48px -20px #0a0a1f55, 0 4px 12px -5px #0a0a1f3d, 0 0 0 1px #00000012;
   font-size: 13px; overflow: hidden;
-  border: 1px solid #ffffff14;
+  display: flex; flex-direction: column;
 }
 .pass::after {
   content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
-  background: linear-gradient(155deg, #ffffff20 0%, #ffffff08 22%, transparent 42%);
+  background: linear-gradient(157deg, #ffffff22 0%, #ffffff09 24%, transparent 46%);
 }
 .pass > * { position: relative; z-index: 1; }
-.pass-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
-.pass-brand { display: flex; align-items: center; gap: 8px; font-weight: 650; font-size: 14px; letter-spacing: -0.015em; }
+
+.pass-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.pass-brand { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13.5px; letter-spacing: -0.015em; }
 .pass-brand .pl {
-  width: 23px; height: 23px; border-radius: 7px; display: grid; place-items: center;
-  background: #ffffff26; font-size: 11px; font-weight: 800; letter-spacing: -0.02em;
-  box-shadow: 0 1px 2px #0000001a;
+  width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  background: #ffffff2b; font-size: 10.5px; font-weight: 800; letter-spacing: -0.02em; flex: none;
 }
+.pass-hfield { text-align: right; flex: none; }
+
 .field-label { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--pass-label); font-weight: 650; }
-.field-val { font-size: 14px; font-weight: 600; margin-top: 2px; line-height: 1.2; }
+.field-val { font-size: 14px; font-weight: 650; margin-top: 2px; line-height: 1.18; }
 .field.right { text-align: right; }
-.pass-title { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; margin-top: 14px; line-height: 1.2; }
-.pass-sub { display: flex; justify-content: space-between; gap: 26px; margin-top: 14px; }
-.pass-circles { letter-spacing: 2px; }
-.barcode-box {
-  background: #fff; border-radius: 8px; padding: 8px; margin-top: 15px;
+
+/* The strip band. Keeps its height with no image, which is exactly how a real
+   pass behaves — the title sits inside this zone, not above it. */
+.pass-strip { position: relative; min-height: 74px; margin-top: 13px; }
+.pass-strip img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .34; border-radius: 9px; }
+.pass-title { position: relative; font-size: 19px; font-weight: 700; letter-spacing: -0.028em; line-height: 1.14; }
+
+.pass-fields { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-top: 2px; }
+.pass-dots { letter-spacing: 3px; font-size: 13px; line-height: 1.45; font-weight: 400; }
+
+.pass-barcode {
+  background: #fff; border-radius: 9px; padding: 9px; margin-top: 16px; align-self: center;
   display: flex; flex-direction: column; align-items: center; gap: 5px;
+  box-shadow: 0 2px 8px -3px #00000040;
 }
-.barcode {
-  width: 100%; height: 40px;
-  background-image: repeating-linear-gradient(90deg, #0a0a0f 0, #0a0a0f 2px, #fff 2px, #fff 3px, #0a0a0f 3px, #0a0a0f 4px, #fff 4px, #fff 6px, #0a0a0f 6px, #0a0a0f 9px, #fff 9px, #fff 10px);
-}
-.barcode.qr {
-  height: 68px; width: 68px; border-radius: 4px;
-  object-fit: contain;
-}
+.pass-barcode svg { display: block; border-radius: 3px; }
 .barcode-alt { font-size: 9px; letter-spacing: .14em; color: #6b7280; font-variant-numeric: tabular-nums; }
+.pass-foot {
+  display: flex; align-items: center; gap: 8px; margin-top: 14px; padding-top: 11px;
+  border-top: 1px solid #ffffff1f; font-size: 11.5px; color: var(--pass-label);
+}
+.pass-foot .dot { width: 11px; height: 11px; border-radius: 3px; background: currentColor; opacity: .55; flex: none; }
 
 /* ---------- Industries strip ---------- */
 .strip { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--alt); }
@@ -218,6 +233,87 @@ h2 { font-size: clamp(29px, 4vw, 42px); letter-spacing: -0.035em; margin-top: 14
 .gcap .type { font-size: 11px; text-transform: uppercase; letter-spacing: .11em; color: var(--accent); font-weight: 650; }
 .gcap .name { font-size: 15.5px; font-weight: 620; margin-top: 3px; letter-spacing: -0.015em; }
 .gcap .desc { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+
+/* ---------- Alternating deep-dive sections ---------- */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+.split + .split { margin-top: 104px; }
+@media (max-width: 900px) { .split { grid-template-columns: 1fr; gap: 40px; } .split + .split { margin-top: 72px; } }
+.split.rev .split-copy { order: 2; }
+@media (max-width: 900px) { .split.rev .split-copy { order: 0; } }
+/* The section eyebrow is centred elsewhere; left-aligned in a split it only
+   wants the trailing rule, not a leading one. */
+.split-copy .sec-eyebrow::before { display: none; }
+.split-copy h2 { font-size: clamp(26px, 3.2vw, 36px); max-width: 17ch; }
+.split-copy > p { color: var(--muted); font-size: 17px; margin-top: 16px; max-width: 46ch; letter-spacing: -0.01em; }
+.split-art { display: flex; justify-content: center; min-width: 0; }
+.ticks { list-style: none; margin-top: 26px; display: flex; flex-direction: column; gap: 13px; }
+.ticks li { display: flex; gap: 11px; align-items: flex-start; font-size: 15px; color: var(--text-soft); }
+.ticks li svg { flex: none; margin-top: 3px; color: var(--accent); }
+.ticks li b { font-weight: 620; color: var(--text); }
+
+/* ---------- Feature card micro-label (kicker) ---------- */
+.card .kicker { font-size: 11.5px; text-transform: uppercase; letter-spacing: .1em; color: var(--faint); font-weight: 650; margin-bottom: 10px; }
+
+/* ---------- Dashboard reproduction ---------- */
+.app-shot {
+  width: 100%; max-width: 520px; border-radius: 18px; background: #18181b; padding: 9px;
+  display: flex; gap: 9px; box-shadow: 0 30px 70px -28px #0a0a1f66, 0 0 0 1px #00000014;
+  font-size: 11px; line-height: 1.45;
+}
+.app-side { width: 124px; flex: none; display: flex; flex-direction: column; padding: 11px 8px; color: #fff; }
+.app-side .biz { font-weight: 700; font-size: 12px; letter-spacing: -0.02em; padding: 0 6px 12px; }
+.app-side .row { display: flex; align-items: center; gap: 7px; padding: 6px; border-radius: 7px; color: #ffffff8a; font-size: 11px; }
+.app-side .row.on { background: #ffffff1a; color: #fff; font-weight: 600; border-left: 2px solid var(--accent); border-radius: 0 7px 7px 0; padding-left: 4px; }
+.app-side .row i { width: 11px; height: 11px; border-radius: 3px; background: currentColor; opacity: .55; flex: none; display: block; }
+.app-main { flex: 1; min-width: 0; background: #fff; border-radius: 13px; padding: 15px 15px 17px; }
+.app-main .h { font-size: 15px; font-weight: 700; letter-spacing: -0.025em; }
+.app-main .sub { color: var(--muted); font-size: 10.5px; margin-top: 2px; }
+.app-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-top: 13px; }
+.app-stat { background: var(--alt); border-radius: 11px; padding: 9px 10px; }
+.app-stat .n { font-size: 15px; font-weight: 700; letter-spacing: -0.03em; }
+.app-stat .d { font-size: 9px; color: #16a34a; font-weight: 650; margin-left: 4px; }
+.app-stat .l { font-size: 9.5px; color: var(--muted); margin-top: 1px; }
+.app-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 11px; }
+.app-chip { font-size: 9.5px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: #dcfce7; color: #15803d; }
+.app-chip.warn { background: #fef3c7; color: #a16207; }
+.app-card { margin-top: 12px; border: 1px solid var(--border); border-radius: 12px; padding: 11px 12px; }
+.app-card .t { font-size: 11.5px; font-weight: 700; letter-spacing: -0.015em; }
+.app-card .s { font-size: 9.5px; color: var(--muted); margin-top: 2px; }
+.app-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.app-row + .app-row { border-top: 1px solid var(--border); padding-top: 9px; }
+.app-row .ico { width: 20px; height: 20px; border-radius: 6px; background: #eef0fe; flex: none; }
+.app-row .txt { flex: 1; min-width: 0; }
+.app-row .txt b { display: block; font-size: 10.5px; font-weight: 650; letter-spacing: -0.01em; }
+.app-row .txt span { display: block; font-size: 9px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.app-row .qr { width: 26px; height: 26px; border-radius: 4px; flex: none; }
+@media (max-width: 420px) { .app-side { display: none; } }
+
+/* ---------- Pricing ---------- */
+.price-wrap { max-width: 460px; margin: 0 auto; }
+.price-card { border: 1px solid var(--border-strong); border-radius: 24px; padding: 36px; background: #fff; box-shadow: 0 30px 70px -40px #0a0a1f40; }
+.price-amt { display: flex; align-items: baseline; gap: 8px; margin-top: 6px; }
+.price-amt .n { font-size: 52px; font-weight: 700; letter-spacing: -0.045em; line-height: 1; }
+.price-amt .per { color: var(--muted); font-size: 16px; }
+.price-card .plan { font-size: 12.5px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); font-weight: 650; }
+.price-card .btn { width: 100%; justify-content: center; margin-top: 26px; }
+.price-note { text-align: center; color: var(--faint); font-size: 13px; margin-top: 14px; }
+
+/* ---------- Comparison table ---------- */
+.cmp-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border); border-radius: 20px; background: #fff; }
+.cmp-table { width: 100%; min-width: 620px; border-collapse: collapse; font-size: 14.5px; }
+.cmp-table th, .cmp-table td { text-align: left; padding: 15px 20px; border-bottom: 1px solid var(--border); }
+.cmp-table thead th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-weight: 650; }
+.cmp-table thead th.us { color: var(--accent); }
+.cmp-table tbody tr:last-child td { border-bottom: 0; }
+.cmp-table td:first-child { color: var(--muted); }
+.cmp-table td.us { font-weight: 620; }
+.cmp-note { color: var(--faint); font-size: 13px; margin-top: 16px; text-align: center; max-width: 60ch; margin-inline: auto; }
+
+/* ---------- FAQ ---------- */
+.faq { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+.faq-item { border: 1px solid var(--border); border-radius: 16px; padding: 22px 24px; background: #fff; }
+.faq-item h3 { font-size: 16.5px; font-weight: 620; letter-spacing: -0.018em; }
+.faq-item p { color: var(--muted); font-size: 15px; margin-top: 8px; }
 
 /* ---------- Programs ---------- */
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
