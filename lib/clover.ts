@@ -221,6 +221,80 @@ export async function listCustomers(connection: PosConnectionRow): Promise<Clove
   return out;
 }
 
+export interface CloverDiagnosis {
+  merchantId: string;
+  tokenRefreshed: boolean;
+  payments: Array<{
+    id: string;
+    result: string;
+    voided: boolean;
+    amount: number | null;
+    createdTime: string | null;
+    orderId: string | null;
+    orderHasCustomer: boolean;
+    orderCustomerPhone: string | null;
+    orderCustomerEmail: string | null;
+  }>;
+  directoryCustomerCount: number;
+  directoryContacts: Array<{ email: string | null; phone: string | null }>;
+}
+
+// Walks the exact chain the webhook walks, for a merchant's most recent
+// payments, and reports what each step actually returned. Exists because
+// Clover does not document whether the Virtual Terminal's customer fields
+// create a real Customer associated with the order, or are only receipt
+// metadata on the payment — and the whole award path depends on which it is.
+// Reading it from a live connection is the only way to know.
+export async function diagnose(connection: PosConnectionRow): Promise<CloverDiagnosis> {
+  const tokenRefreshed = new Date(connection.token_expires_at).getTime() - Date.now() <= REFRESH_MARGIN_MS;
+
+  const paymentsData = (await apiFetch(connection, `/payments?expand=order&limit=5`)) as {
+    elements?: Array<Record<string, unknown>>;
+  };
+
+  const payments: CloverDiagnosis["payments"] = [];
+  for (const p of paymentsData.elements || []) {
+    const order = p.order as { id?: string } | undefined;
+    const orderId = order?.id || null;
+
+    let orderHasCustomer = false;
+    let orderCustomerPhone: string | null = null;
+    let orderCustomerEmail: string | null = null;
+
+    if (orderId) {
+      const contact = await fetchOrderCustomerContact(connection, orderId);
+      orderHasCustomer = contact !== null;
+      orderCustomerPhone = contact?.phone ?? null;
+      orderCustomerEmail = contact?.email ?? null;
+    }
+
+    payments.push({
+      id: (p.id as string) || "",
+      result: (p.result as string) || "",
+      voided: Boolean(p.voided),
+      amount: typeof p.amount === "number" ? p.amount : null,
+      createdTime: typeof p.createdTime === "number" ? new Date(p.createdTime).toISOString() : null,
+      orderId,
+      orderHasCustomer,
+      orderCustomerPhone,
+      orderCustomerEmail,
+    });
+  }
+
+  // Whether the payment created a Customer *record* is the other half of the
+  // question: a new row here with the typed email means the VT does create
+  // customers, even if it never links them to the order.
+  const directory = await listCustomers(connection);
+
+  return {
+    merchantId: connection.external_merchant_id,
+    tokenRefreshed,
+    payments,
+    directoryCustomerCount: directory.length,
+    directoryContacts: directory.slice(0, 10).map((c) => ({ email: c.email, phone: c.phone })),
+  };
+}
+
 // Unlike Square's computed HMAC signature, Clover's webhook auth is a static
 // per-app "Auth Code" (from App Settings > Webhooks, after the one-time
 // verificationCode handshake) sent as-is in every delivery — verified with a
