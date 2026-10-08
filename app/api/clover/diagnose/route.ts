@@ -8,6 +8,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { diagnose, type PosConnectionRow } from "@/lib/clover";
+import { findEnrolledCustomer } from "@/lib/pos-matching";
 
 export async function GET() {
   const supabase = await createClient();
@@ -47,30 +48,31 @@ export async function GET() {
   try {
     const result = await diagnose(connection);
 
-    // The matching half of the answer: which of these contacts, if any,
-    // corresponds to a customer actually enrolled in the loyalty program.
-    const { data: enrolled } = await admin
+    // Calls the same matcher the webhooks call rather than reimplementing it,
+    // so the diagnostic can never report an outcome the real path wouldn't
+    // produce — the whole value of this endpoint rests on them agreeing.
+    const matches = [];
+    for (const p of result.payments) {
+      const match = await findEnrolledCustomer(admin, business.id, {
+        email: p.orderCustomerEmail,
+        phone: p.orderCustomerPhone,
+      });
+      matches.push({
+        paymentId: p.id,
+        wouldAward: match.customer !== null,
+        matchedBy: match.basis,
+        ambiguous: match.ambiguous,
+        customerId: match.customer?.id ?? null,
+      });
+    }
+
+    const { count: enrolledCount } = await admin
       .from("customers")
-      .select("id, email, phone")
+      .select("id", { count: "exact", head: true })
       .eq("business_id", business.id)
       .is("removed_at", null);
 
-    const matches = result.payments.map((p) => {
-      const byEmail = enrolled?.find((c) => c.email && c.email === p.orderCustomerEmail);
-      const byPhone = enrolled?.find((c) => c.phone && c.phone === p.orderCustomerPhone);
-      const normalize = (v: string | null) => (v || "").replace(/\D/g, "").slice(-10) || null;
-      const byPhoneNormalized = enrolled?.find(
-        (c) => normalize(c.phone) && normalize(c.phone) === normalize(p.orderCustomerPhone),
-      );
-      return {
-        paymentId: p.id,
-        wouldAward: Boolean(byEmail || byPhone),
-        matchedBy: byPhone ? "phone (exact)" : byEmail ? "email" : null,
-        wouldAwardIfPhoneNormalized: Boolean(byEmail || byPhoneNormalized),
-      };
-    });
-
-    return NextResponse.json({ ...result, enrolledCount: enrolled?.length ?? 0, matches });
+    return NextResponse.json({ ...result, enrolledCount: enrolledCount ?? 0, matches });
   } catch (err) {
     return NextResponse.json(
       { error: "Clover API call failed", detail: err instanceof Error ? err.message : String(err) },
