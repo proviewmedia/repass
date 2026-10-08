@@ -26,7 +26,8 @@ export async function GET(request: NextRequest) {
   // Clover hands us the merchant_id when the merchant launches the app from
   // their own dashboard; the authorize call needs it carried through.
   const merchantId = request.nextUrl.searchParams.get("merchant_id") || undefined;
+  const origin = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
 
   const state = signState(business.id);
-  return NextResponse.redirect(buildAuthorizeUrl(state, merchantId));
+  return NextResponse.redirect(buildAuthorizeUrl(state, origin, merchantId));
 }

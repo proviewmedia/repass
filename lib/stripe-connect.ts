@@ -13,20 +13,23 @@
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 
-function redirectUri(): string {
-  return `${process.env.NEXT_PUBLIC_APP_URL}/api/stripe-connect/callback`;
+// Takes the origin from the caller (which has the request) rather than relying
+// on NEXT_PUBLIC_APP_URL alone: an unset value would silently produce a
+// relative redirect_uri and a connect flow that never returns.
+function redirectUri(origin: string): string {
+  return `${origin}/api/stripe-connect/callback`;
 }
 
 // read_only is everything Repass needs (read payments, read customers). It
 // also keeps the merchant's consent screen honest, and avoids Stripe's
 // restriction barring read_write from connecting to Standard accounts that
 // are already controlled by another platform.
-export function buildAuthorizeUrl(state: string): string {
+export function buildAuthorizeUrl(state: string, origin: string): string {
   return getStripe().oauth.authorizeUrl({
     client_id: process.env.STRIPE_CONNECT_CLIENT_ID,
     response_type: "code",
     scope: "read_only",
-    redirect_uri: redirectUri(),
+    redirect_uri: redirectUri(origin),
     state,
   });
 }

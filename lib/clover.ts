@@ -29,11 +29,14 @@ function apiBaseUrl(): string {
 // Path with ?merchant_id=...&client_id=... . We then start OAuth carrying that
 // merchant_id, which is what Clover's authorize endpoint documents as required.
 // Calling this without a merchantId redirects to Clover but never comes back.
-export function buildAuthorizeUrl(state: string, merchantId?: string): string {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+// `origin` is passed in by the caller (which has the request) rather than read
+// from NEXT_PUBLIC_APP_URL here. If that variable were ever unset or empty the
+// redirect_uri would silently become a relative path, Clover would never return,
+// and there'd be no error to find — exactly the failure that is hardest to debug.
+export function buildAuthorizeUrl(state: string, origin: string, merchantId?: string): string {
   const params = new URLSearchParams({
     client_id: process.env.CLOVER_APP_ID!,
-    redirect_uri: `${appUrl}/api/clover/callback`,
+    redirect_uri: `${origin}/api/clover/callback`,
     state,
   });
   if (merchantId) {

@@ -23,6 +23,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Business not found" }, { status: 404 });
   }
 
+  const origin = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
+
   const state = signState(business.id);
-  return NextResponse.redirect(buildAuthorizeUrl(state));
+  return NextResponse.redirect(buildAuthorizeUrl(state, origin));
 }
