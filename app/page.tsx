@@ -237,7 +237,7 @@ export default async function Home() {
                     fieldLabel="Points"
                     fieldValue="●●●●●●●○○○"
                     dots
-                    nextReward="3 away from a free drink"
+                    nextReward="3 to a free drink"
                     qr={mockQr}
                   />
                 </div>
@@ -311,7 +311,7 @@ export default async function Home() {
                   fieldLabel="Points"
                   fieldValue="●●●●●●●○○○"
                   dots
-                  nextReward="3 away from a free drink"
+                  nextReward="3 to a free drink"
                   qr={mockQr}
                 />
               </div>
