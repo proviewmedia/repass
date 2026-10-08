@@ -44,7 +44,17 @@ export async function POST(request: NextRequest) {
       .filter((id): id is string => Boolean(id?.startsWith("P:")))
       .map((id) => id.slice(2));
 
-    if (paymentIds.length === 0) continue;
+    if (paymentIds.length === 0) {
+      // Clover delivers every subscribed event type here, so a batch with no
+      // P: objectIds is normal. Logged because "nothing happened" is otherwise
+      // indistinguishable from a payment we failed to process.
+      console.info(
+        `[clover-webhook] merchant=${merchantId} no payment events in batch; types=${(events || [])
+          .map((e) => e.objectId?.split(":")[0] || e.type || "?")
+          .join(",")}`,
+      );
+      continue;
+    }
 
     const { data: connection } = await admin
       .from("pos_connections")
@@ -56,7 +66,10 @@ export async function POST(request: NextRequest) {
 
     // No connection (or a disconnected one) for this merchant — nothing to do.
     // Not an error: Clover may still deliver events from before a disconnect.
-    if (!connection) continue;
+    if (!connection) {
+      console.info(`[clover-webhook] merchant=${merchantId} no active connection; skipping ${paymentIds.length} payment(s)`);
+      continue;
+    }
 
     for (const paymentId of paymentIds) {
       try {
@@ -70,16 +83,39 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ received: true });
 }
 
+// Logs are the only way to tell these failure modes apart after the fact, so
+// identifying values are masked rather than omitted: enough to confirm a match
+// attempt used the value we expected, without writing a customer's real email
+// or phone number into a log drain.
+function mask(value: string | null): string {
+  if (!value) return "none";
+  if (value.includes("@")) {
+    const [local, domain] = value.split("@");
+    return `${local.slice(0, 2)}***@${domain}`;
+  }
+  return `***${value.slice(-4)}`;
+}
+
 async function processPayment(
   admin: ReturnType<typeof createAdminClient>,
   connection: PosConnectionRow,
   paymentId: string,
 ) {
   const payment = await fetchPayment(connection, paymentId);
-  if (payment.result !== "SUCCESS" || !payment.orderId) return;
+  if (payment.result !== "SUCCESS" || !payment.orderId) {
+    console.info(
+      `[clover-webhook] payment=${paymentId} not awardable; result=${payment.result || "(empty)"} orderId=${payment.orderId || "none"}`,
+    );
+    return;
+  }
 
   const contact = await fetchOrderCustomerContact(connection, payment.orderId);
-  if (!contact || (!contact.phone && !contact.email)) return;
+  if (!contact || (!contact.phone && !contact.email)) {
+    console.info(
+      `[clover-webhook] payment=${paymentId} order=${payment.orderId} has no customer contact; customerOnOrder=${contact ? "yes" : "no"}`,
+    );
+    return;
+  }
 
   const baseQuery = () =>
     admin
@@ -93,7 +129,12 @@ async function processPayment(
     customer = (await baseQuery().eq("email", contact.email).maybeSingle()).data;
   }
 
-  if (!customer) return;
+  if (!customer) {
+    console.info(
+      `[clover-webhook] payment=${paymentId} no enrolled customer matched; phone=${mask(contact.phone)} email=${mask(contact.email)} business=${connection.business_id}`,
+    );
+    return;
+  }
 
   await awardPoints({
     supabase: admin,
@@ -102,4 +143,6 @@ async function processPayment(
     source: "clover",
     externalEventId: paymentId,
   });
+
+  console.info(`[clover-webhook] payment=${paymentId} awarded 1 point to customer=${customer.id}`);
 }
