@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { BUSINESS_BRANDING_COLUMNS, toPassBusinessInput, updatePass, type RewardTier } from "@/lib/wallet";
 
-export type PointSource = "manual" | "checkin" | "square" | "toast" | "clover";
+export type PointSource = "manual" | "checkin" | "square" | "clover" | "stripe";
 
 export interface AwardPointsParams {
   supabase: SupabaseClient;

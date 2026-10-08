@@ -82,15 +82,20 @@ export default function TermsContent() {
             </ul>
           </Section>
 
-          <Section title="6. Point-of-sale integrations (Square, Clover, and others)">
+          <Section title="6. Payment and point-of-sale integrations (Square, Clover, Stripe)">
             <p>
-              If you connect a supported point-of-sale system, Repass requests only the minimum data needed to
-              match a completed sale to one of your enrolled customers and award them a point: the sale&apos;s
-              completion status, and the contact information (phone or email) associated with that sale. Repass
-              never requests, receives, or stores card numbers, CVV codes, bank details, or full transaction line
-              items from any point-of-sale integration. A complete, code-referenced account of exactly what each
-              integration accesses is maintained in our internal engineering documentation and available on
-              request.
+              If you connect a supported point-of-sale or payment system, Repass requests only the minimum data
+              needed to match a completed sale to one of your enrolled customers and award them a point: the
+              sale&apos;s completion status, and the contact information (phone or email) associated with that
+              sale. Repass never requests, receives, or stores card numbers, CVV codes, bank details, or full
+              transaction line items from any of these integrations. A complete, code-referenced account of
+              exactly what each integration accesses is maintained in our internal engineering documentation and
+              available on request.
+            </p>
+            <p>
+              Connecting your own Stripe account for this purpose is entirely separate from the Stripe billing
+              used to charge your Repass subscription. The connection is granted read-only, and you can revoke it
+              at any time from your Repass dashboard or from your own Stripe account settings.
             </p>
             <p>
               You are responsible for having the right to connect your point-of-sale account to Repass and for your
@@ -112,9 +117,9 @@ export default function TermsContent() {
             <p>
               Repass relies on third-party services to operate, including Stripe (billing), Supabase (database and
               authentication), WalletWallet (wallet pass generation), Resend (transactional email), Vercel
-              (hosting), and, if you connect them, Square and/or Clover. Your use of Repass is also subject to
-              those providers&apos; own terms where applicable. We are not responsible for outages or issues
-              originating from a third-party provider outside our control.
+              (hosting), and, if you connect them, Square, Clover, and/or your own Stripe account. Your use of
+              Repass is also subject to those providers&apos; own terms where applicable. We are not responsible
+              for outages or issues originating from a third-party provider outside our control.
             </p>
           </Section>
 

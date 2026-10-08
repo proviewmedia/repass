@@ -12,7 +12,8 @@ Every third-party processor Repass's code actually calls, as of this date:
 
 | Vendor | What it touches | Standard agreement |
 |---|---|---|
-| **Stripe** | Subscription billing, payment method (Repass never stores card numbers) | Stripe Services Agreement + Stripe DPA (published at stripe.com/legal/dpa) |
+| **Stripe** (Repass's own account) | Subscription billing, payment method (Repass never stores card numbers) | Stripe Services Agreement + Stripe DPA (published at stripe.com/legal/dpa) |
+| **Stripe Connect** (a merchant's own account) | (If connected) Read-only access to payment status and payer contact info — see §2 | Stripe Connected Account Agreement, accepted by the merchant during OAuth |
 | **Supabase** | Primary database (customers, businesses, reward tiers, point events), authentication | Supabase DPA (published at supabase.com/legal/dpa) |
 | **WalletWallet** | Wallet pass generation/hosting (business branding, customer point balance, a customer-id barcode value) | WalletWallet's published Terms/Privacy (walletwallet.dev) |
 | **Square** | (If connected) OAuth-scoped read of payment completion status and sale contact info — see §2 | Square Developer Terms of Service |
@@ -31,7 +32,7 @@ current scale.
 ## 2. Point-of-sale integration data-access scope
 
 This is the direct, code-verified answer to "are we liable for anything
-through Square/Toast/Clover": **no, because Repass never receives payment
+through Square/Clover/Stripe": **no, because Repass never receives payment
 data from any of them.**
 
 Verified against the actual implementation:
@@ -50,8 +51,15 @@ Verified against the actual implementation:
   (`lib/square.ts`'s `buildAuthorizeUrl`: `MERCHANT_PROFILE_READ
   CUSTOMERS_READ PAYMENTS_READ ORDERS_READ ITEMS_READ ITEMS_WRITE`) do not
   include payment-instrument data.
-- Toast is not yet integrated (pending Toast's own partner approval) — no
-  data access exists there at all today.
+- `lib/stripe-connect.ts` — a merchant's *own* Stripe account, connected
+  read-only (`scope=read_only`). `fetchPaymentContact()` retrieves a
+  PaymentIntent solely to read the payer's email/phone;
+  `listCustomers()` reads the customer directory. No card data is
+  retrievable under this scope, and Repass stores no Stripe credentials at
+  all — only the connected account id (`acct_...`), with calls authenticated
+  by the platform key plus a `Stripe-Account` header.
+- Toast is **not integrated and will not be** — Toast declined the
+  integration request (October 2026). No data access ever existed there.
 
 This is why Repass's own PCI-DSS scope is effectively nil: it never
 touches cardholder data, so the usual card-data compliance burden stays

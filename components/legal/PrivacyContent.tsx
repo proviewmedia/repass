@@ -69,17 +69,23 @@ export default function PrivacyContent() {
             <p>
               Customer and account data is stored in our database, hosted by Supabase. Depending on which features
               you use, data also passes through: Stripe (billing), WalletWallet (wallet pass generation), Resend
-              (transactional email), Vercel (hosting), and, if connected, Square and/or Clover. Each of these
-              providers processes data only as needed to provide their part of the service to us.
+              (transactional email), Vercel (hosting), and, if connected, Square, Clover, and/or your own Stripe
+              account. Each of these providers processes data only as needed to provide their part of the service
+              to us.
             </p>
           </Section>
 
-          <Section title="5. Point-of-sale integrations">
+          <Section title="5. Payment and point-of-sale integrations">
             <p>
-              If you connect Square, Clover, or a similar system, Repass reads only whether a sale completed and
-              the contact information (phone or email) tied to that sale, in order to match it to one of your
-              enrolled customers and award a point. Repass never requests or stores card numbers, CVV codes, bank
-              account details, or itemized purchase contents from any point-of-sale integration.
+              If you connect Square, Clover, or your own Stripe account, Repass reads only whether a sale
+              completed and the contact information (phone or email) tied to that sale, in order to match it to
+              one of your enrolled customers and award a point. Repass never requests or stores card numbers, CVV
+              codes, bank account details, or itemized purchase contents from any of these integrations.
+            </p>
+            <p>
+              A connected Stripe account is granted read-only access and is separate from the Stripe billing used
+              for your Repass subscription. Repass stores no Stripe credentials for it — only the account
+              identifier — and you can revoke the connection at any time.
             </p>
           </Section>
 

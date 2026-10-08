@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { listCustomers, type PosConnectionRow } from "@/lib/square";
 import { listCustomers as listCloverCustomers, type PosConnectionRow as CloverConnectionRow } from "@/lib/clover";
+import { listCustomers as listStripeCustomers, deauthorize as deauthorizeStripe } from "@/lib/stripe-connect";
 
 export async function disconnectSquare() {
   const supabase = await createClient();
@@ -114,6 +115,104 @@ export async function importSquareCustomers() {
 
     if (error) {
       console.error("Failed to import Square customer", error);
+      skipped++;
+      continue;
+    }
+
+    existingEmails.add(email);
+    imported++;
+  }
+
+  redirect(`/dashboard/settings/connections?imported=${imported}&skipped=${skipped}`);
+}
+
+export async function disconnectStripeConnect() {
+  const supabase = await createClient();
+  const businessId = await getOwnedBusinessId(supabase);
+
+  const { data: connection } = await supabase
+    .from("pos_connections")
+    .select("external_merchant_id")
+    .eq("business_id", businessId)
+    .eq("provider", "stripe")
+    .is("disconnected_at", null)
+    .maybeSingle<{ external_merchant_id: string }>();
+
+  // Revoke on Stripe's side as well, so the grant actually ends rather than
+  // just going unused. A failure here shouldn't block disconnecting locally.
+  if (connection) {
+    await deauthorizeStripe(connection.external_merchant_id).catch((err) =>
+      console.error("Failed to deauthorize Stripe account", err),
+    );
+  }
+
+  await supabase
+    .from("pos_connections")
+    .update({ disconnected_at: new Date().toISOString() })
+    .eq("business_id", businessId)
+    .eq("provider", "stripe");
+
+  redirect("/dashboard/settings/connections?disconnected=stripe");
+}
+
+export async function importStripeConnectCustomers() {
+  const supabase = await createClient();
+  const businessId = await getOwnedBusinessId(supabase);
+
+  const { data: connection } = await supabase
+    .from("pos_connections")
+    .select("external_merchant_id")
+    .eq("business_id", businessId)
+    .eq("provider", "stripe")
+    .is("disconnected_at", null)
+    .maybeSingle<{ external_merchant_id: string }>();
+
+  if (!connection) {
+    redirect("/dashboard/settings/connections?error=Connect Stripe first.");
+  }
+
+  const { data: existingCustomers } = await supabase
+    .from("customers")
+    .select("email")
+    .eq("business_id", businessId)
+    .is("removed_at", null);
+
+  const existingEmails = new Set((existingCustomers || []).map((c) => (c.email || "").toLowerCase()).filter(Boolean));
+
+  let stripeCustomers;
+  try {
+    stripeCustomers = await listStripeCustomers(connection!.external_merchant_id);
+  } catch (err) {
+    console.error("Failed to list Stripe customers", err);
+    redirect("/dashboard/settings/connections?error=Couldn't read customers from Stripe. Please try again.");
+  }
+
+  let imported = 0;
+  let skipped = 0;
+
+  for (const sc of stripeCustomers!) {
+    const email = sc.email?.trim().toLowerCase();
+    if (!email) {
+      skipped++;
+      continue;
+    }
+    if (existingEmails.has(email)) {
+      skipped++;
+      continue;
+    }
+
+    const { error } = await supabase.from("customers").insert({
+      business_id: businessId,
+      first_name: sc.firstName || email.split("@")[0],
+      last_name: sc.lastName,
+      email,
+      phone: sc.phone,
+      points_balance: 0,
+      last_notification: " ",
+    });
+
+    if (error) {
+      console.error("Failed to import Stripe customer", error);
       skipped++;
       continue;
     }

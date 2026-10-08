@@ -1,10 +1,17 @@
-import { CheckCircle2, CreditCard, Store, UtensilsCrossed, PlugZap, Users } from "lucide-react";
+import { CheckCircle2, CreditCard, Store, Landmark, PlugZap, Users } from "lucide-react";
 import { getCurrentBusiness } from "@/lib/current-business";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { disconnectSquare, importSquareCustomers, disconnectClover, importCloverCustomers } from "./actions";
+import {
+  disconnectSquare,
+  importSquareCustomers,
+  disconnectClover,
+  importCloverCustomers,
+  disconnectStripeConnect,
+  importStripeConnectCustomers,
+} from "./actions";
 
 export default async function ConnectionsPage({
   searchParams,
@@ -29,6 +36,14 @@ export default async function ConnectionsPage({
     .is("disconnected_at", null)
     .maybeSingle();
 
+  const { data: stripeConnection } = await supabase
+    .from("pos_connections")
+    .select("provider, connected_at")
+    .eq("business_id", business!.id)
+    .eq("provider", "stripe")
+    .is("disconnected_at", null)
+    .maybeSingle();
+
   return (
     <div className="flex flex-col gap-4 sm:gap-5">
       <p className="text-[14.5px] text-muted-foreground">
@@ -40,6 +55,10 @@ export default async function ConnectionsPage({
         {searchParams.disconnected === "square" && <Alert>Square disconnected.</Alert>}
         {searchParams.connected === "clover" && <Alert>Clover connected — new sales will start earning points.</Alert>}
         {searchParams.disconnected === "clover" && <Alert>Clover disconnected.</Alert>}
+        {searchParams.connected === "stripe" && (
+          <Alert>Stripe connected — new payments will start earning points.</Alert>
+        )}
+        {searchParams.disconnected === "stripe" && <Alert>Stripe disconnected.</Alert>}
         {searchParams.imported !== undefined && (
           <Alert>
             Imported {searchParams.imported} new customer{searchParams.imported === "1" ? "" : "s"}
@@ -158,27 +177,53 @@ export default async function ConnectionsPage({
             </CardContent>
           </Card>
 
-          <Card className="opacity-60">
+          <Card>
             <CardHeader className="flex-row items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-secondary">
-                  <UtensilsCrossed className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
+                <div className="tile-accent flex h-11 w-11 shrink-0 items-center justify-center rounded-xl">
+                  <Landmark className="h-5 w-5 text-indigo-600" strokeWidth={1.5} />
                 </div>
                 <div>
-                  <CardTitle className="text-muted-foreground">Toast</CardTitle>
+                  <CardTitle>Stripe</CardTitle>
                   <CardDescription className="mt-0.5">
-                    Sync sales from Toast POS and award points automatically.
+                    Connect your own Stripe account so a completed payment awards a point. Separate from your Repass
+                    subscription billing.
                   </CardDescription>
                 </div>
               </div>
-              <Badge variant="neutral" className="shrink-0">
-                Coming soon
+              <Badge variant={stripeConnection ? "success" : "warning"} className="shrink-0">
+                {stripeConnection ? (
+                  <>
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Connected
+                  </>
+                ) : (
+                  "Not connected"
+                )}
               </Badge>
             </CardHeader>
             <CardContent>
-              <p className="text-[13px] text-muted-foreground">
-                Pending Toast partner approval — we&apos;ll turn this on here as soon as it&apos;s available.
-              </p>
+              {stripeConnection ? (
+                <div className="flex flex-wrap items-center gap-2">
+                  <form action={importStripeConnectCustomers}>
+                    <Button type="submit" size="sm" className="rounded-full">
+                      <Users className="h-4 w-4" />
+                      Import customers
+                    </Button>
+                  </form>
+                  <form action={disconnectStripeConnect}>
+                    <Button type="submit" variant="ghost" size="sm" className="rounded-full">
+                      Disconnect
+                    </Button>
+                  </form>
+                </div>
+              ) : (
+                <Button asChild size="sm" className="w-fit rounded-full">
+                  <a href="/api/stripe-connect/connect">
+                    <PlugZap className="h-4 w-4" />
+                    Connect Stripe
+                  </a>
+                </Button>
+              )}
             </CardContent>
           </Card>
       </div>
