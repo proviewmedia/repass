@@ -83,12 +83,7 @@ function Pass({
 
       <div className="pass-barcode">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={qr} alt="" width={68} height={68} />
-      </div>
-
-      <div className="pass-foot">
-        <span className="dot" />
-        {business}
+        <img src={qr} alt="" width={92} height={92} />
       </div>
     </div>
   );
@@ -330,32 +325,6 @@ export default async function Home() {
             <div className="gcell">
               <div className="passwrap">
                 <Pass
-                  bg="#14312a"
-                  fg="#e8f7f0"
-                  label="#e8f7f0a6"
-                  chipBg="#5ddfae"
-                  chipFg="#0a2b22"
-                  initials="NB"
-                  business="North Barber"
-                  program="North Barber Club"
-                  headerValue="4/6"
-                  fieldLabel="Points"
-                  fieldValue="●●●●○○"
-                  dots
-                  nextReward="2 away from a free cut"
-                  qr={mockQr}
-                />
-              </div>
-              <div className="gcap">
-                <div className="type">Stamp card</div>
-                <div className="name">North Barber</div>
-                <div className="desc">Sixth cut on the house</div>
-              </div>
-            </div>
-
-            <div className="gcell">
-              <div className="passwrap">
-                <Pass
                   bg="#7c2d4a"
                   fg="#ffffff"
                   label="#ffffffb3"
@@ -403,56 +372,6 @@ export default async function Home() {
               </div>
             </div>
 
-            <div className="gcell">
-              <div className="passwrap">
-                <Pass
-                  bg="#4a2d6b"
-                  fg="#f3ecff"
-                  label="#f3ecffa6"
-                  chipBg="#c9a7f7"
-                  chipFg="#33194f"
-                  initials="PP"
-                  business="Paper Press"
-                  program="Paper Press Readers"
-                  headerValue="5/8"
-                  fieldLabel="Points"
-                  fieldValue="●●●●●○○○"
-                  dots
-                  nextReward="3 away from 20% off"
-                  qr={mockQr}
-                />
-              </div>
-              <div className="gcap">
-                <div className="type">Stamp card</div>
-                <div className="name">Paper Press</div>
-                <div className="desc">Bookshop, eighth visit reward</div>
-              </div>
-            </div>
-
-            <div className="gcell">
-              <div className="passwrap">
-                <Pass
-                  bg="#6b2f15"
-                  fg="#fdeee3"
-                  label="#fdeee3a6"
-                  chipBg="#f5a86a"
-                  chipFg="#4a1f0c"
-                  initials="SF"
-                  business="Sunday Flour"
-                  program="Sunday Flour Rewards"
-                  headerValue="12"
-                  fieldLabel="Points"
-                  fieldValue="12"
-                  nextReward="3 to a free loaf"
-                  qr={mockQr}
-                />
-              </div>
-              <div className="gcap">
-                <div className="type">Points program</div>
-                <div className="name">Sunday Flour</div>
-                <div className="desc">Bakery, one point per visit</div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
