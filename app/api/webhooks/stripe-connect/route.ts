@@ -4,6 +4,7 @@ import { getStripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { awardPoints } from "@/lib/points";
 import { fetchPaymentContact } from "@/lib/stripe-connect";
+import { findEnrolledCustomer } from "@/lib/pos-matching";
 
 // Separate from app/api/webhooks/stripe/route.ts, which handles Repass's own
 // subscription billing. Connect events come from *connected* accounts, arrive
@@ -71,18 +72,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
-    const baseQuery = () =>
-      admin
-        .from("customers")
-        .select("id, points_balance")
-        .eq("business_id", connection.business_id)
-        .is("removed_at", null);
+    const { customer, basis, ambiguous } = await findEnrolledCustomer(admin, connection.business_id, contact);
 
-    // Email first here (unlike Square/Clover, which lead with phone) — a
-    // Stripe payment almost always carries an email and often no phone.
-    let customer = contact.email ? (await baseQuery().eq("email", contact.email).maybeSingle()).data : null;
-    if (!customer && contact.phone) {
-      customer = (await baseQuery().eq("phone", contact.phone).maybeSingle()).data;
+    if (ambiguous) {
+      console.warn(
+        `[stripe-webhook] payment=${paymentIntentId} multiple enrolled customers share the matched ${basis}; awarded to the longest-enrolled`,
+      );
     }
 
     if (!customer) {

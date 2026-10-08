@@ -8,6 +8,7 @@ import {
   verifyWebhookSignature,
   type PosConnectionRow,
 } from "@/lib/square";
+import { findEnrolledCustomer } from "@/lib/pos-matching";
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -72,16 +73,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
-    const baseQuery = () =>
-      admin
-        .from("customers")
-        .select("id, points_balance")
-        .eq("business_id", connection.business_id)
-        .is("removed_at", null);
+    const { customer, basis, ambiguous } = await findEnrolledCustomer(admin, connection.business_id, contact);
 
-    let customer = contact.phone ? (await baseQuery().eq("phone", contact.phone).maybeSingle()).data : null;
-    if (!customer && contact.email) {
-      customer = (await baseQuery().eq("email", contact.email).maybeSingle()).data;
+    if (ambiguous) {
+      console.warn(
+        `[square-webhook] payment=${paymentId} multiple enrolled customers share the matched ${basis}; awarded to the longest-enrolled`,
+      );
     }
 
     if (!customer) {

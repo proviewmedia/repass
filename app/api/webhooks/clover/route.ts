@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { awardPoints } from "@/lib/points";
 import { fetchOrderCustomerContact, fetchPayment, verifyWebhookAuth, type PosConnectionRow } from "@/lib/clover";
+import { findEnrolledCustomer } from "@/lib/pos-matching";
 
 // Clover's payload groups events per merchant: { appId, merchants: { "<merchantId>": [{ objectId: "P:<id>", type, ts }] } }.
 // This only says *something* changed — actual payment state needs a separate fetch, same "webhook is a nudge" pattern
@@ -117,16 +118,12 @@ async function processPayment(
     return;
   }
 
-  const baseQuery = () =>
-    admin
-      .from("customers")
-      .select("id, points_balance")
-      .eq("business_id", connection.business_id)
-      .is("removed_at", null);
+  const { customer, basis, ambiguous } = await findEnrolledCustomer(admin, connection.business_id, contact);
 
-  let customer = contact.phone ? (await baseQuery().eq("phone", contact.phone).maybeSingle()).data : null;
-  if (!customer && contact.email) {
-    customer = (await baseQuery().eq("email", contact.email).maybeSingle()).data;
+  if (ambiguous) {
+    console.warn(
+      `[clover-webhook] payment=${paymentId} multiple enrolled customers share the matched ${basis}; awarded to the longest-enrolled`,
+    );
   }
 
   if (!customer) {
@@ -144,5 +141,5 @@ async function processPayment(
     externalEventId: paymentId,
   });
 
-  console.info(`[clover-webhook] payment=${paymentId} awarded 1 point to customer=${customer.id}`);
+  console.info(`[clover-webhook] payment=${paymentId} awarded 1 point to customer=${customer.id} matchedBy=${basis}`);
 }

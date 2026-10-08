@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { awardPoints } from "@/lib/points";
 import { checkinCookieName, CHECKIN_COOLDOWN_MS } from "@/lib/checkin";
+import { normalizePhone } from "@/lib/pos-matching";
 
 export async function checkIn(slug: string, customerId: string) {
   const supabase = createAdminClient();
@@ -67,13 +68,21 @@ export async function linkByPhone(slug: string, formData: FormData) {
     redirect(`/checkin/${slug}?error=${encodeURIComponent("This program isn't accepting check-ins right now.")}`);
   }
 
-  const { data: customer } = await supabase
-    .from("customers")
-    .select("id")
-    .eq("business_id", business!.id)
-    .eq("phone", phone)
-    .is("removed_at", null)
-    .single();
+  // Matched on the normalized number, not the raw string: a customer typing
+  // "(401) 555-1234" here has no idea the business imported them from a POS as
+  // "+14015551234", and an exact compare would tell them no card exists.
+  const normalized = normalizePhone(phone);
+  const { data: matches } = normalized
+    ? await supabase
+        .from("customers")
+        .select("id")
+        .eq("business_id", business!.id)
+        .eq("phone_normalized", normalized)
+        .is("removed_at", null)
+        .order("created_at", { ascending: true })
+    : { data: null };
+
+  const customer = matches?.[0] ?? null;
 
   if (!customer) {
     redirect(
