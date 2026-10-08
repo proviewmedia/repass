@@ -23,6 +23,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Business not found" }, { status: 404 });
   }
 
+  // Clover hands us the merchant_id when the merchant launches the app from
+  // their own dashboard; the authorize call needs it carried through.
+  const merchantId = request.nextUrl.searchParams.get("merchant_id") || undefined;
+
   const state = signState(business.id);
-  return NextResponse.redirect(buildAuthorizeUrl(state));
+  return NextResponse.redirect(buildAuthorizeUrl(state, merchantId));
 }

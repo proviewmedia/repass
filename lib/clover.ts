@@ -20,18 +20,25 @@ function apiBaseUrl(): string {
 }
 
 // Unlike Square (redirect URI is fixed in the app's dashboard config), Clover's
-// authorize URL takes redirect_uri explicitly. Whether this self-service,
-// merchant-picks-their-account-after-clicking flow is reachable for a Private
-// app (vs. requiring the merchant to start from inside their own Clover
-// Dashboard) is unconfirmed by Clover's public docs — this is the first real
-// test once CLOVER_APP_ID/SECRET are live.
-export function buildAuthorizeUrl(state: string): string {
+// authorize URL takes redirect_uri explicitly.
+//
+// Confirmed by testing 2026-10-08: a Private app does NOT complete the
+// self-service flow where a merchant picks their account after clicking. Clover
+// uses install-then-launch instead — the merchant installs the app, opens it
+// from their Clover dashboard, and Clover sends them to the Alternate Launch
+// Path with ?merchant_id=...&client_id=... . We then start OAuth carrying that
+// merchant_id, which is what Clover's authorize endpoint documents as required.
+// Calling this without a merchantId redirects to Clover but never comes back.
+export function buildAuthorizeUrl(state: string, merchantId?: string): string {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   const params = new URLSearchParams({
     client_id: process.env.CLOVER_APP_ID!,
     redirect_uri: `${appUrl}/api/clover/callback`,
     state,
   });
+  if (merchantId) {
+    params.set("merchant_id", merchantId);
+  }
   return `${authorizeBaseUrl()}/oauth/v2/authorize?${params.toString()}`;
 }
 

@@ -16,7 +16,15 @@ import {
 export default async function ConnectionsPage({
   searchParams,
 }: {
-  searchParams: { connected?: string; disconnected?: string; error?: string; imported?: string; skipped?: string };
+  searchParams: {
+    connected?: string;
+    disconnected?: string;
+    error?: string;
+    imported?: string;
+    skipped?: string;
+    /** Clover appends this when a merchant opens the app from their Clover dashboard. */
+    merchant_id?: string;
+  };
 }) {
   const { supabase, business } = await getCurrentBusiness();
 
@@ -49,6 +57,20 @@ export default async function ConnectionsPage({
       <p className="text-[14.5px] text-muted-foreground">
         Connect your point-of-sale system so a completed sale awards a point automatically — no QR scan needed.
       </p>
+
+      {searchParams.merchant_id && !cloverConnection && (
+        <Alert>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span>Clover sent you here to finish connecting. One more step and sales start earning points.</span>
+            <Button asChild size="sm" className="rounded-full">
+              <a href={`/api/clover/connect?merchant_id=${encodeURIComponent(searchParams.merchant_id)}`}>
+                <PlugZap className="h-4 w-4" />
+                Finish connecting Clover
+              </a>
+            </Button>
+          </div>
+        </Alert>
+      )}
 
       {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
         {searchParams.connected === "square" && <Alert>Square connected — new sales will start earning points.</Alert>}
