@@ -156,22 +156,10 @@ export interface CloverCustomerContact {
   email: string | null;
 }
 
-// A Clover payment only references an order, not a customer, directly — the
-// (optional) customer link lives on the order itself. NEEDS CONFIRMING against
-// a real Sandbox order+customer response: the exact expand param, and whether
-// phone/email sit directly on the customer object or nested in
-// phoneNumbers[]/emailAddresses[] arrays (Clover's usual shape elsewhere) —
-// this reads both defensively until verified live.
-export async function fetchOrderCustomerContact(
-  connection: PosConnectionRow,
-  orderId: string,
-): Promise<CloverCustomerContact | null> {
-  const data = (await apiFetch(connection, `/orders/${orderId}?expand=customers`)) as {
-    customers?: { elements?: Array<Record<string, unknown>> };
-  };
-  const customer = data.customers?.elements?.[0];
-  if (!customer) return null;
-
+// Clover nests contact details in phoneNumbers[]/emailAddresses[] rather than
+// putting them on the customer, but only when those fields are expanded. The
+// flat fallbacks cover the shape some endpoints return directly.
+function extractContact(customer: Record<string, unknown>): CloverCustomerContact {
   const phones = customer.phoneNumbers as { elements?: Array<{ phoneNumber?: string }> } | undefined;
   const emails = customer.emailAddresses as { elements?: Array<{ emailAddress?: string }> } | undefined;
 
@@ -179,6 +167,42 @@ export async function fetchOrderCustomerContact(
     phone: phones?.elements?.[0]?.phoneNumber || (customer.phoneNumber as string) || null,
     email: emails?.elements?.[0]?.emailAddress || (customer.emailAddress as string) || null,
   };
+}
+
+// A Clover payment only references an order, not a customer, directly — the
+// (optional) customer link lives on the order itself.
+//
+// This needs two hops, confirmed against a live Sandbox order 2026-10-08:
+// expanding `customers` on an order returns a SHALLOW customer (identity
+// fields only), so phone and email both come back null even when the customer
+// genuinely has them. Clover caps expansion depth, so `customers.phoneNumbers`
+// is not reachable from the order — the customer has to be re-fetched by id
+// with its contact arrays expanded. Collapsing this back into one call is the
+// bug that made a successful test payment award nothing.
+export async function fetchOrderCustomerContact(
+  connection: PosConnectionRow,
+  orderId: string,
+): Promise<CloverCustomerContact | null> {
+  const data = (await apiFetch(connection, `/orders/${orderId}?expand=customers`)) as {
+    customers?: { elements?: Array<Record<string, unknown>> };
+  };
+  const shallow = data.customers?.elements?.[0];
+  if (!shallow) return null;
+
+  // If the order response happened to carry contact details, use them rather
+  // than spending a second request.
+  const fromOrder = extractContact(shallow);
+  if (fromOrder.phone || fromOrder.email) return fromOrder;
+
+  const customerId = shallow.id as string | undefined;
+  if (!customerId) return fromOrder;
+
+  const full = (await apiFetch(
+    connection,
+    `/customers/${customerId}?expand=phoneNumbers,emailAddresses`,
+  )) as Record<string, unknown>;
+
+  return extractContact(full);
 }
 
 export interface CloverCustomer {
