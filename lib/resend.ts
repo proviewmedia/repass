@@ -30,6 +30,6 @@ export async function sendWalletLinkEmail(to: string, businessName: string, shar
     from: FROM_EMAIL,
     to,
     subject: `Your ${businessName} loyalty card`,
-    html: `<p>Here's your loyalty card for ${businessName} — open this link on your phone to add it to Apple or Google Wallet:</p><p><a href="${shareUrl}">${shareUrl}</a></p>`,
+    html: `<p>Here's your loyalty card for ${businessName}. Open this link on your phone to add it to Apple or Google Wallet:</p><p><a href="${shareUrl}">${shareUrl}</a></p>`,
   });
 }

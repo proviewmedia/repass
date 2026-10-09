@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { checkinCookieName, CHECKIN_COOLDOWN_MS } from "@/lib/checkin";
-import { checkIn, linkByPhone } from "./actions";
+import { checkIn, linkByPhone, emailMyCard } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +14,7 @@ export default async function CheckinPage({
   searchParams,
 }: {
   params: { slug: string };
-  searchParams: { error?: string; success?: string; points?: string; alreadyCheckedIn?: string };
+  searchParams: { error?: string; success?: string; points?: string; alreadyCheckedIn?: string; emailed?: string };
 }) {
   const supabase = createAdminClient();
   const { data: business } = await supabase
@@ -36,7 +36,7 @@ export default async function CheckinPage({
 
   const rewardCopy =
     tiers && tiers.length > 0
-      ? `Earn a point every visit — redeem for ${tiers.map((t) => `${t.points_cost} pts: ${t.label}`).join(", ")}.`
+      ? `Earn a point every visit. Redeem for ${tiers.map((t) => `${t.points_cost} pts: ${t.label}`).join(", ")}.`
       : "Earn a point every visit.";
 
   const closed = business!.subscription_status !== "active";
@@ -71,6 +71,12 @@ export default async function CheckinPage({
           </CardHeader>
           <CardContent>
             {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
+            {searchParams.emailed === "1" && (
+              <Alert>
+                If that number is in the program, we&apos;ve emailed your card link. Open it on your phone to add it
+                back to your wallet.
+              </Alert>
+            )}
 
             {closed ? (
               <Alert>This program isn&apos;t accepting check-ins right now.</Alert>
@@ -81,7 +87,7 @@ export default async function CheckinPage({
               </Alert>
             ) : onCooldown ? (
               <Alert>
-                You&apos;re already checked in for today{customer ? ` — ${customer.points_balance} points` : ""}.
+                You&apos;re already checked in for today{customer ? `, ${customer.points_balance} points` : ""}.
                 Come back on your next visit.
               </Alert>
             ) : customer ? (
@@ -101,6 +107,16 @@ export default async function CheckinPage({
                 </div>
                 <Button type="submit" className="w-full justify-center">
                   Find my card
+                </Button>
+                {/* Same phone field, second action: someone who lost the pass
+                    itself needs the link emailed, not just to be recognized. */}
+                <Button
+                  type="submit"
+                  variant="ghost"
+                  formAction={emailMyCard.bind(null, params.slug)}
+                  className="w-full justify-center"
+                >
+                  Lost your card? Email it to me
                 </Button>
                 <p className="auth-alt">
                   Not signed up yet? <a href={`/join/${params.slug}`}>Join the program</a>.
