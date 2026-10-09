@@ -32,7 +32,7 @@ export async function provisionCustomerPass({
 }: ProvisionCustomerParams): Promise<ProvisionCustomerResult> {
   const NOT_STARTED = " ";
 
-  const { data: existing } = await supabase
+  const { data: dormant } = await supabase
     .from("customers")
     .select("id, points_balance")
     .eq("business_id", business.id)
@@ -40,6 +40,25 @@ export async function provisionCustomerPass({
     .is("removed_at", null)
     .is("walletwallet_serial", null)
     .maybeSingle();
+
+  // A previously removed customer is reclaimed too, not just a dormant one.
+  // Without this, re-adding someone who was removed by mistake inserted a
+  // brand new row and silently abandoned their points: the old row still
+  // held the balance but nothing pointed at it any more. Their pass was
+  // revoked at removal, so a fresh one gets issued below either way.
+  let existing = dormant;
+  if (!existing) {
+    const { data: removed } = await supabase
+      .from("customers")
+      .select("id, points_balance")
+      .eq("business_id", business.id)
+      .eq("email", email)
+      .not("removed_at", "is", null)
+      .order("removed_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    existing = removed;
+  }
 
   const customerId = existing?.id ?? randomUUID();
   const startingBalance = existing?.points_balance ?? 0;
@@ -59,6 +78,8 @@ export async function provisionCustomerPass({
     share_url: pass.shareUrl,
     google_save_url: pass.googleSaveUrl,
     last_notification: NOT_STARTED,
+    // Clears the flag when the row being claimed was a removed customer.
+    removed_at: null,
   };
 
   const { error: writeError } = existing

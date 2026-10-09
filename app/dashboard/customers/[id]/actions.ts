@@ -2,9 +2,19 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { BUSINESS_BRANDING_COLUMNS, revokePass, toPassBusinessInput, updatePass, type BusinessBrandingRow } from "@/lib/wallet";
+import {
+  BUSINESS_BRANDING_COLUMNS,
+  createPass,
+  revokePass,
+  toPassBusinessInput,
+  updatePass,
+  type BusinessBrandingRow,
+} from "@/lib/wallet";
+import { sendWalletLinkEmail } from "@/lib/resend";
 
-async function requireOwnedCustomer(customerId: string) {
+// `includeRemoved` exists for restoreCustomer, which by definition acts on a
+// row every other action deliberately filters out.
+async function requireOwnedCustomer(customerId: string, options: { includeRemoved?: boolean } = {}) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -14,23 +24,30 @@ async function requireOwnedCustomer(customerId: string) {
     redirect(`/login?redirectTo=/dashboard/customers/${customerId}`);
   }
 
-  const { data } = await supabase
+  let query = supabase
     .from("customers")
     .select(
-      `id, first_name, last_name, business_id, points_balance, last_notification, walletwallet_serial, businesses!inner(owner_user_id, ${BUSINESS_BRANDING_COLUMNS})`,
+      `id, first_name, last_name, email, business_id, points_balance, last_notification, walletwallet_serial, share_url, removed_at, businesses!inner(owner_user_id, ${BUSINESS_BRANDING_COLUMNS})`,
     )
-    .eq("id", customerId)
-    .is("removed_at", null)
-    .single();
+    .eq("id", customerId);
+
+  if (!options.includeRemoved) {
+    query = query.is("removed_at", null);
+  }
+
+  const { data } = await query.single();
 
   const customer = data as unknown as {
     id: string;
     first_name: string;
     last_name: string | null;
+    email: string | null;
     business_id: string;
     points_balance: number;
     last_notification: string;
     walletwallet_serial: string | null;
+    share_url: string | null;
+    removed_at: string | null;
     businesses: BusinessBrandingRow & { owner_user_id: string };
   } | null;
 
@@ -39,6 +56,73 @@ async function requireOwnedCustomer(customerId: string) {
   }
 
   return { supabase, customer: customer! };
+}
+
+// Re-sends the wallet link a customer already has. Nothing is reissued: the
+// pass and its share URL were created at enrollment and stay valid, so this
+// only puts an existing link back in front of someone who lost it.
+export async function resendWalletLink(customerId: string) {
+  const { customer } = await requireOwnedCustomer(customerId);
+  const back = `/dashboard/customers/${customerId}`;
+
+  if (!customer.email) {
+    redirect(`${back}?error=${encodeURIComponent("This customer has no email address on file.")}`);
+  }
+
+  if (!customer.share_url) {
+    redirect(
+      `${back}?error=${encodeURIComponent("This customer has no wallet pass yet, so there's no link to send.")}`,
+    );
+  }
+
+  try {
+    await sendWalletLinkEmail(customer.email!, customer.businesses.name, customer.share_url!);
+  } catch (err) {
+    console.error(`Failed to resend wallet link for customer ${customerId}`, err);
+    redirect(`${back}?error=${encodeURIComponent("Could not send the email. Try again in a moment.")}`);
+  }
+
+  redirect(`${back}?sent=1`);
+}
+
+// Brings back a customer who was removed. A new pass has to be issued because
+// removeCustomer revokes the old one at WalletWallet with a hard DELETE, which
+// leaves the stored share_url pointing at nothing. The points balance is
+// carried over untouched: the row was never deleted, only marked.
+export async function restoreCustomer(customerId: string) {
+  const { supabase, customer } = await requireOwnedCustomer(customerId, { includeRemoved: true });
+  const back = `/dashboard/customers/${customerId}`;
+
+  if (!customer.removed_at) {
+    redirect(back);
+  }
+
+  let pass;
+  try {
+    pass = await createPass(toPassBusinessInput(customer.businesses), {
+      id: customer.id,
+      pointsBalance: customer.points_balance,
+      notification: " ",
+    });
+  } catch (err) {
+    console.error(`Failed to issue a replacement pass for customer ${customerId}`, err);
+    redirect(
+      `${back}?error=${encodeURIComponent("Could not issue a new wallet pass. Their card was not restored.")}`,
+    );
+  }
+
+  await supabase
+    .from("customers")
+    .update({
+      removed_at: null,
+      walletwallet_serial: pass!.serialNumber,
+      share_url: pass!.shareUrl,
+      google_save_url: pass!.googleSaveUrl,
+      last_notification: " ",
+    })
+    .eq("id", customerId);
+
+  redirect(`${back}?restored=1`);
 }
 
 export async function updateCustomer(customerId: string, formData: FormData) {
