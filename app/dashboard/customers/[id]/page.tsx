@@ -63,7 +63,7 @@ export default async function EditCustomerPage({
             </div>
           </div>
 
-          <div className="flex w-full max-w-[520px] flex-col gap-4 sm:gap-5">
+          <div className="w-full max-w-[720px]">
             <Card>
               <CardHeader>
                 <CardTitle>Restore this customer</CardTitle>
@@ -96,7 +96,57 @@ export default async function EditCustomerPage({
           </div>
         </div>
 
-        <div className="flex w-full max-w-[520px] flex-col gap-4 sm:gap-5">
+        {/* Editing their details is the primary task, so it takes the wider
+            column; the wallet link and removal sit alongside it. */}
+        <div className="dash-split">
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Customer info</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form action={updateCustomer.bind(null, customer!.id)} className="flex flex-col gap-4">
+                  {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="firstName">First name</Label>
+                      <Input id="firstName" type="text" name="firstName" required defaultValue={customer!.first_name} />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="lastName">Last name</Label>
+                      <Input id="lastName" type="text" name="lastName" required defaultValue={customer!.last_name || ""} />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="email">Email</Label>
+                    <Input id="email" type="email" name="email" required defaultValue={customer!.email || ""} />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input id="phone" type="tel" name="phone" required defaultValue={customer!.phone || ""} />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="pointsBalance">Points balance</Label>
+                    <Input
+                      id="pointsBalance"
+                      type="number"
+                      name="pointsBalance"
+                      min={0}
+                      required
+                      defaultValue={customer!.points_balance}
+                    />
+                  </div>
+
+                  <Button type="submit" className="self-start">
+                    Save
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div>
           <Card>
             <CardHeader>
               <CardTitle>Wallet card</CardTitle>
@@ -132,51 +182,6 @@ export default async function EditCustomerPage({
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Customer info</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form action={updateCustomer.bind(null, customer!.id)} className="flex flex-col gap-4">
-                {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
-
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="firstName">First name</Label>
-                    <Input id="firstName" type="text" name="firstName" required defaultValue={customer!.first_name} />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="lastName">Last name</Label>
-                    <Input id="lastName" type="text" name="lastName" required defaultValue={customer!.last_name || ""} />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" name="email" required defaultValue={customer!.email || ""} />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" type="tel" name="phone" required defaultValue={customer!.phone || ""} />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="pointsBalance">Points balance</Label>
-                  <Input
-                    id="pointsBalance"
-                    type="number"
-                    name="pointsBalance"
-                    min={0}
-                    required
-                    defaultValue={customer!.points_balance}
-                  />
-                </div>
-
-                <Button type="submit" className="self-start">
-                  Save
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
           <Card className="border-destructive/30">
             <CardHeader>
               <CardTitle className="text-destructive">Danger zone</CardTitle>
@@ -196,6 +201,7 @@ export default async function EditCustomerPage({
               </form>
             </CardContent>
           </Card>
+          </div>
         </div>
       </div>
     </main>

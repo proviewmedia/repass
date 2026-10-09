@@ -430,6 +430,14 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 .dash-head h1 { font-size: 20px; letter-spacing: -0.02em; font-weight: 700; }
 .dash-empty { padding: 40px 20px; text-align: center; color: var(--muted); font-size: 14.5px; }
 
+/* Two-column page body for form pages. Fills the content card instead of
+   stranding everything in a narrow strip, without stretching inputs to the
+   full width of a desktop monitor, which is harder to read and to scan. The
+   primary task takes the wider column; supporting cards sit beside it. */
+.dash-split { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.dash-split > * { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+@media (max-width: 900px) { .dash-split { grid-template-columns: 1fr; } }
+
 /* ---------- Settings: form + live card preview ---------- */
 .settings-layout { display: grid; grid-template-columns: 1fr 260px; gap: 32px; align-items: start; }
 @media (max-width: 700px) { .settings-layout { grid-template-columns: 1fr; } .card-preview-wrap { position: static; } }
