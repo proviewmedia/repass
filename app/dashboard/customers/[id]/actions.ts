@@ -78,8 +78,12 @@ export async function resendWalletLink(customerId: string) {
   try {
     await sendWalletLinkEmail(customer.email!, customer.businesses.name, customer.share_url!);
   } catch (err) {
-    console.error(`Failed to resend wallet link for customer ${customerId}`, err);
-    redirect(`${back}?error=${encodeURIComponent("Could not send the email. Try again in a moment.")}`);
+    console.error(`[wallet-link] resend failed for customer ${customerId}`, err);
+    // Surfaces Resend's own reason rather than a generic failure: an
+    // unverified domain and a dead API key need completely different fixes,
+    // and the owner is the person who can act on either.
+    const reason = err instanceof Error ? err.message : "Unknown error";
+    redirect(`${back}?error=${encodeURIComponent(`Could not send the email. ${reason}`)}`);
   }
 
   redirect(`${back}?sent=1`);
