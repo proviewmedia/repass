@@ -1,7 +1,7 @@
 import PrivacyContent from "@/components/legal/PrivacyContent";
 
 export const metadata = {
-  title: "Privacy Notice — Repass",
+  title: "Privacy Notice — Repass Connect",
 };
 
 export default function PrivacyPage() {

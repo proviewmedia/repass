@@ -14,7 +14,7 @@ function getResend(): Resend {
 // resend.dev's shared sending address works without domain verification but
 // is sandboxed to the account owner's own inbox — set RESEND_FROM_EMAIL to a
 // verified domain address before relying on this for real customers.
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "Repass <onboarding@resend.dev>";
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "Repass Connect <onboarding@resend.dev>";
 
 // The Resend SDK does NOT throw on API errors: send() resolves to
 // { data, error } and leaves it to the caller to check (see
@@ -34,8 +34,8 @@ async function send(payload: { to: string; subject: string; html: string }) {
 export async function sendBusinessWelcomeEmail(to: string, businessName: string, dashboardUrl: string) {
   await send({
     to,
-    subject: "Welcome to Repass",
-    html: `<p>Your Repass subscription for <strong>${businessName}</strong> is active.</p><p>Head to your dashboard to share your join link and start signing up customers:</p><p><a href="${dashboardUrl}">${dashboardUrl}</a></p>`,
+    subject: "Welcome to Repass Connect",
+    html: `<p>Your Repass Connect subscription for <strong>${businessName}</strong> is active.</p><p>Head to your dashboard to share your join link and start signing up customers:</p><p><a href="${dashboardUrl}">${dashboardUrl}</a></p>`,
   });
 }
 

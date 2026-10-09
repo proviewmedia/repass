@@ -40,7 +40,7 @@ export default async function AdminPage() {
         <div className="dash-head">
           <div>
             <h1>All businesses</h1>
-            <p className="auth-sub">Every business on Repass and their active customer count.</p>
+            <p className="auth-sub">Every business on Repass Connect and their active customer count.</p>
           </div>
         </div>
 

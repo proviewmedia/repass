@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Brand } from "@/components/brand";
 import { signIn } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,15 +17,7 @@ export default function LoginPage({
       <div className="wrap auth-wrap">
         <Card className="w-full max-w-[420px]">
           <CardHeader>
-            <Link href="/" className="brand">
-              <span className="mark">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="5" width="20" height="14" rx="2.5" />
-                  <path d="M2 10h20" />
-                </svg>
-              </span>
-              Repass
-            </Link>
+            <Brand href="/" />
             <CardTitle className="mt-3 text-2xl">Log in</CardTitle>
             <CardDescription>Welcome back.</CardDescription>
           </CardHeader>

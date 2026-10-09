@@ -208,7 +208,7 @@ export default async function ConnectionsPage({
                 <div>
                   <CardTitle>Stripe</CardTitle>
                   <CardDescription className="mt-0.5">
-                    Connect your own Stripe account so a completed payment awards a point. Separate from your Repass
+                    Connect your own Stripe account so a completed payment awards a point. Separate from your Repass Connect
                     subscription billing.
                   </CardDescription>
                 </div>

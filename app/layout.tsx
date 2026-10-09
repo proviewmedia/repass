@@ -10,9 +10,9 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Repass — Wallet loyalty & membership programs for local businesses",
+  title: "Repass Connect: Wallet loyalty and membership programs for local businesses",
   description:
-    "Done-for-you Apple & Google Wallet programs for local businesses. Loyalty cards, coupons, and memberships that live in your customers' phones — no app to download.",
+    "Done-for-you Apple & Google Wallet programs for local businesses. Loyalty cards, coupons, and memberships that live in your customers' phones, with no app to download.",
 };
 
 export default function RootLayout({

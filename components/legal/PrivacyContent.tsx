@@ -18,7 +18,7 @@ export default function PrivacyContent() {
         <h1 className="text-[28px] font-bold tracking-tight">Privacy Notice</h1>
         <p className="text-[13.5px] text-muted-foreground">
           Effective and last updated: September 28, 2026. This notice explains what CV Management Solutions, LLC,
-          operator of Repass (&ldquo;we,&rdquo; &ldquo;us&rdquo;), collects, how it&apos;s used, and how it&apos;s
+          operator of Repass Connect (&ldquo;we,&rdquo; &ldquo;us&rdquo;), collects, how it&apos;s used, and how it&apos;s
           protected.
         </p>
       </div>
@@ -27,7 +27,7 @@ export default function PrivacyContent() {
         <CardContent className="flex flex-col gap-8 py-8">
           <Section title="1. Scope of this notice">
             <p>
-              This notice covers Repass&apos;s dashboard (used by business owners) and the wallet-pass sign-up and
+              This notice covers Repass Connect&apos;s dashboard (used by business owners) and the wallet-pass sign-up and
               check-in pages used by their customers. It does not cover the point-of-sale systems you connect
               (Square, Clover, etc.) or Apple/Google&apos;s own Wallet apps, which have their own privacy
               practices.
@@ -38,7 +38,7 @@ export default function PrivacyContent() {
             <p>
               <strong className="font-semibold text-foreground">From business owners:</strong> your name, email,
               business name, branding assets you upload, reward rules, and billing information (processed directly
-              by Stripe — Repass does not store your card number).
+              by Stripe; Repass Connect does not store your card number).
             </p>
             <p>
               <strong className="font-semibold text-foreground">From your customers, on your behalf:</strong>{" "}
@@ -48,7 +48,7 @@ export default function PrivacyContent() {
             </p>
             <p>
               <strong className="font-semibold text-foreground">Automatically:</strong> only what&apos;s needed to
-              keep you signed in (an authentication session). Repass does not currently use analytics or
+              keep you signed in (an authentication session). Repass Connect does not currently use analytics or
               advertising tracking cookies, and does not run any session-recording or screen-recording tool on its
               site.
             </p>
@@ -56,7 +56,7 @@ export default function PrivacyContent() {
 
           <Section title="3. How we use this information">
             <ul className="list-disc pl-5">
-              <li>To operate the loyalty program you configure — issuing and updating wallet passes;</li>
+              <li>To operate the loyalty program you configure, issuing and updating wallet passes;</li>
               <li>To send transactional email (a wallet-card link, a receipt) via our email provider, Resend;</li>
               <li>To process your subscription payment via Stripe;</li>
               <li>To award a point automatically when you connect a supported point-of-sale system; and</li>
@@ -77,15 +77,15 @@ export default function PrivacyContent() {
 
           <Section title="5. Payment and point-of-sale integrations">
             <p>
-              If you connect Square, Clover, or your own Stripe account, Repass reads only whether a sale
+              If you connect Square, Clover, or your own Stripe account, Repass Connect reads only whether a sale
               completed and the contact information (phone or email) tied to that sale, in order to match it to
-              one of your enrolled customers and award a point. Repass never requests or stores card numbers, CVV
+              one of your enrolled customers and award a point. Repass Connect never requests or stores card numbers, CVV
               codes, bank account details, or itemized purchase contents from any of these integrations.
             </p>
             <p>
               A connected Stripe account is granted read-only access and is separate from the Stripe billing used
-              for your Repass subscription. Repass stores no Stripe credentials for it — only the account
-              identifier — and you can revoke the connection at any time.
+              for your Repass Connect subscription. Repass Connect stores no Stripe credentials for it, only the account
+              identifier, and you can revoke the connection at any time.
             </p>
           </Section>
 
@@ -111,22 +111,22 @@ export default function PrivacyContent() {
           <Section title="8. Security">
             <p>
               Point-of-sale access tokens are encrypted at rest (AES-256-GCM). Access to a business&apos;s data is
-              restricted to that business&apos;s own account via database-level row security. All traffic to Repass
+              restricted to that business&apos;s own account via database-level row security. All traffic to Repass Connect
               is encrypted in transit (HTTPS). See our published security practices for full detail.
             </p>
           </Section>
 
-          <Section title="9. AI tools used to build and operate Repass">
+          <Section title="9. AI tools used to build and operate Repass Connect">
             <p>
-              Repass is built and maintained with the help of Anthropic&apos;s Claude, an AI coding assistant.
-              Claude is used during development and maintenance of the Repass codebase and does not have standing
+              Repass Connect is built and maintained with the help of Anthropic&apos;s Claude, an AI coding assistant.
+              Claude is used during development and maintenance of the Repass Connect codebase and does not have standing
               access to production customer data as part of that process.
             </p>
           </Section>
 
           <Section title="10. Children's privacy">
             <p>
-              Repass is intended for use by business owners aged 18 and older. It is not directed at children, and
+              Repass Connect is intended for use by business owners aged 18 and older. It is not directed at children, and
               we do not knowingly collect information from children under 13.
             </p>
           </Section>

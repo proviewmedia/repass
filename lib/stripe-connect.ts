@@ -1,6 +1,6 @@
 // Stripe Connect (read-only): a business links their *own* Stripe account so a
 // completed payment can award a loyalty point. Distinct from lib/stripe.ts,
-// which is Repass's own account billing businesses their subscription.
+// which is Repass Connect's own account billing businesses their subscription.
 //
 // Deliberately thinner than lib/square.ts and lib/clover.ts: Stripe's OAuth
 // token exchange now returns only the connected account's id — access_token
@@ -20,7 +20,7 @@ function redirectUri(origin: string): string {
   return `${origin}/api/stripe-connect/callback`;
 }
 
-// read_only is everything Repass needs (read payments, read customers). It
+// read_only is everything Repass Connect needs (read payments, read customers). It
 // also keeps the merchant's consent screen honest, and avoids Stripe's
 // restriction barring read_write from connecting to Standard accounts that
 // are already controlled by another platform.
@@ -42,7 +42,7 @@ export async function exchangeCodeForAccountId(code: string): Promise<string> {
   return response.stripe_user_id;
 }
 
-// Revokes on Stripe's side too, so disconnecting in Repass actually ends the
+// Revokes on Stripe's side too, so disconnecting in Repass Connect actually ends the
 // grant rather than just marking our row.
 export async function deauthorize(accountId: string): Promise<void> {
   await getStripe().oauth.deauthorize({
@@ -51,7 +51,7 @@ export async function deauthorize(accountId: string): Promise<void> {
   });
 }
 
-// Stripe stores a single `name`; Repass stores first/last separately.
+// Stripe stores a single `name`; Repass Connect stores first/last separately.
 function splitName(name: string | null): { firstName: string | null; lastName: string | null } {
   const trimmed = (name || "").trim();
   if (!trimmed) return { firstName: null, lastName: null };

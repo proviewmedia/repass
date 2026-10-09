@@ -267,7 +267,7 @@ export interface CreateDiscountParams {
 }
 
 // Creates a new Catalog discount via batchUpsert, so a business never has to
-// leave Repass to set up a reward's Square side. Square has no "free item"
+// leave Repass Connect to set up a reward's Square side. Square has no "free item"
 // discount type — a free-item reward should use a fixed amount matching the
 // item's price, or a 100% fixed percentage.
 export async function createDiscount(connection: PosConnectionRow, params: CreateDiscountParams): Promise<SquareDiscount> {
@@ -312,7 +312,7 @@ export async function fetchOrderDiscountIds(connection: PosConnectionRow, orderI
 
 // Webhook subscriptions belong to the application, not to individual connected
 // merchants (Square rejects subscription-management calls made with a merchant's
-// OAuth token). So there is exactly one subscription for all of Repass, created
+// OAuth token). So there is exactly one subscription for all of Repass Connect, created
 // once in the Square Developer Dashboard, with one signature key for the whole app.
 export async function verifyWebhookSignature(params: {
   requestBody: string;

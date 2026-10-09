@@ -1,4 +1,4 @@
-# Repass compliance reference
+# Repass Connect compliance reference
 
 Prepared: September 28, 2026. Operator: CV Management Solutions, LLC (`cuadventuresllc@gmail.com`).
 
@@ -8,11 +8,11 @@ detail an engineer, auditor, or business-development counterpart would need.
 
 ## 1. Data & AI vendor inventory
 
-Every third-party processor Repass's code actually calls, as of this date:
+Every third-party processor Repass Connect's code actually calls, as of this date:
 
 | Vendor | What it touches | Standard agreement |
 |---|---|---|
-| **Stripe** (Repass's own account) | Subscription billing, payment method (Repass never stores card numbers) | Stripe Services Agreement + Stripe DPA (published at stripe.com/legal/dpa) |
+| **Stripe** (Repass Connect's own account) | Subscription billing, payment method (Repass Connect never stores card numbers) | Stripe Services Agreement + Stripe DPA (published at stripe.com/legal/dpa) |
 | **Stripe Connect** (a merchant's own account) | (If connected) Read-only access to payment status and payer contact info — see §2 | Stripe Connected Account Agreement, accepted by the merchant during OAuth |
 | **Supabase** | Primary database (customers, businesses, reward tiers, point events), authentication | Supabase DPA (published at supabase.com/legal/dpa) |
 | **WalletWallet** | Wallet pass generation/hosting (business branding, customer point balance, a customer-id barcode value) | WalletWallet's published Terms/Privacy (walletwallet.dev) |
@@ -20,19 +20,19 @@ Every third-party processor Repass's code actually calls, as of this date:
 | **Clover** | (If connected) Read of payment result and the linked customer's phone/email. Read-only: no write scope is requested — see §2 | Clover Platform Agreement |
 | **Resend** | Transactional email delivery (wallet-link emails) | Resend DPA (published at resend.com/legal/dpa) |
 | **Vercel** | Application hosting, environment/secret storage | Vercel DPA (published at vercel.com/legal/dpa) |
-| **Anthropic (Claude / Claude Code)** | AI coding assistant used to build and maintain the Repass codebase — no standing access to production customer data | Anthropic Commercial Terms + DPA (published at anthropic.com/legal) |
+| **Anthropic (Claude / Claude Code)** | AI coding assistant used to build and maintain the Repass Connect codebase — no standing access to production customer data | Anthropic Commercial Terms + DPA (published at anthropic.com/legal) |
 
 **Action item, not yet done:** formally countersigning/attaching each
 provider's DPA under CV Management Solutions, LLC's account (most are self-serve/
 click-through and already in effect by virtue of using the service; Stripe,
 Supabase, and Vercel's are active by default on a paid plan). No provider
-here requires a custom-negotiated agreement to be compliant at Repass's
+here requires a custom-negotiated agreement to be compliant at Repass Connect's
 current scale.
 
 ## 2. Point-of-sale integration data-access scope
 
 This is the direct, code-verified answer to "are we liable for anything
-through Square/Clover/Stripe": **no, because Repass never receives payment
+through Square/Clover/Stripe": **no, because Repass Connect never receives payment
 data from any of them.**
 
 Verified against the actual implementation:
@@ -43,7 +43,7 @@ Verified against the actual implementation:
   which catalog discount IDs were applied to an order — used only to match
   a redemption to a reward tier, never to read prices or line items. Square
   is the one integration with a write scope: `ITEMS_WRITE` exists solely so
-  Repass can create the reward discount a merchant redeems against, and the
+  Repass Connect can create the reward discount a merchant redeems against, and the
   merchant sees that permission listed on Square's own consent screen when
   they connect. Nothing else in the catalog is created, modified, or deleted.
 - `lib/clover.ts` — `fetchPayment()` requests a payment's `result` and
@@ -59,21 +59,23 @@ Verified against the actual implementation:
   read-only (`scope=read_only`). `fetchPaymentContact()` retrieves a
   PaymentIntent solely to read the payer's email/phone;
   `listCustomers()` reads the customer directory. No card data is
-  retrievable under this scope, and Repass stores no Stripe credentials at
+  retrievable under this scope, and Repass Connect stores no Stripe credentials at
   all — only the connected account id (`acct_...`), with calls authenticated
   by the platform key plus a `Stripe-Account` header.
-- Toast is **not integrated and will not be** — Toast declined the
-  integration request (October 2026). No data access ever existed there.
+- Toast is **not integrated**: Toast is not accepting new developers onto
+  its integration platform (confirmed October 2026), so no application was
+  approved and no data access has ever existed there. The three supported
+  integrations are Square, Clover, and Stripe.
 
-This is why Repass's own PCI-DSS scope is effectively nil: it never
+This is why Repass Connect's own PCI-DSS scope is effectively nil: it never
 touches cardholder data, so the usual card-data compliance burden stays
-entirely with the merchant's point-of-sale provider, not with Repass.
+entirely with the merchant's point-of-sale provider, not with Repass Connect.
 
 ## 3. Copyright / trademark review
 
 **Trademark self-check performed September 28, 2026:** searched public
 trademark databases (Justia Trademarks, Trademarkia) and general web search
-for "Repass" in software, SaaS, and loyalty-program contexts. No existing
+for "Repass Connect" in software, SaaS, and loyalty-program contexts. No existing
 trademark registration, application, or common usage was found under that
 name in a conflicting class.
 
@@ -81,14 +83,14 @@ name in a conflicting class.
 formal USPTO TESS structured search or an attorney-run clearance search.
 Public search engines and free trademark-aggregator sites do not fully
 index USPTO's database or state/common-law marks. Before relying on
-"Repass" as a cleared mark for registration purposes, run an actual TESS
+"Repass Connect" as a cleared mark for registration purposes, run an actual TESS
 search (uspto.gov/trademarks) or have a trademark attorney run one.
 
 **Asset licensing pass:** the codebase's only third-party creative/code
 asset dependency is `lucide-react` (icon set), which is MIT-licensed —
 free for commercial use, no attribution required beyond the license file.
 No stock photography, purchased fonts, or other licensed creative assets
-are currently used in the Repass codebase (the app uses Google Fonts'
+are currently used in the Repass Connect codebase (the app uses Google Fonts'
 Poppins, which is licensed under the SIL Open Font License, free for
 commercial use).
 
@@ -118,7 +120,7 @@ commercial use).
   live only in Vercel's encrypted environment-variable store, scoped per
   environment (production/preview/development); none are committed to the
   repository.
-- **Transport security**: all traffic to Repass (the dashboard, the public
+- **Transport security**: all traffic to Repass Connect (the dashboard, the public
   sign-up/check-in pages, and every API route) is served over HTTPS via
   Vercel.
 - **OAuth state integrity**: the connect flow for both Square and Clover

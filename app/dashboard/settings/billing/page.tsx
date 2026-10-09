@@ -111,7 +111,7 @@ export default async function BillingPage() {
                 <div>
                   <CardTitle>Current plan</CardTitle>
                   <CardDescription className="mt-0.5">
-                    {planAmount ? `${planAmount} / ${planInterval}` : "Repass Subscription"}
+                    {planAmount ? `${planAmount} / ${planInterval}` : "Repass Connect Subscription"}
                     {nextBillingDate ? ` · next charge ${nextBillingDate}` : ""}
                   </CardDescription>
                 </div>

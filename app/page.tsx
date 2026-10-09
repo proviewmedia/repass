@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Brand } from "@/components/brand";
 import QRCode from "qrcode";
 
 const tickIcon = (
@@ -90,21 +91,13 @@ function Pass({
 }
 
 export default async function Home() {
-  const mockQr = await QRCode.toDataURL("https://repass-virid.vercel.app", { margin: 0, width: 136 });
+  const mockQr = await QRCode.toDataURL("https://repassconnect.com", { margin: 0, width: 136 });
 
   return (
     <>
       <nav>
         <div className="wrap nav-inner">
-          <div className="brand">
-            <span className="mark">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="5" width="20" height="14" rx="2.5" />
-                <path d="M2 10h20" />
-              </svg>
-            </span>
-            Repass
-          </div>
+          <Brand href={null} size={31} />
           <div className="nav-links">
             <a href="#gallery">Examples</a>
             <a href="#features">Features</a>
@@ -131,7 +124,7 @@ export default async function Home() {
               Loyalty cards that live in your customers&apos; <em>phones.</em>
             </h1>
             <p className="lead">
-              Repass runs Apple and Google Wallet loyalty programs for local businesses. Your customers add a card
+              Repass Connect runs Apple and Google Wallet loyalty programs for local businesses. Your customers add a card
               once, and it keeps itself up to date. Nothing to install, nothing to carry.
             </p>
             <div className="hero-cta">
@@ -445,7 +438,7 @@ export default async function Home() {
               <span className="sec-eyebrow">Automatic earning</span>
               <h2>Connect your till and stop thinking about it.</h2>
               <p>
-                Repass watches for completed sales and matches them to the customer by the phone number or email on the
+                Repass Connect watches for completed sales and matches them to the customer by the phone number or email on the
                 sale. The point is on their card before they leave the counter.
               </p>
               <ul className="ticks">
@@ -458,7 +451,7 @@ export default async function Home() {
                 <li>
                   {tickIcon}
                   <span>
-                    <b>Read only.</b> Repass sees whether a sale completed and the contact on it. Never card numbers.
+                    <b>Read only.</b> Repass Connect sees whether a sale completed and the contact on it. Never card numbers.
                   </span>
                 </li>
                 <li>
@@ -658,7 +651,7 @@ export default async function Home() {
           </div>
           <div className="price-wrap">
             <div className="price-card">
-              <div className="plan">Repass</div>
+              <div className="plan">Repass Connect</div>
               <div className="price-amt">
                 <span className="n">$49</span>
                 <span className="per">per month</span>
@@ -712,7 +705,7 @@ export default async function Home() {
               <thead>
                 <tr>
                   <th />
-                  <th className="us">Repass</th>
+                  <th className="us">Repass Connect</th>
                   <th>Kangaroo Rewards</th>
                   <th>Join It</th>
                 </tr>
@@ -765,7 +758,7 @@ export default async function Home() {
           </div>
           <p className="cmp-note">
             Kangaroo is a bigger suite built around its own customer app. Join It is membership software for clubs and
-            nonprofits. Repass does one thing: a wallet loyalty card for a local business.
+            nonprofits. Repass Connect does one thing: a wallet loyalty card for a local business.
           </p>
         </div>
       </section>
@@ -793,10 +786,10 @@ export default async function Home() {
               </p>
             </div>
             <div className="faq-item">
-              <h3>What can Repass see from my point of sale?</h3>
+              <h3>What can Repass Connect see from my point of sale?</h3>
               <p>
                 Only whether a sale completed and the phone or email attached to it, which is what we use to find the
-                right customer. Repass never requests or stores card numbers, CVV codes, or what was bought.
+                right customer. Repass Connect never requests or stores card numbers, CVV codes, or what was bought.
               </p>
             </div>
             <div className="faq-item">
@@ -804,6 +797,14 @@ export default async function Home() {
               <p>
                 Three ways, and you can use any mix: automatically from a connected till, by the customer scanning a
                 check in QR at the counter, or by you tapping a button in the dashboard.
+              </p>
+            </div>
+            <div className="faq-item">
+              <h3>Which point of sale systems do you work with?</h3>
+              <p>
+                Square, Clover, and Stripe. Toast is not available: they are not accepting new developers onto their
+                integration platform at the moment. If you are on a system we do not support, the counter QR code and
+                the dashboard both work on their own, with no till connection at all.
               </p>
             </div>
             <div className="faq-item">
@@ -847,15 +848,7 @@ export default async function Home() {
         <div className="wrap">
           <div className="foot-grid">
             <div className="foot-brand">
-              <div className="brand">
-                <span className="mark" style={{ width: 26, height: 26, borderRadius: 8 }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="2" y="5" width="20" height="14" rx="2.5" />
-                    <path d="M2 10h20" />
-                  </svg>
-                </span>
-                Repass
-              </div>
+              <Brand href={null} size={26} />
               <p>Apple and Google Wallet loyalty programs for local businesses.</p>
             </div>
             <div className="foot-cols">

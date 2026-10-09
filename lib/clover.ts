@@ -1,7 +1,7 @@
 // Client for the Clover REST API (https://docs.clover.com/dev/) — mirrors
 // lib/square.ts's shape, but Clover's OAuth and object model differ in a few
 // real ways documented inline below (grounded against docs.clover.com, not
-// guessed). US only for now, matching Repass's current single-market scope.
+// guessed). US only for now, matching Repass Connect's current single-market scope.
 
 import { timingSafeEqual } from "crypto";
 import { decrypt, encrypt } from "@/lib/crypto";

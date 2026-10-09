@@ -71,7 +71,12 @@ nav {
 .brand .mark {
   width: 31px; height: 31px; border-radius: 9px; background: var(--text);
   display: grid; place-items: center; box-shadow: 0 3px 8px -2px #0a0a1f66;
+  flex: none;
+  /* The icon draws with currentColor so one SVG works on any ground; inside
+     the dark tile that has to be the light colour, not the inherited text. */
+  color: #fff;
 }
+.brand-word { white-space: nowrap; }
 .nav-links { display: flex; gap: 32px; align-items: center; }
 .nav-links a:not(.btn) { color: var(--muted); font-size: 14.5px; font-weight: 500; transition: color .15s; letter-spacing: -0.01em; }
 .nav-links a:not(.btn):hover { color: var(--text); }

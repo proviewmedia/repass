@@ -1,7 +1,7 @@
 import TermsContent from "@/components/legal/TermsContent";
 
 export const metadata = {
-  title: "Terms of Service — Repass",
+  title: "Terms of Service — Repass Connect",
 };
 
 export default function TermsPage() {
