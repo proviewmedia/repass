@@ -15,17 +15,25 @@ export async function POST(request: NextRequest) {
   const signatureHeader = request.headers.get("x-square-hmacsha256-signature");
 
   if (!signatureHeader) {
+    console.info("[square-webhook] rejected: no x-square-hmacsha256-signature header");
     return NextResponse.json({ error: "Missing signature" }, { status: 400 });
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin;
+  const notificationUrl = `${appUrl}/api/webhooks/square`;
   const valid = await verifyWebhookSignature({
     requestBody: body,
     signatureHeader,
-    notificationUrl: `${appUrl}/api/webhooks/square`,
+    notificationUrl,
   });
 
   if (!valid) {
+    // Square signs over the notification URL as well as the body, so this
+    // fails for two different reasons that look identical from outside: the
+    // signature key here belongs to a different subscription, or the URL
+    // registered in Square is not character-for-character this one. Logging
+    // the URL we verified against is what tells those apart.
+    console.warn(`[square-webhook] rejected: signature did not verify against ${notificationUrl}`);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -33,15 +41,18 @@ export async function POST(request: NextRequest) {
   try {
     payload = JSON.parse(body);
   } catch {
+    console.warn("[square-webhook] rejected: body was not valid JSON");
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
   const merchantId = payload.merchant_id;
   if (!merchantId) {
+    console.warn(`[square-webhook] rejected: no merchant_id; type=${payload.type || "(none)"}`);
     return NextResponse.json({ error: "Missing merchant_id" }, { status: 400 });
   }
 
   if (payload.type !== "payment.updated" || !payload.data?.id) {
+    console.info(`[square-webhook] ignored: type=${payload.type || "(none)"} merchant=${merchantId}`);
     return NextResponse.json({ received: true });
   }
 
@@ -57,6 +68,7 @@ export async function POST(request: NextRequest) {
   // No connection (or a disconnected one) for this merchant — nothing to do.
   // Not an error: Square may still be delivering events from before a disconnect.
   if (!connection) {
+    console.info(`[square-webhook] no active connection for merchant=${merchantId}`);
     return NextResponse.json({ received: true });
   }
 
@@ -65,11 +77,15 @@ export async function POST(request: NextRequest) {
   try {
     const payment = await fetchPayment(connection, paymentId);
     if (payment.status !== "COMPLETED" || !payment.customerId) {
+      console.info(
+        `[square-webhook] payment=${paymentId} not awardable; status=${payment.status || "(empty)"} customerId=${payment.customerId || "none"}`,
+      );
       return NextResponse.json({ received: true });
     }
 
     const contact = await fetchCustomerContact(connection, payment.customerId);
     if (!contact.phone && !contact.email) {
+      console.info(`[square-webhook] payment=${paymentId} customer ${payment.customerId} has no phone or email`);
       return NextResponse.json({ received: true });
     }
 
@@ -82,6 +98,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!customer) {
+      console.info(`[square-webhook] payment=${paymentId} no enrolled customer matched for business=${connection.business_id}`);
       return NextResponse.json({ received: true });
     }
 
