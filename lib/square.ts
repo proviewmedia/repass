@@ -140,6 +140,81 @@ export async function fetchCustomerContact(
   };
 }
 
+export interface SquareDiagnosis {
+  /** Which Square API the app is actually talking to right now. */
+  environment: "production" | "sandbox";
+  merchantId: string;
+  tokenExpiresAt: string;
+  tokenRefreshed: boolean;
+  locations: Array<{ id: string; name: string; status: string; country: string; currency: string }>;
+  payments: Array<{
+    id: string;
+    status: string;
+    amount: number | null;
+    currency: string | null;
+    createdAt: string | null;
+    customerId: string | null;
+    orderId: string | null;
+    customerPhone: string | null;
+    customerEmail: string | null;
+  }>;
+}
+
+// Mirrors lib/clover.ts's diagnose(): walks the chain the webhook walks and
+// reports what each step actually returned, so a payment that awarded nothing
+// can be traced to the step that broke. Reading locations first proves the
+// token authenticates against the environment we think we're in, which is the
+// failure the Clover debugging showed is easiest to be wrong about.
+export async function diagnose(connection: PosConnectionRow): Promise<SquareDiagnosis> {
+  const tokenRefreshed = new Date(connection.token_expires_at).getTime() - Date.now() <= REFRESH_MARGIN_MS;
+  const accessToken = await getValidAccessToken(connection);
+  const api = client(accessToken);
+
+  const locationsResult = await api.locations.list();
+  const locations = (locationsResult.locations || []).map((l) => ({
+    id: l.id || "",
+    name: l.name || "",
+    status: String(l.status || ""),
+    country: String(l.country || ""),
+    currency: String(l.currency || ""),
+  }));
+
+  const page = await api.payments.list({ limit: 5, sortOrder: "DESC" });
+
+  const payments: SquareDiagnosis["payments"] = [];
+  for (const p of page.data.slice(0, 5)) {
+    let customerPhone: string | null = null;
+    let customerEmail: string | null = null;
+
+    if (p.customerId) {
+      const contact = await fetchCustomerContact(connection, p.customerId);
+      customerPhone = contact.phone;
+      customerEmail = contact.email;
+    }
+
+    payments.push({
+      id: p.id || "",
+      status: String(p.status || ""),
+      amount: p.amountMoney?.amount != null ? Number(p.amountMoney.amount) : null,
+      currency: p.amountMoney?.currency ? String(p.amountMoney.currency) : null,
+      createdAt: p.createdAt || null,
+      customerId: p.customerId || null,
+      orderId: p.orderId || null,
+      customerPhone,
+      customerEmail,
+    });
+  }
+
+  return {
+    environment: squareEnvironment() === SquareEnvironment.Production ? "production" : "sandbox",
+    merchantId: connection.external_merchant_id,
+    tokenExpiresAt: connection.token_expires_at,
+    tokenRefreshed,
+    locations,
+    payments,
+  };
+}
+
 export interface SquareDiscount {
   id: string;
   name: string;
