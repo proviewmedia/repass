@@ -16,8 +16,8 @@ Every third-party processor Repass's code actually calls, as of this date:
 | **Stripe Connect** (a merchant's own account) | (If connected) Read-only access to payment status and payer contact info — see §2 | Stripe Connected Account Agreement, accepted by the merchant during OAuth |
 | **Supabase** | Primary database (customers, businesses, reward tiers, point events), authentication | Supabase DPA (published at supabase.com/legal/dpa) |
 | **WalletWallet** | Wallet pass generation/hosting (business branding, customer point balance, a customer-id barcode value) | WalletWallet's published Terms/Privacy (walletwallet.dev) |
-| **Square** | (If connected) OAuth-scoped read of payment completion status and sale contact info — see §2 | Square Developer Terms of Service |
-| **Clover** | (If connected) Same scope as Square, via Clover's own API | Clover Platform Agreement |
+| **Square** | (If connected) OAuth-scoped read of payment completion status and sale contact info, plus creation of one reward discount in the merchant's catalog (`ITEMS_WRITE`) — see §2 | Square Developer Terms of Service |
+| **Clover** | (If connected) Read of payment result and the linked customer's phone/email. Read-only: no write scope is requested — see §2 | Clover Platform Agreement |
 | **Resend** | Transactional email delivery (wallet-link emails) | Resend DPA (published at resend.com/legal/dpa) |
 | **Vercel** | Application hosting, environment/secret storage | Vercel DPA (published at vercel.com/legal/dpa) |
 | **Anthropic (Claude / Claude Code)** | AI coding assistant used to build and maintain the Repass codebase — no standing access to production customer data | Anthropic Commercial Terms + DPA (published at anthropic.com/legal) |
@@ -41,7 +41,11 @@ Verified against the actual implementation:
   `orderId` only. `fetchCustomerContact()` requests a customer's
   `phoneNumber`/`emailAddress` only. `fetchOrderDiscountIds()` requests
   which catalog discount IDs were applied to an order — used only to match
-  a redemption to a reward tier, never to read prices or line items.
+  a redemption to a reward tier, never to read prices or line items. Square
+  is the one integration with a write scope: `ITEMS_WRITE` exists solely so
+  Repass can create the reward discount a merchant redeems against, and the
+  merchant sees that permission listed on Square's own consent screen when
+  they connect. Nothing else in the catalog is created, modified, or deleted.
 - `lib/clover.ts` — `fetchPayment()` requests a payment's `result` and
   associated `order.id` only. `fetchOrderCustomerContact()` requests an
   order's linked customer's phone/email only.
