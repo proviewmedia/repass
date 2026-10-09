@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Brand } from "@/components/brand";
+import { StructuredData } from "@/components/structured-data";
 import QRCode from "qrcode";
 
 const tickIcon = (
@@ -95,6 +96,7 @@ export default async function Home() {
 
   return (
     <>
+      <StructuredData />
       <nav>
         <div className="wrap nav-inner">
           <Brand href={null} size={31} />
