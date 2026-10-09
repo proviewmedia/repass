@@ -72,7 +72,7 @@ export default async function Image() {
         <div style={{ display: "flex", alignItems: "center", gap: 18, fontSize: 25, color: "#6f6f80" }}>
           <span>repassconnect.com</span>
           <span style={{ color: "#2e2e3d" }}>/</span>
-          <span>Square, Clover, and Stripe</span>
+          <span>{"Square, Clover, and Stripe"}</span>
           <span style={{ color: "#2e2e3d" }}>/</span>
           <span>$49 a month</span>
         </div>
