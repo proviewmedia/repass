@@ -1,4 +1,4 @@
-import { redirect, notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import QRCode from "qrcode";
 import { createClient } from "@/lib/supabase/server";
 import {
@@ -36,8 +36,18 @@ export default async function PrintReviewPosterPage({
     .eq("owner_user_id", user!.id)
     .single();
 
-  if (!business || !business.review_url) {
-    notFound();
+  if (!business) {
+    redirect("/onboarding");
+  }
+
+  // Printing without a link would produce a poster whose QR code goes nowhere,
+  // so this sends them back to the builder with the reason rather than a 404,
+  // which reads as "this page is broken" instead of "you missed a field".
+  if (!business!.review_url) {
+    redirect(
+      "/dashboard/signage?error=" +
+        encodeURIComponent("Add a review link and save before printing. The poster needs somewhere to point."),
+    );
   }
 
   const requested = searchParams.paper as PaperSize | undefined;

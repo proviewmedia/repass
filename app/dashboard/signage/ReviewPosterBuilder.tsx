@@ -83,6 +83,12 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
 
   const printHref = `/print/review?paper=${paper}`;
   const savedUrlDiffers = reviewUrl.trim() !== initial.reviewUrl.trim();
+  // Only a *saved* link can be printed: the print route reads the database,
+  // not this form's state.
+  const canPrint = Boolean(initial.reviewUrl);
+  // Shown once they have typed enough to mean something, so the field does not
+  // scold them on the first keystroke.
+  const urlLooksWrong = reviewUrl.trim().length > 3 && qr === null;
 
   return (
     <div className="dash-split">
@@ -105,9 +111,15 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
                 value={reviewUrl}
                 onChange={(e) => setReviewUrl(e.target.value)}
               />
-              <p className="auth-sub text-[12.5px]">
-                Anywhere you want people to land: a Google review link, a Yelp page, your own site.
-              </p>
+              {urlLooksWrong ? (
+                <p className="text-[12.5px] text-destructive">
+                  That does not look like a web address. It should look like g.page/r/... or yourshop.com/reviews
+                </p>
+              ) : (
+                <p className="auth-sub text-[12.5px]">
+                  Anywhere you want people to land: a Google review link, a Yelp page, your own site.
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -239,20 +251,28 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
           <Button type="submit" form="review-poster-form">
             Save
           </Button>
-          <a
-            href={printHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn ghost sm"
-            aria-disabled={!initial.reviewUrl}
-          >
-            <Printer className="mr-2 h-4 w-4" />
-            Print
-          </a>
+          {/* A real anchor only when there is something to print. aria-disabled
+              alone still navigates, which is how an empty link reached the
+              print route and rendered a 404. */}
+          {canPrint ? (
+            <a href={printHref} target="_blank" rel="noopener noreferrer" className="btn ghost sm">
+              <Printer className="mr-2 h-4 w-4" />
+              Print
+            </a>
+          ) : (
+            <button type="button" className="btn ghost sm" disabled style={{ opacity: 0.5, cursor: "not-allowed" }}>
+              <Printer className="mr-2 h-4 w-4" />
+              Print
+            </button>
+          )}
         </div>
 
         {!initial.reviewUrl && (
-          <p className="auth-sub mt-2 text-[12.5px]">Save a review link before printing.</p>
+          <p className="auth-sub mt-2 text-[12.5px]">
+            {reviewUrl.trim()
+              ? "Save first. Printing uses the saved link."
+              : "Add a review link above, then save, to print."}
+          </p>
         )}
         {initial.reviewUrl && savedUrlDiffers && (
           <p className="auth-sub mt-2 text-[12.5px]">
