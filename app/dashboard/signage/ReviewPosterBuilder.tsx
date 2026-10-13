@@ -247,12 +247,16 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
         </div>
 
         <p className="auth-sub mt-3 text-[12.5px]">
-          {PAPER[paper].label}. Printing opens in a new tab.
+          {PAPER[paper].label}. Opens in a new tab. To keep a file instead of printing, choose{" "}
+          <strong>Save as PDF</strong> as the destination in the print dialog.
         </p>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
+          {/* "Save" alone read as "save a file to my computer", which this has
+              never done: it stores the poster's settings and is what unlocks
+              printing. Both buttons now say what they actually do. */}
           <Button type="submit" form="review-poster-form" disabled={!canSave}>
-            Save
+            Save settings
           </Button>
           {/* A real anchor only when there is something to print. aria-disabled
               alone still navigates, which is how an empty link reached the
@@ -260,12 +264,12 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
           {canPrint ? (
             <a href={printHref} target="_blank" rel="noopener noreferrer" className="btn ghost sm">
               <Printer className="mr-2 h-4 w-4" />
-              Print
+              Print or save PDF
             </a>
           ) : (
             <button type="button" className="btn ghost sm" disabled style={{ opacity: 0.5, cursor: "not-allowed" }}>
               <Printer className="mr-2 h-4 w-4" />
-              Print
+              Print or save PDF
             </button>
           )}
         </div>
@@ -273,13 +277,13 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
         {!initial.reviewUrl && (
           <p className="auth-sub mt-2 text-[12.5px]">
             {reviewUrl.trim()
-              ? "Save first. Printing uses the saved link."
-              : "Add a review link above, then save, to print."}
+              ? "Save settings first. Printing uses the saved link."
+              : "Add a review link above, then save settings, to print."}
           </p>
         )}
         {initial.reviewUrl && savedUrlDiffers && (
           <p className="auth-sub mt-2 text-[12.5px]">
-            You have unsaved changes. Printing uses the last saved version.
+            You have unsaved changes. Printing uses the last saved settings.
           </p>
         )}
 

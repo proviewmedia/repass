@@ -42,7 +42,7 @@ export default async function SignagePage({
         </div>
 
         {searchParams.error && <Alert variant="destructive">{searchParams.error}</Alert>}
-        {searchParams.saved && <Alert>Poster saved.</Alert>}
+        {searchParams.saved && <Alert>Poster settings saved. You can print it now.</Alert>}
 
         {/* The form wraps nothing visible: the builder's inputs target it by id
             so the live preview and the submitted values stay one set of state. */}
