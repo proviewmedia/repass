@@ -7,7 +7,7 @@ import type { PaperSize, ReviewPlatform, ReviewTheme } from "@/components/review
 
 const PLATFORMS: ReviewPlatform[] = ["google", "yelp", "facebook", "tripadvisor", "other"];
 const THEMES: ReviewTheme[] = ["light", "dark"];
-const PAPERS: PaperSize[] = ["letter", "a4", "half-letter", "a5", "5x7", "4x6"];
+const PAPERS: PaperSize[] = ["4x6", "5x7", "half-letter", "8x10", "letter", "11x14", "tabloid"];
 
 // A review link is pasted from somewhere else, so it arrives in whatever shape
 // the source gave it. Accepting a bare domain and adding the scheme avoids a

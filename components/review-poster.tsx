@@ -7,7 +7,7 @@
 
 export type ReviewPlatform = "google" | "yelp" | "facebook" | "tripadvisor" | "other";
 export type ReviewTheme = "light" | "dark";
-export type PaperSize = "letter" | "a4" | "half-letter" | "a5" | "5x7" | "4x6";
+export type PaperSize = "4x6" | "5x7" | "half-letter" | "8x10" | "letter" | "11x14" | "tabloid";
 
 export const PLATFORM_LABELS: Record<ReviewPlatform, string> = {
   google: "Google",
@@ -22,12 +22,13 @@ export const PLATFORM_LABELS: Record<ReviewPlatform, string> = {
  * on-screen preview the right proportions. `ratio` is width/height.
  */
 export const PAPER: Record<PaperSize, { label: string; css: string; width: string; ratio: number }> = {
-  letter: { label: 'US Letter, 8.5 x 11"', css: "8.5in 11in", width: "8.5in", ratio: 8.5 / 11 },
-  a4: { label: "A4, 210 x 297mm", css: "210mm 297mm", width: "210mm", ratio: 210 / 297 },
+  "4x6": { label: '4 x 6" card', css: "4in 6in", width: "4in", ratio: 4 / 6 },
+  "5x7": { label: '5 x 7" card', css: "5in 7in", width: "5in", ratio: 5 / 7 },
   "half-letter": { label: 'Half Letter, 5.5 x 8.5"', css: "5.5in 8.5in", width: "5.5in", ratio: 5.5 / 8.5 },
-  a5: { label: "A5, 148 x 210mm", css: "148mm 210mm", width: "148mm", ratio: 148 / 210 },
-  "5x7": { label: '5 x 7"', css: "5in 7in", width: "5in", ratio: 5 / 7 },
-  "4x6": { label: '4 x 6"', css: "4in 6in", width: "4in", ratio: 4 / 6 },
+  "8x10": { label: '8 x 10" frame', css: "8in 10in", width: "8in", ratio: 8 / 10 },
+  letter: { label: 'US Letter, 8.5 x 11"', css: "8.5in 11in", width: "8.5in", ratio: 8.5 / 11 },
+  "11x14": { label: '11 x 14" poster', css: "11in 14in", width: "11in", ratio: 11 / 14 },
+  tabloid: { label: 'Tabloid, 11 x 17"', css: "11in 17in", width: "11in", ratio: 11 / 17 },
 };
 
 /** The poster is laid out against this many em across the short edge. One
