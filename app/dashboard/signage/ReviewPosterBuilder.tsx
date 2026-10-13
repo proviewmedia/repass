@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import QRCode from "qrcode";
 import { Printer } from "lucide-react";
 import {
@@ -20,6 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { persistReviewPoster } from "./actions";
 
 export interface ReviewPosterInitial {
   businessName: string;
@@ -96,9 +98,44 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
   // A QR was generated, so the link parses. The server checks this again; this
   // is just so the button does not invite a click that can only fail.
   const canSave = Boolean(qr);
-  // Which submit button was pressed, read by the server action to decide
-  // whether to finish on the print view or back here.
-  const [thenPrint, setThenPrint] = useState(true);
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  function currentFormData(): FormData {
+    const fd = new FormData();
+    fd.set("reviewUrl", reviewUrl);
+    fd.set("platform", platform);
+    fd.set("headline", headline);
+    fd.set("cta", cta);
+    fd.set("footer", footer);
+    fd.set("theme", theme);
+    fd.set("paper", paper);
+    if (showStars) fd.set("showStars", "on");
+    return fd;
+  }
+
+  // The tab is opened synchronously, inside the click itself, because that is
+  // the only moment the browser treats it as user-initiated. Opening it after
+  // the save resolves would be a popup and get blocked. Doing it with a server
+  // redirect instead navigated the current tab, which threw the user out of
+  // the dashboard.
+  function saveAndPrint() {
+    setSaveError(null);
+    const tab = window.open("about:blank", "_blank", "noopener,noreferrer");
+    const fd = currentFormData();
+
+    startTransition(async () => {
+      const result = await persistReviewPoster(fd);
+      if (result.ok) {
+        if (tab) tab.location.href = `/print/review?paper=${paper}`;
+        router.refresh();
+      } else {
+        if (tab) tab.close();
+        setSaveError(result.error || "Could not save.");
+      }
+    });
+  }
 
   return (
     <div className="dash-split">
@@ -264,23 +301,16 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
           {/* One obvious primary action. The previous two-step "Save, wait for
               a reload, then find Print" was the source of most of the
               confusion about what Save even did. */}
-          <Button
-            type="submit"
-            form="review-poster-form"
-            disabled={!canSave}
-            onClick={() => setThenPrint(true)}
-            className="justify-center"
-          >
+          <Button type="button" disabled={!canSave || pending} onClick={saveAndPrint} className="justify-center">
             <Printer className="mr-2 h-4 w-4" />
-            Save and print
+            {pending ? "Saving..." : "Save and print"}
           </Button>
 
           <Button
             type="submit"
             form="review-poster-form"
             variant="ghost"
-            disabled={!canSave}
-            onClick={() => setThenPrint(false)}
+            disabled={!canSave || pending}
             className="justify-center"
           >
             Save settings only
@@ -300,6 +330,7 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
             Set <strong className="text-foreground">Scale</strong> to 100%, not Fit to page, or it comes out a few
             percent small. Chrome shrinks to fit by default.
           </p>
+          {saveError && <p className="mt-1.5 text-destructive">{saveError}</p>}
           {!canSave && (
             <p className="mt-1.5 text-destructive">
               Add a review link above to continue. Everything else is optional.
@@ -321,7 +352,6 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
         <input type="hidden" form="review-poster-form" name="theme" value={theme} />
         <input type="hidden" form="review-poster-form" name="paper" value={paper} />
         {showStars && <input type="hidden" form="review-poster-form" name="showStars" value="on" />}
-        {thenPrint && <input type="hidden" form="review-poster-form" name="thenPrint" value="1" />}
       </div>
     </div>
   );

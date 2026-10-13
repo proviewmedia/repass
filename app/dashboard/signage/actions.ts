@@ -26,44 +26,48 @@ function normalizeUrl(raw: string): string | null {
   }
 }
 
-export async function saveReviewPoster(formData: FormData) {
+export interface SaveResult {
+  ok: boolean;
+  error?: string;
+}
+
+/**
+ * Writes the settings and returns the outcome instead of redirecting.
+ *
+ * "Save and print" has to open the print view in a new tab, and a tab can only
+ * be opened from inside the click that the user actually made. A server
+ * redirect would move the current tab instead, throwing them out of the
+ * dashboard. So the client opens the tab synchronously, awaits this, then
+ * points the tab at the print view.
+ */
+export async function persistReviewPoster(formData: FormData): Promise<SaveResult> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login?redirectTo=/dashboard/signage");
+    return { ok: false, error: "Your session expired. Reload the page and sign in again." };
   }
 
   const { data: business } = await supabase
     .from("businesses")
     .select("id")
-    .eq("owner_user_id", user!.id)
+    .eq("owner_user_id", user.id)
     .single();
 
   if (!business) {
-    redirect("/dashboard/signage?error=" + encodeURIComponent("Business not found."));
+    return { ok: false, error: "Business not found." };
   }
 
   const rawUrl = String(formData.get("reviewUrl") || "");
-  const reviewUrl = normalizeUrl(rawUrl);
-
-  // The link is the whole point of the poster, so saving without one is not a
-  // valid state to persist. Reporting "Poster saved" for a poster whose QR
-  // code goes nowhere is worse than refusing.
   if (!rawUrl.trim()) {
-    redirect(
-      "/dashboard/signage?error=" +
-        encodeURIComponent("Add a review link first. The poster's QR code needs somewhere to send people."),
-    );
+    return { ok: false, error: "Add a review link first. The poster's QR code needs somewhere to send people." };
   }
 
+  const reviewUrl = normalizeUrl(rawUrl);
   if (!reviewUrl) {
-    redirect(
-      "/dashboard/signage?error=" +
-        encodeURIComponent("That doesn't look like a valid link. Paste the full web address."),
-    );
+    return { ok: false, error: "That doesn't look like a valid link. Paste the full web address." };
   }
 
   const platform = String(formData.get("platform") || "google") as ReviewPlatform;
@@ -82,20 +86,22 @@ export async function saveReviewPoster(formData: FormData) {
       review_footer: String(formData.get("footer") || "").trim() || null,
       review_show_stars: formData.get("showStars") === "on",
     })
-    .eq("id", business!.id);
+    .eq("id", business.id);
 
   if (error) {
-    redirect("/dashboard/signage?error=" + encodeURIComponent(error.message));
+    return { ok: false, error: error.message };
   }
 
   revalidatePath("/dashboard/signage");
+  return { ok: true };
+}
 
-  // "Save and print" lands straight on the print view rather than bouncing
-  // back here and asking for a second click. Opening it in a new tab from the
-  // client would be a popup, blocked because a redirect is not a user gesture,
-  // so the redirect itself carries them there.
-  if (formData.get("thenPrint") === "1") {
-    redirect(`/print/review?paper=${PAPERS.includes(paper) ? paper : "letter"}`);
+/** Form-action wrapper for "Save settings only", which stays on this page. */
+export async function saveReviewPoster(formData: FormData) {
+  const result = await persistReviewPoster(formData);
+
+  if (!result.ok) {
+    redirect("/dashboard/signage?error=" + encodeURIComponent(result.error || "Could not save."));
   }
 
   redirect("/dashboard/signage?saved=1");
