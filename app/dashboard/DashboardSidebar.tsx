@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { Menu, X, LayoutDashboard, Users, Gift, Palette, Settings, type LucideIcon } from "lucide-react";
+import { Menu, X, LayoutDashboard, Users, Gift, Palette, Printer, Settings, type LucideIcon } from "lucide-react";
 import { signOut } from "./actions";
 
 const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
@@ -11,6 +11,7 @@ const NAV_ITEMS: { href: string; label: string; icon: LucideIcon }[] = [
   { href: "/dashboard/customers", label: "Customers", icon: Users },
   { href: "/dashboard/rewards", label: "Rewards", icon: Gift },
   { href: "/dashboard/card-design", label: "Card Design", icon: Palette },
+  { href: "/dashboard/signage", label: "Signage", icon: Printer },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 

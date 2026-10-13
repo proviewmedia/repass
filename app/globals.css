@@ -489,3 +489,96 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 .card-preview-flip { margin-top: 10px; }
 
 .phone-preview { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 16px; padding: 14px; background: var(--alt); border-radius: 12px; }
+
+/* ---------- Printable review poster ----------
+   Everything is sized in em so the whole poster scales from one font-size on
+   the wrapper. The preview sets that from the container width; the print route
+   sets it from the paper width. No per-paper-size layout. */
+.rposter {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 2.4em 2em 1.6em;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 1em;
+  line-height: 1.25;
+}
+.rposter-light { background: #fafaf9; color: #0a0a0f; }
+.rposter-dark { background: #0a0a0f; color: #fafaf9; }
+
+.rp-top { display: flex; flex-direction: column; align-items: center; gap: 1.1em; }
+.rp-eyebrow {
+  font-size: 1.45em; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
+  /* Long platform names must not force a second line that unbalances the page. */
+  text-wrap: balance; max-width: 92%;
+}
+.rp-stars { display: flex; gap: 0.35em; }
+.rp-stars svg { width: 1.9em; height: 1.9em; }
+/* The five-colour row reads as a rating at a glance without borrowing any
+   platform's logo. Fixed colours, so they hold on both themes. */
+.rp-stars svg:nth-child(1) { color: #4285f4; }
+.rp-stars svg:nth-child(2) { color: #ea4335; }
+.rp-stars svg:nth-child(3) { color: #fbbc05; }
+.rp-stars svg:nth-child(4) { color: #4285f4; }
+.rp-stars svg:nth-child(5) { color: #34a853; }
+
+.rp-mid { display: flex; flex-direction: column; align-items: center; gap: 0.7em; }
+.rp-name {
+  font-family: var(--font-poppins), -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 2.5em; font-weight: 700; letter-spacing: -0.015em; line-height: 1.08;
+  text-wrap: balance; max-width: 95%;
+}
+.rp-cta { font-size: 1.15em; opacity: 0.75; text-wrap: balance; max-width: 80%; }
+
+.rp-qrwrap { display: flex; justify-content: center; }
+.rp-frame {
+  position: relative;
+  padding: 1.5em;
+  border: 0.42em solid currentColor;
+  border-radius: 0.9em;
+  display: grid; place-items: center;
+}
+.rp-qr { width: 9.5em; height: 9.5em; display: block; }
+.rp-qr-empty {
+  display: grid; place-items: center; text-align: center;
+  font-size: 0.8em; opacity: 0.45; padding: 0 1em;
+  border: 0.12em dashed currentColor; border-radius: 0.4em;
+}
+/* "Scan me" sits in the frame's border on all four sides, as on the reference.
+   Each label is centred on its edge and the background knockout is what makes
+   it read as part of the frame rather than floating over it. */
+.rp-scan {
+  position: absolute;
+  font-size: 0.5em; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+  background: inherit;
+  padding: 0 0.5em;
+}
+.rposter-light .rp-scan { background: #fafaf9; }
+.rposter-dark .rp-scan { background: #0a0a0f; }
+.rp-scan-t { top: -0.62em; left: 50%; transform: translateX(-50%); }
+.rp-scan-b { bottom: -0.62em; left: 50%; transform: translateX(-50%); }
+.rp-scan-l { left: -0.62em; top: 50%; transform: translate(-50%, -50%) rotate(-90deg); }
+.rp-scan-r { right: -0.62em; top: 50%; transform: translate(50%, -50%) rotate(90deg); }
+
+.rp-foot { font-size: 0.9em; opacity: 0.55; min-height: 1.2em; word-break: break-word; }
+
+/* Preview frame in the dashboard: the aspect ratio comes from the chosen
+   paper, and the em scale from the rendered width via a CSS variable. */
+.rposter-preview {
+  width: 100%;
+  aspect-ratio: var(--paper-ratio, 0.773);
+  overflow: hidden;
+  border-radius: 10px;
+  border: 1px solid var(--border, #e4e4e7);
+  box-shadow: 0 10px 30px -12px #0a0a1f40;
+}
+
+/* ---------- Print ----------
+   The poster is the only thing on the page, bled to the paper edge. */
+@media print {
+  .print-hide { display: none !important; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  .rposter-print { width: 100%; height: 100vh; }
+  /* Colour-critical: without this the star row and dark theme print blank. */
+  .rposter { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
