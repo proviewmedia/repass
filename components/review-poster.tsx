@@ -21,23 +21,45 @@ export const PLATFORM_LABELS: Record<ReviewPlatform, string> = {
  * Physical paper dimensions, used for the print @page rule and to give the
  * on-screen preview the right proportions. `ratio` is width/height.
  */
-export const PAPER: Record<PaperSize, { label: string; width: string; height: string; ratio: number }> = {
-  "4x6": { label: '4 x 6" card', width: "4in", height: "6in", ratio: 4 / 6 },
-  "5x7": { label: '5 x 7" card', width: "5in", height: "7in", ratio: 5 / 7 },
-  "half-letter": { label: 'Half Letter, 5.5 x 8.5"', width: "5.5in", height: "8.5in", ratio: 5.5 / 8.5 },
-  "8x10": { label: '8 x 10" frame', width: "8in", height: "10in", ratio: 8 / 10 },
-  letter: { label: 'US Letter, 8.5 x 11"', width: "8.5in", height: "11in", ratio: 8.5 / 11 },
-  "11x14": { label: '11 x 14" poster', width: "11in", height: "14in", ratio: 11 / 14 },
-  tabloid: { label: 'Tabloid, 11 x 17"', width: "11in", height: "17in", ratio: 11 / 17 },
+export const PAPER: Record<PaperSize, { label: string; wIn: number; hIn: number }> = {
+  "4x6": { label: '4 x 6" card', wIn: 4, hIn: 6 },
+  "5x7": { label: '5 x 7" card', wIn: 5, hIn: 7 },
+  "half-letter": { label: 'Half Letter, 5.5 x 8.5"', wIn: 5.5, hIn: 8.5 },
+  "8x10": { label: '8 x 10" frame', wIn: 8, hIn: 10 },
+  letter: { label: 'US Letter, 8.5 x 11"', wIn: 8.5, hIn: 11 },
+  "11x14": { label: '11 x 14" poster', wIn: 11, hIn: 14 },
+  tabloid: { label: 'Tabloid, 11 x 17"', wIn: 11, hIn: 17 },
 };
 
-/** The poster is laid out against this many em across its width. One number
- *  ties the preview scale and the print scale together.
+export function paperRatio(paper: PaperSize): number {
+  return PAPER[paper].wIn / PAPER[paper].hIn;
+}
+
+/**
+ * The design box, in em. Scale has to be governed by BOTH dimensions.
  *
- *  26 rather than 30: at 30 the content filled only about 62% of a 4x6 card's
- *  height, which is most of why small sizes read as sparse. Checked for
- *  overflow at every size; the tightest is 8x10 at ~86% of the height. */
+ * Width alone is not enough: the content stands about 33.2em tall, so on the
+ * wide-ratio sizes (8x10, Letter, 11x14) a width-derived scale overflows the
+ * paper. Height alone starves the narrow ones. Taking the smaller of the two
+ * keeps every size inside the sheet with 10-17% headroom, and is what makes a
+ * single layout work from a 4x6 card to an 11x17 poster.
+ *
+ * 37 rather than 33.2 is deliberate slack, so a long business name wrapping to
+ * a second line cannot push the QR code off the page.
+ */
 export const POSTER_EM_WIDTH = 26;
+export const POSTER_EM_HEIGHT = 37;
+
+/** Font size, in inches, that scales the em layout to a given paper. */
+export function posterFontSizeIn(paper: PaperSize): number {
+  const { wIn, hIn } = PAPER[paper];
+  return Math.min(wIn / POSTER_EM_WIDTH, hIn / POSTER_EM_HEIGHT);
+}
+
+/** Same rule for the on-screen preview, in px. */
+export function posterFontSizePx(boxWidthPx: number, boxHeightPx: number): number {
+  return Math.min(boxWidthPx / POSTER_EM_WIDTH, boxHeightPx / POSTER_EM_HEIGHT);
+}
 
 /**
  * The sheet that actually goes through the printer, which is not the same

@@ -8,6 +8,8 @@ import {
   PAPER,
   SHEET_FOR,
   needsCutLine,
+  paperRatio,
+  posterFontSizePx,
   PLATFORM_LABELS,
   ReviewPoster,
   defaultHeadline,
@@ -56,8 +58,9 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
     const el = frameRef.current;
     if (!el) return;
     const observer = new ResizeObserver(([entry]) => {
-      // 30em across the short edge is what the poster is laid out against.
-      setScale(entry.contentRect.width / 30);
+      // Same two-dimension rule the printed poster uses, so the preview is a
+      // true preview rather than a differently-proportioned approximation.
+      setScale(posterFontSizePx(entry.contentRect.width, entry.contentRect.height));
     });
     observer.observe(el);
     return () => observer.disconnect();
@@ -234,7 +237,7 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
         <div
           ref={frameRef}
           className="rposter-preview"
-          style={{ ["--paper-ratio" as string]: String(PAPER[paper].ratio) }}
+          style={{ ["--paper-ratio" as string]: String(paperRatio(paper)) }}
         >
           <div style={{ fontSize: scale, width: "100%", height: "100%" }}>
             <ReviewPoster

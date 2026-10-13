@@ -3,7 +3,7 @@ import QRCode from "qrcode";
 import { createClient } from "@/lib/supabase/server";
 import {
   PAPER,
-  POSTER_EM_WIDTH,
+  posterFontSizeIn,
   ReviewPoster,
   SHEET_FOR,
   needsCutLine,
@@ -92,9 +92,9 @@ export default async function PrintReviewPosterPage({
         <div
           className={cut ? "print-poster print-poster-cut" : "print-poster"}
           style={{
-            width: PAPER[paper].width,
-            height: PAPER[paper].height,
-            fontSize: `calc(${PAPER[paper].width} / ${POSTER_EM_WIDTH})`,
+            width: `${PAPER[paper].wIn}in`,
+            height: `${PAPER[paper].hIn}in`,
+            fontSize: `${posterFontSizeIn(paper)}in`,
           }}
         >
           <ReviewPoster
