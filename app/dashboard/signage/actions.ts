@@ -49,7 +49,17 @@ export async function saveReviewPoster(formData: FormData) {
   const rawUrl = String(formData.get("reviewUrl") || "");
   const reviewUrl = normalizeUrl(rawUrl);
 
-  if (rawUrl.trim() && !reviewUrl) {
+  // The link is the whole point of the poster, so saving without one is not a
+  // valid state to persist. Reporting "Poster saved" for a poster whose QR
+  // code goes nowhere is worse than refusing.
+  if (!rawUrl.trim()) {
+    redirect(
+      "/dashboard/signage?error=" +
+        encodeURIComponent("Add a review link first. The poster's QR code needs somewhere to send people."),
+    );
+  }
+
+  if (!reviewUrl) {
     redirect(
       "/dashboard/signage?error=" +
         encodeURIComponent("That doesn't look like a valid link. Paste the full web address."),

@@ -89,6 +89,9 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
   // Shown once they have typed enough to mean something, so the field does not
   // scold them on the first keystroke.
   const urlLooksWrong = reviewUrl.trim().length > 3 && qr === null;
+  // A QR was generated, so the link parses. The server checks this again; this
+  // is just so the button does not invite a click that can only fail.
+  const canSave = Boolean(qr);
 
   return (
     <div className="dash-split">
@@ -248,7 +251,7 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
         </p>
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <Button type="submit" form="review-poster-form">
+          <Button type="submit" form="review-poster-form" disabled={!canSave}>
             Save
           </Button>
           {/* A real anchor only when there is something to print. aria-disabled
