@@ -6,6 +6,8 @@ import { Printer } from "lucide-react";
 import {
   DEFAULT_CTA,
   PAPER,
+  SHEET_FOR,
+  needsCutLine,
   PLATFORM_LABELS,
   ReviewPoster,
   defaultHeadline,
@@ -249,8 +251,10 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
         </div>
 
         <p className="auth-sub mt-3 text-[12.5px]">
-          {PAPER[paper].label}. Opens in a new tab. To keep a file instead of printing, choose{" "}
-          <strong>Save as PDF</strong> as the destination in the print dialog.
+          {PAPER[paper].label}
+          {needsCutLine(paper)
+            ? `, printed on ${SHEET_FOR[paper].label} with a line to cut along.`
+            : "."}
         </p>
 
         <div className="mt-4 flex flex-col gap-2">
@@ -288,6 +292,10 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
           <p className="mt-1.5">
             To keep a file instead of printing on paper, set the dialog&apos;s destination to{" "}
             <strong className="text-foreground">Save as PDF</strong>. Your computer will ask where to put it.
+          </p>
+          <p className="mt-1.5">
+            Set <strong className="text-foreground">Scale</strong> to 100%, not Fit to page, or it comes out a few
+            percent small. Chrome shrinks to fit by default.
           </p>
           {!canSave && (
             <p className="mt-1.5 text-destructive">

@@ -5,6 +5,8 @@ import {
   PAPER,
   POSTER_EM_WIDTH,
   ReviewPoster,
+  SHEET_FOR,
+  needsCutLine,
   type PaperSize,
   type ReviewPlatform,
   type ReviewTheme,
@@ -53,6 +55,9 @@ export default async function PrintReviewPosterPage({
   const requested = searchParams.paper as PaperSize | undefined;
   const paper: PaperSize = requested && requested in PAPER ? requested : ((business!.review_paper || "letter") as PaperSize);
 
+  const sheet = SHEET_FOR[paper];
+  const cut = needsCutLine(paper);
+
   const qr = await QRCode.toDataURL(business!.review_url!, {
     margin: 0,
     width: 900,
@@ -61,12 +66,12 @@ export default async function PrintReviewPosterPage({
 
   return (
     <>
-      {/* @page size has to be literal CSS, so it is emitted per paper choice
-          rather than set from a variable. Zero margin lets the poster's own
-          padding control the trim, which keeps it identical to the preview. */}
+      {/* @page takes the SHEET, not the poster. See SHEET_FOR for why: a page
+          box smaller than the loaded paper gets scaled up by Chrome's default
+          Fit to page, which is what made a 4x6 print roughly 1.8x too big. */}
       <style
         dangerouslySetInnerHTML={{
-          __html: `@page { size: ${PAPER[paper].css}; margin: 0; }`,
+          __html: `@page { size: ${sheet.css}; margin: 0; }`,
         }}
       />
       <PrintTrigger />
@@ -77,25 +82,32 @@ export default async function PrintReviewPosterPage({
           Back to signage
         </a>
         <span style={{ color: "#9ca3af", marginLeft: 12 }}>
-          Print dialog not open? Use your browser&apos;s Print. To keep a file, choose Save as PDF.
+          Set <strong>Scale</strong> to 100% (not Fit to page) so it prints at exactly {PAPER[paper].label}.
+          {cut ? " Cut along the dashed line." : ""} To keep a file, choose Save as PDF.
         </span>
       </div>
-      {/* Scaled from the paper's real width rather than viewport units, which
-          browsers resolve inconsistently inside a print context. */}
-      <main
-        className="rposter-print"
-        style={{ fontSize: `calc(${PAPER[paper].width} / ${POSTER_EM_WIDTH})` }}
-      >
-        <ReviewPoster
-          platform={(business!.review_platform || "google") as ReviewPlatform}
-          businessName={business!.name}
-          headline={business!.review_headline}
-          cta={business!.review_cta}
-          footer={business!.review_footer}
-          theme={(business!.review_theme || "light") as ReviewTheme}
-          showStars={business!.review_show_stars ?? true}
-          qr={qr}
-        />
+      <main className="print-sheet" style={{ width: sheet.width, minHeight: sheet.height }}>
+        {/* Exact physical dimensions, so what it measures on paper is what the
+            size says. The em-based layout resolves against this font-size. */}
+        <div
+          className={cut ? "print-poster print-poster-cut" : "print-poster"}
+          style={{
+            width: PAPER[paper].width,
+            height: PAPER[paper].height,
+            fontSize: `calc(${PAPER[paper].width} / ${POSTER_EM_WIDTH})`,
+          }}
+        >
+          <ReviewPoster
+            platform={(business!.review_platform || "google") as ReviewPlatform}
+            businessName={business!.name}
+            headline={business!.review_headline}
+            cta={business!.review_cta}
+            footer={business!.review_footer}
+            theme={(business!.review_theme || "light") as ReviewTheme}
+            showStars={business!.review_show_stars ?? true}
+            qr={qr}
+          />
+        </div>
       </main>
     </>
   );

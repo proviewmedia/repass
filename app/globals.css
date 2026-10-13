@@ -496,8 +496,13 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
    sets it from the paper width. No per-paper-size layout. */
 .rposter {
   width: 100%; height: 100%;
-  display: flex; flex-direction: column; justify-content: space-between;
-  padding: 2.4em 2em 1.6em;
+  /* Centred with a fixed gap, not space-between. With space-between any slack
+     between the content height and the paper height was torn open between the
+     headline, the name and the QR, which is what made small sizes read as
+     scattered. Centring turns that slack into balanced top and bottom margin
+     instead, and is what lets one layout hold across seven aspect ratios. */
+  display: flex; flex-direction: column; justify-content: center; gap: 1.7em;
+  padding: 2em 1.8em;
   box-sizing: border-box;
   text-align: center;
   font-size: 1em;
@@ -574,11 +579,24 @@ footer { padding: 56px 0 40px; border-top: 1px solid var(--border); }
 }
 
 /* ---------- Print ----------
-   The poster is the only thing on the page, bled to the paper edge. */
+   The page box is always the SHEET that is physically loaded in the printer,
+   never the poster. Setting @page to the poster size meant Chrome built a small
+   page and then scaled it up to the real paper under its default "Fit to page",
+   which is why a 4x6 came out roughly 1.8x too big. With the page box matching
+   the paper there is nothing left for that scaling to act on.
+
+   The poster itself is then a box of exact physical dimensions, centred, so
+   4 x 6 inches on screen is 4 x 6 inches on paper. */
+.print-sheet { width: 100%; min-height: 100vh; display: grid; place-items: center; background: #fff; }
+.print-poster { position: relative; }
+/* Outline rather than border: it is drawn outside the box, so the cut line
+   cannot change the poster's printed dimensions. */
+.print-poster-cut { outline: 1px dashed #9ca3af; outline-offset: 0; }
+
 @media print {
   .print-hide { display: none !important; }
-  html, body { margin: 0; padding: 0; background: #fff; }
-  .rposter-print { width: 100%; height: 100vh; }
+  html, body { margin: 0; padding: 0; background: #fff; height: 100%; }
+  .print-sheet { min-height: 100%; height: 100%; }
   /* Colour-critical: without this the star row and dark theme print blank. */
   .rposter { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
