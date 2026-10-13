@@ -89,5 +89,14 @@ export async function saveReviewPoster(formData: FormData) {
   }
 
   revalidatePath("/dashboard/signage");
+
+  // "Save and print" lands straight on the print view rather than bouncing
+  // back here and asking for a second click. Opening it in a new tab from the
+  // client would be a popup, blocked because a redirect is not a user gesture,
+  // so the redirect itself carries them there.
+  if (formData.get("thenPrint") === "1") {
+    redirect(`/print/review?paper=${PAPERS.includes(paper) ? paper : "letter"}`);
+  }
+
   redirect("/dashboard/signage?saved=1");
 }

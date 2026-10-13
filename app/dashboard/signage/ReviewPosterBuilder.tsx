@@ -92,6 +92,9 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
   // A QR was generated, so the link parses. The server checks this again; this
   // is just so the button does not invite a click that can only fail.
   const canSave = Boolean(qr);
+  // Which submit button was pressed, read by the server action to decide
+  // whether to finish on the print view or back here.
+  const [thenPrint, setThenPrint] = useState(true);
 
   return (
     <div className="dash-split">
@@ -251,41 +254,51 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
           <strong>Save as PDF</strong> as the destination in the print dialog.
         </p>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          {/* "Save" alone read as "save a file to my computer", which this has
-              never done: it stores the poster's settings and is what unlocks
-              printing. Both buttons now say what they actually do. */}
-          <Button type="submit" form="review-poster-form" disabled={!canSave}>
-            Save settings
+        <div className="mt-4 flex flex-col gap-2">
+          {/* One obvious primary action. The previous two-step "Save, wait for
+              a reload, then find Print" was the source of most of the
+              confusion about what Save even did. */}
+          <Button
+            type="submit"
+            form="review-poster-form"
+            disabled={!canSave}
+            onClick={() => setThenPrint(true)}
+            className="justify-center"
+          >
+            <Printer className="mr-2 h-4 w-4" />
+            Save and print
           </Button>
-          {/* A real anchor only when there is something to print. aria-disabled
-              alone still navigates, which is how an empty link reached the
-              print route and rendered a 404. */}
-          {canPrint ? (
-            <a href={printHref} target="_blank" rel="noopener noreferrer" className="btn ghost sm">
-              <Printer className="mr-2 h-4 w-4" />
-              Print or save PDF
-            </a>
-          ) : (
-            <button type="button" className="btn ghost sm" disabled style={{ opacity: 0.5, cursor: "not-allowed" }}>
-              <Printer className="mr-2 h-4 w-4" />
-              Print or save PDF
-            </button>
-          )}
+
+          <Button
+            type="submit"
+            form="review-poster-form"
+            variant="ghost"
+            disabled={!canSave}
+            onClick={() => setThenPrint(false)}
+            className="justify-center"
+          >
+            Save settings only
+          </Button>
         </div>
 
-        {!initial.reviewUrl && (
-          <p className="auth-sub mt-2 text-[12.5px]">
-            {reviewUrl.trim()
-              ? "Save settings first. Printing uses the saved link."
-              : "Add a review link above, then save settings, to print."}
+        <div className="mt-3 rounded-lg bg-secondary/60 p-3 text-[12.5px] leading-relaxed text-muted-foreground">
+          <p>
+            <strong className="text-foreground">Save and print</strong> stores your choices and opens the print
+            dialog.
           </p>
-        )}
-        {initial.reviewUrl && savedUrlDiffers && (
-          <p className="auth-sub mt-2 text-[12.5px]">
-            You have unsaved changes. Printing uses the last saved settings.
+          <p className="mt-1.5">
+            To keep a file instead of printing on paper, set the dialog&apos;s destination to{" "}
+            <strong className="text-foreground">Save as PDF</strong>. Your computer will ask where to put it.
           </p>
-        )}
+          {!canSave && (
+            <p className="mt-1.5 text-destructive">
+              Add a review link above to continue. Everything else is optional.
+            </p>
+          )}
+          {canPrint && savedUrlDiffers && (
+            <p className="mt-1.5">You have unsaved changes. Save to use them.</p>
+          )}
+        </div>
 
         {/* The form holds the real submitted values; the controls above are the
             live-preview surface. Keeping them in sync here rather than wiring
@@ -298,6 +311,7 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
         <input type="hidden" form="review-poster-form" name="theme" value={theme} />
         <input type="hidden" form="review-poster-form" name="paper" value={paper} />
         {showStars && <input type="hidden" form="review-poster-form" name="showStars" value="on" />}
+        {thenPrint && <input type="hidden" form="review-poster-form" name="thenPrint" value="1" />}
       </div>
     </div>
   );

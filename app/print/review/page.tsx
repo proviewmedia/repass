@@ -70,6 +70,16 @@ export default async function PrintReviewPosterPage({
         }}
       />
       <PrintTrigger />
+      {/* Visible on screen only. Without it the print view is a dead end: the
+          dialog can be dismissed and there is no obvious way back. */}
+      <div className="print-hide" style={{ padding: "12px 16px", borderBottom: "1px solid #ebebf0", fontSize: 14 }}>
+        <a href="/dashboard/signage" style={{ color: "#6b7280" }}>
+          Back to signage
+        </a>
+        <span style={{ color: "#9ca3af", marginLeft: 12 }}>
+          Print dialog not open? Use your browser&apos;s Print. To keep a file, choose Save as PDF.
+        </span>
+      </div>
       {/* Scaled from the paper's real width rather than viewport units, which
           browsers resolve inconsistently inside a print context. */}
       <main

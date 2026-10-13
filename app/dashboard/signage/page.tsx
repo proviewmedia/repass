@@ -36,8 +36,11 @@ export default async function SignagePage({
       <div className="flex flex-col gap-4 sm:gap-5">
         <div className="dash-head">
           <div>
-            <h1>Signage</h1>
-            <p className="auth-sub">Printable signs for your counter. Customers scan with their phone camera.</p>
+            <h1>Review poster</h1>
+            <p className="auth-sub">
+              A printable sign for your counter. Customers scan the QR code with their phone camera and land on your
+              review page.
+            </p>
           </div>
         </div>
 
