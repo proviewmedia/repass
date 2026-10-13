@@ -81,7 +81,6 @@ export default function ReviewPosterBuilder({ initial }: { initial: ReviewPoster
     };
   }, [reviewUrl]);
 
-  const printHref = `/print/review?paper=${paper}`;
   const savedUrlDiffers = reviewUrl.trim() !== initial.reviewUrl.trim();
   // Only a *saved* link can be printed: the print route reads the database,
   // not this form's state.
